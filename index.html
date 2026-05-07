@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TAFFISH Hub</title>
+    <meta name="description" content="TAFFISH package hub">
+    <link rel="preconnect" href="https://raw.githubusercontent.com">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="container app-header-inner">
+        <a class="brand" href="https://github.com/taffish" target="_blank" rel="noreferrer">
+          <span class="brand-mark">T</span>
+          <span class="brand-text">TAFFISH Hub</span>
+        </a>
+
+        <div class="header-actions">
+          <div class="lang-switch" aria-label="Language switch">
+            <button id="langEn" class="lang-pill active" type="button">EN</button>
+            <button id="langZh" class="lang-pill" type="button">中文</button>
+          </div>
+          <a class="icon-button" href="https://github.com/taffish/taffish-index" target="_blank" rel="noreferrer">
+            <i data-lucide="database"></i>
+            <span data-i18n="nav_index_repo">Index Repo</span>
+          </a>
+          <a class="icon-button" href="https://raw.githubusercontent.com/taffish/taffish-index/main/index/index.json" target="_blank" rel="noreferrer">
+            <i data-lucide="file-json"></i>
+            <span>index.json</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="band">
+        <div class="container summary-bar">
+          <div class="summary-meta">
+            <h1 data-i18n="title">Package Registry</h1>
+            <p data-i18n="subtitle">Search apps, inspect versions, and install with deterministic dependencies.</p>
+          </div>
+          <div class="summary-sync">
+            <span id="syncState">Syncing...</span>
+            <span id="syncTime"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="band band-light">
+        <div class="container stats-grid">
+          <article class="stat-item">
+            <p class="stat-label" data-i18n="metric_packages">Packages</p>
+            <p class="stat-value" id="metricPackages">-</p>
+          </article>
+          <article class="stat-item">
+            <p class="stat-label" data-i18n="metric_versions">Versions</p>
+            <p class="stat-value" id="metricVersions">-</p>
+          </article>
+          <article class="stat-item">
+            <p class="stat-label" data-i18n="metric_commands">Commands</p>
+            <p class="stat-value" id="metricCommands">-</p>
+          </article>
+          <article class="stat-item">
+            <p class="stat-label" data-i18n="metric_repositories">Repositories</p>
+            <p class="stat-value" id="metricRepositories">-</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="container toolbar">
+          <label class="search-box">
+            <i data-lucide="search"></i>
+            <input id="globalSearch" type="search" data-i18n-placeholder="search" placeholder="Search package, command, repository">
+          </label>
+
+          <div class="segmented" role="tablist" aria-label="Package kind">
+            <button class="seg-btn active" id="kindAll" type="button" data-kind="all" data-i18n="kind_all">All</button>
+            <button class="seg-btn" id="kindTool" type="button" data-kind="tool">Tool</button>
+            <button class="seg-btn" id="kindFlow" type="button" data-kind="flow">Flow</button>
+          </div>
+
+          <label class="check-item">
+            <input id="depsOnly" type="checkbox">
+            <span data-i18n="filter_deps_only">Dependencies only</span>
+          </label>
+          <label class="check-item">
+            <input id="containerOnly" type="checkbox">
+            <span data-i18n="filter_container_only">Container image only</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="container hub-grid">
+          <section class="surface">
+            <div class="surface-head">
+              <h2 data-i18n="section_packages">Packages</h2>
+              <span id="resultCount" class="head-meta">0</span>
+            </div>
+            <div id="packagesEmpty" class="empty hidden" data-i18n="empty_packages">No package data.</div>
+            <div id="packagesTable" class="table-wrap"></div>
+          </section>
+
+          <aside class="surface detail-surface">
+            <div id="detailEmpty" class="empty" data-i18n="empty_detail">Select a package to view details.</div>
+            <div id="detailPane" class="detail-pane hidden">
+              <div class="detail-head">
+                <h2 id="detailName">-</h2>
+                <div class="detail-tags">
+                  <span id="detailKind" class="tag">-</span>
+                  <span id="detailLatest" class="tag">-</span>
+                </div>
+              </div>
+
+              <div class="install-box">
+                <p class="subhead" data-i18n="install_commands">Install Commands</p>
+                <pre id="installLatest"></pre>
+                <pre id="installVersion"></pre>
+              </div>
+
+              <div class="kv-grid" id="detailMeta"></div>
+
+              <div class="subsection">
+                <p class="subhead" data-i18n="detail_versions">Versions</p>
+                <div id="versionsTable" class="mini-table"></div>
+              </div>
+
+              <div class="subsection">
+                <p class="subhead" data-i18n="detail_dependencies">Dependencies</p>
+                <div id="dependenciesTable" class="mini-table"></div>
+              </div>
+
+              <div class="subsection">
+                <p class="subhead" data-i18n="detail_platform">Platform</p>
+                <div id="platformTable" class="mini-table"></div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="band band-light">
+        <div class="container surface">
+          <div class="surface-head">
+            <h2 data-i18n="section_repositories">Repositories</h2>
+          </div>
+          <div id="reposEmpty" class="empty hidden" data-i18n="empty_repositories">No repository data.</div>
+          <div id="reposGrid" class="repo-grid"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <div class="container app-footer-inner">
+        <span>TAFFISH</span>
+        <a href="https://github.com/taffish" target="_blank" rel="noreferrer">github.com/taffish</a>
+      </div>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@0.511.0/dist/umd/lucide.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
