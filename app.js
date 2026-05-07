@@ -46,6 +46,7 @@ const I18N = {
     sync_done: "Data synced",
     sync_failed: "Sync failed",
     sync_generated: "Index generated",
+    sync_last_checked: "Last checked",
     sync_error_detail: "network or permission issue",
     sync_alert_title: "Index sync failed",
     sync_alert_last_success: "Last successful sync",
@@ -78,7 +79,6 @@ const I18N = {
     label_container_tag: "Image Tag",
     label_package_count: "Packages",
     install_chain: "Install Chain",
-    chain_alternatives: "alternatives",
     latest_prefix: "latest",
     any: "any",
     none: "none"
@@ -123,6 +123,7 @@ const I18N = {
     sync_done: "数据同步完成",
     sync_failed: "数据同步失败",
     sync_generated: "索引生成时间",
+    sync_last_checked: "上次检查",
     sync_error_detail: "网络或权限问题",
     sync_alert_title: "索引同步失败",
     sync_alert_last_success: "上次成功同步",
@@ -155,7 +156,6 @@ const I18N = {
     label_container_tag: "镜像标签",
     label_package_count: "软件包数",
     install_chain: "安装链",
-    chain_alternatives: "可选版本",
     latest_prefix: "最新",
     any: "任意",
     none: "无"
@@ -381,6 +381,17 @@ function parseDependencies(rawDependencies) {
     rows.push({ name, versions });
   }
   return rows;
+}
+
+function isDefaultVersionAlias(versionId) {
+  const value = String(versionId || "").trim().toLowerCase();
+  return value === "" || value === "latest" || value === "*";
+}
+
+function buildInstallCommand(target, versionId = "") {
+  return isDefaultVersionAlias(versionId)
+    ? `taf install ${target}`
+    : `taf install ${target} ${versionId}`;
 }
 
 function parsePlatform(rawPlatform) {
@@ -673,7 +684,11 @@ function renderSync() {
   const generated = (state.index && state.index.generatedAt)
     ? state.index.generatedAt
     : state.lastSuccessGeneratedAt;
-  el.syncTime.textContent = `${t("sync_generated")}: ${formatLocalDateTime(generated)}`;
+  const parts = [`${t("sync_generated")}: ${formatLocalDateTime(generated)}`];
+  if (state.lastSuccessSyncAt) {
+    parts.push(`${t("sync_last_checked")}: ${formatLocalDateTime(state.lastSuccessSyncAt)}`);
+  }
+  el.syncTime.textContent = parts.join(" | ");
 
   if (state.syncState !== "failed") {
     el.syncAlert.classList.add("hidden");
@@ -832,18 +847,14 @@ function buildInstallChain(pkg, version) {
   const lines = [];
   for (const dependency of version.dependencies) {
     if (!dependency.versions.length) {
-      lines.push(`taf install ${dependency.name}`);
+      lines.push(buildInstallCommand(dependency.name));
       continue;
     }
-    const preferred = dependency.versions[0];
-    let line = `taf install ${dependency.name} ${preferred}`;
-    if (dependency.versions.length > 1) {
-      const alternatives = dependency.versions.slice(1).join(", ");
-      line += `  # ${t("chain_alternatives")}: ${alternatives}`;
+    for (const versionId of dependency.versions) {
+      lines.push(buildInstallCommand(dependency.name, versionId));
     }
-    lines.push(line);
   }
-  lines.push(`taf install ${pkg.name} ${version.versionId}`);
+  lines.push(buildInstallCommand(pkg.name, version.versionId));
   return lines;
 }
 
@@ -969,8 +980,8 @@ function renderDetail() {
   el.detailKind.textContent = version.kind === "flow" ? t("kind_flow") : t("kind_tool");
   el.detailLatest.textContent = `${t("latest_prefix")}: ${pkg.latest || "-"}`;
 
-  el.installLatest.textContent = `taf install ${pkg.name}`;
-  el.installVersion.textContent = `taf install ${pkg.name} ${version.versionId}`;
+  el.installLatest.textContent = buildInstallCommand(pkg.name);
+  el.installVersion.textContent = buildInstallCommand(pkg.name, version.versionId);
   el.installChain.textContent = buildInstallChain(pkg, version).join("\n");
   renderDetailActionLinks(version);
 
@@ -1089,6 +1100,8 @@ function applyI18n() {
 
   el.kindTool.textContent = t("kind_tool");
   el.kindFlow.textContent = t("kind_flow");
+  el.sortName.textContent = t("sort_name");
+  el.sortRecent.textContent = t("sort_recent");
 
   el.langEn.classList.toggle("active", state.locale === "en");
   el.langZh.classList.toggle("active", state.locale === "zh");
@@ -1242,21 +1255,29 @@ function bindEvents() {
   });
 }
 
-async function fetchIndex() {
-  const response = await fetch(INDEX_URL, { headers: { Accept: "application/json" } });
+async function fetchIndex(forceRefresh = false) {
+  const url = forceRefresh
+    ? `${INDEX_URL}?t=${Date.now()}`
+    : INDEX_URL;
+  const response = await fetch(url, {
+    cache: forceRefresh ? "reload" : "no-store",
+    headers: {
+      Accept: "application/json"
+    }
+  });
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
   }
   return response.json();
 }
 
-async function loadData(_manual = false) {
+async function loadData(manual = false) {
   state.syncState = "syncing";
   state.syncError = "";
   setRefreshLoading(true);
   renderSync();
   try {
-    const indexJson = await fetchIndex();
+    const indexJson = await fetchIndex(manual);
     state.index = normalizeIndex(indexJson);
     state.packages = state.index.packages;
     state.packageMap = state.index.packageMap;
