@@ -836,14 +836,14 @@ function buildInstallChain(pkg, version) {
       continue;
     }
     const preferred = dependency.versions[0];
-    let line = `taf install ${dependency.name} --version ${preferred}`;
+    let line = `taf install ${dependency.name} ${preferred}`;
     if (dependency.versions.length > 1) {
       const alternatives = dependency.versions.slice(1).join(", ");
       line += `  # ${t("chain_alternatives")}: ${alternatives}`;
     }
     lines.push(line);
   }
-  lines.push(`taf install ${pkg.name} --version ${version.versionId}`);
+  lines.push(`taf install ${pkg.name} ${version.versionId}`);
   return lines;
 }
 
@@ -970,7 +970,7 @@ function renderDetail() {
   el.detailLatest.textContent = `${t("latest_prefix")}: ${pkg.latest || "-"}`;
 
   el.installLatest.textContent = `taf install ${pkg.name}`;
-  el.installVersion.textContent = `taf install ${pkg.name} --version ${version.versionId}`;
+  el.installVersion.textContent = `taf install ${pkg.name} ${version.versionId}`;
   el.installChain.textContent = buildInstallChain(pkg, version).join("\n");
   renderDetailActionLinks(version);
 
