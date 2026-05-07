@@ -2,10 +2,13 @@
 
 const INDEX_URL = "https://raw.githubusercontent.com/taffish/taffish-index/main/index/index.json";
 const LOCALE_STORAGE_KEY = "taffish_hub_locale";
+const LAST_SUCCESS_SYNC_AT_KEY = "taffish_hub_last_success_sync_at";
+const LAST_SUCCESS_GENERATED_AT_KEY = "taffish_hub_last_success_generated_at";
 
 const I18N = {
   en: {
     nav_index_repo: "Index Repo",
+    refresh: "Refresh",
     title: "Package Registry",
     subtitle: "Search apps, inspect versions, and install with deterministic dependencies.",
     metric_packages: "Packages",
@@ -16,21 +19,37 @@ const I18N = {
     kind_all: "All",
     kind_tool: "Tool",
     kind_flow: "Flow",
+    sort_name: "Name",
+    sort_recent: "Recent",
     filter_deps_only: "Dependencies only",
     filter_container_only: "Container image only",
     section_packages: "Packages",
     section_repositories: "Repositories",
+    section_warnings: "Warnings",
     empty_packages: "No package data.",
     empty_repositories: "No repository data.",
+    empty_warnings: "No warnings.",
     empty_detail: "Select a package to view details.",
     install_commands: "Install Commands",
     detail_versions: "Versions",
     detail_dependencies: "Dependencies",
     detail_platform: "Platform",
+    open_repo: "Repository",
+    open_source: "Source",
+    copy_latest: "Copy latest install command",
+    copy_version: "Copy pinned install command",
+    copy_chain: "Copy dependency-aware install chain",
+    copy_done: "Copied.",
+    copy_failed: "Copy failed.",
+    retry_sync: "Retry",
     sync_syncing: "Syncing data...",
     sync_done: "Data synced",
     sync_failed: "Sync failed",
     sync_generated: "Index generated",
+    sync_error_detail: "network or permission issue",
+    sync_alert_title: "Index sync failed",
+    sync_alert_last_success: "Last successful sync",
+    sync_alert_never: "No successful sync yet.",
     result_count: "results",
     table_package: "Package",
     table_latest: "Latest",
@@ -43,6 +62,8 @@ const I18N = {
     table_tag: "Tag",
     table_key: "Key",
     table_value: "Value",
+    warning_message: "Message",
+    warning_source: "Source",
     label_command: "Command",
     label_repository: "Repository",
     label_tag: "Tag",
@@ -56,12 +77,15 @@ const I18N = {
     label_container_image: "Container Image",
     label_container_tag: "Image Tag",
     label_package_count: "Packages",
+    install_chain: "Install Chain",
+    chain_alternatives: "alternatives",
     latest_prefix: "latest",
     any: "any",
     none: "none"
   },
   zh: {
     nav_index_repo: "索引仓库",
+    refresh: "刷新",
     title: "软件包索引",
     subtitle: "检索应用、查看版本，并基于确定性依赖完成安装。",
     metric_packages: "软件包",
@@ -72,21 +96,37 @@ const I18N = {
     kind_all: "全部",
     kind_tool: "工具",
     kind_flow: "流程",
+    sort_name: "名称",
+    sort_recent: "最新",
     filter_deps_only: "仅看有依赖",
     filter_container_only: "仅看有镜像",
     section_packages: "软件包",
     section_repositories: "仓库",
+    section_warnings: "告警",
     empty_packages: "暂无软件包数据。",
     empty_repositories: "暂无仓库数据。",
+    empty_warnings: "暂无告警。",
     empty_detail: "请选择一个软件包查看详情。",
     install_commands: "安装命令",
     detail_versions: "版本",
     detail_dependencies: "依赖",
     detail_platform: "平台",
+    open_repo: "仓库",
+    open_source: "源码",
+    copy_latest: "复制最新安装命令",
+    copy_version: "复制固定版本安装命令",
+    copy_chain: "复制包含依赖的安装链",
+    copy_done: "已复制。",
+    copy_failed: "复制失败。",
+    retry_sync: "重试",
     sync_syncing: "正在同步数据...",
     sync_done: "数据同步完成",
     sync_failed: "数据同步失败",
     sync_generated: "索引生成时间",
+    sync_error_detail: "网络或权限问题",
+    sync_alert_title: "索引同步失败",
+    sync_alert_last_success: "上次成功同步",
+    sync_alert_never: "尚无成功同步记录。",
     result_count: "条结果",
     table_package: "包名",
     table_latest: "最新",
@@ -99,6 +139,8 @@ const I18N = {
     table_tag: "标签",
     table_key: "字段",
     table_value: "值",
+    warning_message: "信息",
+    warning_source: "来源",
     label_command: "命令",
     label_repository: "仓库",
     label_tag: "标签",
@@ -112,34 +154,50 @@ const I18N = {
     label_container_image: "容器镜像",
     label_container_tag: "镜像标签",
     label_package_count: "软件包数",
+    install_chain: "安装链",
+    chain_alternatives: "可选版本",
     latest_prefix: "最新",
     any: "任意",
     none: "无"
   }
 };
 
+const initialUrlState = readInitialUrlState();
+
 const state = {
-  locale: readInitialLocale(),
+  locale: initialUrlState.locale || readStoredLocale(),
   syncState: "syncing",
+  syncError: "",
   index: null,
   packages: [],
   packageMap: new Map(),
   repositories: [],
+  warnings: [],
+  lastSuccessSyncAt: localStorage.getItem(LAST_SUCCESS_SYNC_AT_KEY) || "",
+  lastSuccessGeneratedAt: localStorage.getItem(LAST_SUCCESS_GENERATED_AT_KEY) || "",
   filters: {
-    query: "",
-    kind: "all",
-    depsOnly: false,
-    containerOnly: false
+    query: initialUrlState.query || "",
+    kind: initialUrlState.kind || "all",
+    sort: initialUrlState.sort || "name",
+    depsOnly: initialUrlState.depsOnly || false,
+    containerOnly: initialUrlState.containerOnly || false
   },
-  selectedPackage: null,
-  selectedVersion: null
+  selectedPackage: initialUrlState.selectedPackage || null,
+  selectedVersion: initialUrlState.selectedVersion || null,
+  copyToastTimer: null
 };
 
 const el = {
   langEn: document.getElementById("langEn"),
   langZh: document.getElementById("langZh"),
+  refreshData: document.getElementById("refreshData"),
+  retryLoad: document.getElementById("retryLoad"),
   syncState: document.getElementById("syncState"),
   syncTime: document.getElementById("syncTime"),
+  syncAlert: document.getElementById("syncAlert"),
+  syncAlertTitle: document.getElementById("syncAlertTitle"),
+  syncAlertDetail: document.getElementById("syncAlertDetail"),
+  syncAlertLastSuccess: document.getElementById("syncAlertLastSuccess"),
   metricPackages: document.getElementById("metricPackages"),
   metricVersions: document.getElementById("metricVersions"),
   metricCommands: document.getElementById("metricCommands"),
@@ -148,6 +206,8 @@ const el = {
   kindAll: document.getElementById("kindAll"),
   kindTool: document.getElementById("kindTool"),
   kindFlow: document.getElementById("kindFlow"),
+  sortName: document.getElementById("sortName"),
+  sortRecent: document.getElementById("sortRecent"),
   depsOnly: document.getElementById("depsOnly"),
   containerOnly: document.getElementById("containerOnly"),
   resultCount: document.getElementById("resultCount"),
@@ -160,17 +220,61 @@ const el = {
   detailLatest: document.getElementById("detailLatest"),
   installLatest: document.getElementById("installLatest"),
   installVersion: document.getElementById("installVersion"),
+  installChain: document.getElementById("installChain"),
+  copyLatest: document.getElementById("copyLatest"),
+  copyVersion: document.getElementById("copyVersion"),
+  copyChain: document.getElementById("copyChain"),
+  copyToast: document.getElementById("copyToast"),
+  detailRepoLink: document.getElementById("detailRepoLink"),
+  detailSourceLink: document.getElementById("detailSourceLink"),
   detailMeta: document.getElementById("detailMeta"),
   versionsTable: document.getElementById("versionsTable"),
   dependenciesTable: document.getElementById("dependenciesTable"),
+  dependenciesExpanded: document.getElementById("dependenciesExpanded"),
   platformTable: document.getElementById("platformTable"),
+  warningsCount: document.getElementById("warningsCount"),
+  warningsEmpty: document.getElementById("warningsEmpty"),
+  warningsTable: document.getElementById("warningsTable"),
   reposEmpty: document.getElementById("reposEmpty"),
   reposGrid: document.getElementById("reposGrid")
 };
 
-function readInitialLocale() {
+function readStoredLocale() {
   const saved = localStorage.getItem(LOCALE_STORAGE_KEY);
   return saved === "zh" ? "zh" : "en";
+}
+
+function readInitialUrlState() {
+  const params = new URLSearchParams(window.location.search);
+  const locale = params.get("lang");
+  const kind = params.get("kind");
+  const sort = params.get("sort");
+  return {
+    locale: locale === "zh" || locale === "en" ? locale : null,
+    query: params.get("q") || "",
+    kind: kind === "tool" || kind === "flow" || kind === "all" ? kind : null,
+    sort: sort === "recent" || sort === "name" ? sort : null,
+    depsOnly: params.get("deps") === "1",
+    containerOnly: params.get("container") === "1",
+    selectedPackage: params.get("pkg") || null,
+    selectedVersion: params.get("ver") || null
+  };
+}
+
+function writeUrlState() {
+  const params = new URLSearchParams();
+  if (state.locale === "zh") params.set("lang", "zh");
+  if (state.filters.query.trim()) params.set("q", state.filters.query.trim());
+  if (state.filters.kind !== "all") params.set("kind", state.filters.kind);
+  if (state.filters.sort !== "name") params.set("sort", state.filters.sort);
+  if (state.filters.depsOnly) params.set("deps", "1");
+  if (state.filters.containerOnly) params.set("container", "1");
+  if (state.selectedPackage) params.set("pkg", state.selectedPackage);
+  if (state.selectedVersion) params.set("ver", state.selectedVersion);
+
+  const query = params.toString();
+  const url = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+  window.history.replaceState(null, "", url);
 }
 
 function t(key) {
@@ -423,6 +527,18 @@ function buildRepositoryRows(rawIndex) {
   return rows;
 }
 
+function buildWarningRows(rawIndex) {
+  const warnings = Array.isArray(rawIndex.warnings) ? rawIndex.warnings : [];
+  return warnings.map((item) => {
+    const warning = asObject(item);
+    return {
+      repository: isNonEmptyString(warning.repository) ? warning.repository : "-",
+      ref: isNonEmptyString(warning.ref) ? warning.ref : "",
+      message: isNonEmptyString(warning.message) ? warning.message : "-"
+    };
+  });
+}
+
 function normalizeIndex(rawIndex) {
   const index = asObject(rawIndex);
   const packagesObject = asObject(index.packages);
@@ -430,25 +546,37 @@ function normalizeIndex(rawIndex) {
   const packages = packageNames.map((name) => buildPackageRecord(name, packagesObject[name]));
   const packageMap = new Map(packages.map((pkg) => [pkg.name, pkg]));
   const repositories = buildRepositoryRows(index);
+  const warnings = buildWarningRows(index);
   return {
     generatedAt: isNonEmptyString(index.generated_at) ? index.generated_at : "",
     counts: asObject(index.counts),
     packages,
     packageMap,
-    repositories
+    repositories,
+    warnings
   };
 }
 
 function getFilteredPackages() {
-  const { query, kind, depsOnly, containerOnly } = state.filters;
+  const { query, kind, depsOnly, containerOnly, sort } = state.filters;
   const keyword = query.trim().toLowerCase();
-  return state.packages.filter((pkg) => {
+  const rows = state.packages.filter((pkg) => {
     if (kind !== "all" && pkg.kind !== kind) return false;
     if (depsOnly && pkg.dependencyCount <= 0) return false;
     if (containerOnly && !pkg.hasContainerImage) return false;
     if (!keyword) return true;
     return pkg.searchText.includes(keyword);
   });
+
+  rows.sort((a, b) => {
+    if (sort === "recent") {
+      const byLatest = compareVersionId(b.latest || "", a.latest || "");
+      if (byLatest !== 0) return byLatest;
+    }
+    return a.name.localeCompare(b.name);
+  });
+
+  return rows;
 }
 
 function getFilteredRepositories() {
@@ -537,13 +665,29 @@ function ensureSelection(filteredPackages) {
 }
 
 function renderSync() {
-  el.syncState.textContent = t(
-    state.syncState === "failed"
-      ? "sync_failed"
-      : (state.syncState === "done" ? "sync_done" : "sync_syncing")
-  );
-  const generated = state.index ? state.index.generatedAt : "";
+  const syncKey = state.syncState === "failed"
+    ? "sync_failed"
+    : (state.syncState === "done" ? "sync_done" : "sync_syncing");
+  el.syncState.textContent = t(syncKey);
+
+  const generated = (state.index && state.index.generatedAt)
+    ? state.index.generatedAt
+    : state.lastSuccessGeneratedAt;
   el.syncTime.textContent = `${t("sync_generated")}: ${formatLocalDateTime(generated)}`;
+
+  if (state.syncState !== "failed") {
+    el.syncAlert.classList.add("hidden");
+    return;
+  }
+
+  el.syncAlertTitle.textContent = t("sync_alert_title");
+  el.syncAlertDetail.textContent = state.syncError
+    ? state.syncError
+    : t("sync_error_detail");
+  el.syncAlertLastSuccess.textContent = state.lastSuccessSyncAt
+    ? `${t("sync_alert_last_success")}: ${formatLocalDateTime(state.lastSuccessSyncAt)}`
+    : `${t("sync_alert_last_success")}: ${t("sync_alert_never")}`;
+  el.syncAlert.classList.remove("hidden");
 }
 
 function renderMetrics() {
@@ -568,6 +712,7 @@ function renderPackages() {
 
   if (filtered.length === 0) {
     el.packagesEmpty.classList.remove("hidden");
+    writeUrlState();
     return;
   }
 
@@ -586,6 +731,8 @@ function renderPackages() {
   for (const pkg of filtered) {
     const row = document.createElement("div");
     row.className = "table-row item";
+    row.setAttribute("role", "button");
+    row.tabIndex = 0;
     if (pkg.name === state.selectedPackage) {
       row.classList.add("active");
     }
@@ -604,15 +751,26 @@ function renderPackages() {
       createCell(repositoryLabel, "cell-mono")
     );
 
-    row.addEventListener("click", () => {
+    const choose = () => {
       state.selectedPackage = pkg.name;
       state.selectedVersion = pkg.latest;
       renderPackages();
       renderDetail();
+      writeUrlState();
+    };
+
+    row.addEventListener("click", choose);
+    row.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        choose();
+      }
     });
 
     el.packagesTable.append(row);
   }
+
+  writeUrlState();
 }
 
 function appendKv(key, value) {
@@ -664,9 +822,29 @@ function renderVersionsTable(pkg) {
     row.addEventListener("click", () => {
       state.selectedVersion = version.versionId;
       renderDetail();
+      writeUrlState();
     });
     el.versionsTable.append(row);
   }
+}
+
+function buildInstallChain(pkg, version) {
+  const lines = [];
+  for (const dependency of version.dependencies) {
+    if (!dependency.versions.length) {
+      lines.push(`taf install ${dependency.name}`);
+      continue;
+    }
+    const preferred = dependency.versions[0];
+    let line = `taf install ${dependency.name} --version ${preferred}`;
+    if (dependency.versions.length > 1) {
+      const alternatives = dependency.versions.slice(1).join(", ");
+      line += `  # ${t("chain_alternatives")}: ${alternatives}`;
+    }
+    lines.push(line);
+  }
+  lines.push(`taf install ${pkg.name} --version ${version.versionId}`);
+  return lines;
 }
 
 function renderDependenciesTable(version) {
@@ -686,6 +864,42 @@ function renderDependenciesTable(version) {
     el.dependenciesTable.append(
       createMiniRow([dependency.name, versionText], ["cell-mono", "cell-mono"])
     );
+  }
+}
+
+function renderDependenciesExpanded(version) {
+  el.dependenciesExpanded.textContent = "";
+  if (!version.dependencies.length) {
+    const none = document.createElement("div");
+    none.className = "dep-item";
+    none.textContent = t("none");
+    el.dependenciesExpanded.append(none);
+    return;
+  }
+
+  for (const dependency of version.dependencies) {
+    const item = document.createElement("div");
+    item.className = "dep-item";
+
+    const name = document.createElement("p");
+    name.className = "dep-name cell-mono";
+    name.textContent = dependency.name;
+
+    const versions = document.createElement("div");
+    versions.className = "dep-versions";
+
+    const normalizedVersions = dependency.versions.length
+      ? dependency.versions
+      : [t("none")];
+    for (const versionId of normalizedVersions) {
+      const tag = document.createElement("span");
+      tag.className = "dep-version cell-mono";
+      tag.textContent = versionId;
+      versions.append(tag);
+    }
+
+    item.append(name, versions);
+    el.dependenciesExpanded.append(item);
   }
 }
 
@@ -710,11 +924,30 @@ function renderPlatformTable(version) {
   el.platformTable.append(createMiniRow(["min_memory_mb", minMemoryValue], ["cell-mono", "cell-mono"]));
 }
 
+function renderDetailActionLinks(version) {
+  if (isNonEmptyString(version.repositoryUrl)) {
+    el.detailRepoLink.href = version.repositoryUrl;
+    el.detailRepoLink.classList.remove("hidden");
+  } else {
+    el.detailRepoLink.href = "#";
+    el.detailRepoLink.classList.add("hidden");
+  }
+
+  if (isNonEmptyString(version.source.htmlUrl)) {
+    el.detailSourceLink.href = version.source.htmlUrl;
+    el.detailSourceLink.classList.remove("hidden");
+  } else {
+    el.detailSourceLink.href = "#";
+    el.detailSourceLink.classList.add("hidden");
+  }
+}
+
 function renderDetail() {
   const pkg = state.packageMap.get(state.selectedPackage || "");
   if (!pkg) {
     el.detailEmpty.classList.remove("hidden");
     el.detailPane.classList.add("hidden");
+    writeUrlState();
     return;
   }
 
@@ -726,6 +959,7 @@ function renderDetail() {
   if (!version) {
     el.detailEmpty.classList.remove("hidden");
     el.detailPane.classList.add("hidden");
+    writeUrlState();
     return;
   }
 
@@ -737,6 +971,8 @@ function renderDetail() {
 
   el.installLatest.textContent = `taf install ${pkg.name}`;
   el.installVersion.textContent = `taf install ${pkg.name} --version ${version.versionId}`;
+  el.installChain.textContent = buildInstallChain(pkg, version).join("\n");
+  renderDetailActionLinks(version);
 
   el.detailMeta.textContent = "";
   appendKv(t("label_command"), version.commandName || "-");
@@ -761,7 +997,36 @@ function renderDetail() {
 
   renderVersionsTable(pkg);
   renderDependenciesTable(version);
+  renderDependenciesExpanded(version);
   renderPlatformTable(version);
+  writeUrlState();
+}
+
+function renderWarnings() {
+  el.warningsTable.textContent = "";
+  el.warningsCount.textContent = formatCount(state.warnings.length);
+
+  if (!state.warnings.length) {
+    el.warningsEmpty.classList.remove("hidden");
+    return;
+  }
+
+  el.warningsEmpty.classList.add("hidden");
+  const header = document.createElement("div");
+  header.className = "mini-row header";
+  header.append(createCell(t("warning_message")), createCell(t("warning_source")));
+  el.warningsTable.append(header);
+
+  for (const warning of state.warnings) {
+    const sourceText = warning.ref
+      ? `${warning.repository} @ ${warning.ref}`
+      : warning.repository;
+    const row = createMiniRow(
+      [warning.message, sourceText],
+      ["warning-title", "warning-meta"]
+    );
+    el.warningsTable.append(row);
+  }
 }
 
 function renderRepositories() {
@@ -808,6 +1073,7 @@ function renderRepositories() {
 
 function applyI18n() {
   document.documentElement.lang = state.locale === "zh" ? "zh-CN" : "en";
+
   for (const node of document.querySelectorAll("[data-i18n]")) {
     const key = node.getAttribute("data-i18n");
     node.textContent = t(key);
@@ -816,28 +1082,67 @@ function applyI18n() {
     const key = node.getAttribute("data-i18n-placeholder");
     node.setAttribute("placeholder", t(key));
   }
+  for (const node of document.querySelectorAll("[data-i18n-title]")) {
+    const key = node.getAttribute("data-i18n-title");
+    node.setAttribute("title", t(key));
+  }
+
   el.kindTool.textContent = t("kind_tool");
   el.kindFlow.textContent = t("kind_flow");
+
   el.langEn.classList.toggle("active", state.locale === "en");
   el.langZh.classList.toggle("active", state.locale === "zh");
   el.langEn.setAttribute("aria-pressed", state.locale === "en" ? "true" : "false");
   el.langZh.setAttribute("aria-pressed", state.locale === "zh" ? "true" : "false");
 }
 
+function renderKindState() {
+  el.kindAll.classList.toggle("active", state.filters.kind === "all");
+  el.kindTool.classList.toggle("active", state.filters.kind === "tool");
+  el.kindFlow.classList.toggle("active", state.filters.kind === "flow");
+}
+
+function renderSortState() {
+  el.sortName.classList.toggle("active", state.filters.sort === "name");
+  el.sortRecent.classList.toggle("active", state.filters.sort === "recent");
+}
+
+function renderFilterInputs() {
+  el.globalSearch.value = state.filters.query;
+  el.depsOnly.checked = state.filters.depsOnly;
+  el.containerOnly.checked = state.filters.containerOnly;
+
+  renderKindState();
+  renderSortState();
+}
+
+function setRefreshLoading(loading) {
+  el.refreshData.disabled = loading;
+  el.retryLoad.disabled = loading;
+  el.refreshData.classList.toggle("spinning", loading);
+}
+
 function renderAll() {
   applyI18n();
+  renderFilterInputs();
   renderSync();
   renderMetrics();
   renderPackages();
   renderDetail();
+  renderWarnings();
   renderRepositories();
 }
 
 function setKind(kind) {
   state.filters.kind = kind === "tool" || kind === "flow" ? kind : "all";
-  el.kindAll.classList.toggle("active", state.filters.kind === "all");
-  el.kindTool.classList.toggle("active", state.filters.kind === "tool");
-  el.kindFlow.classList.toggle("active", state.filters.kind === "flow");
+  renderKindState();
+  renderPackages();
+  renderDetail();
+}
+
+function setSort(sort) {
+  state.filters.sort = sort === "recent" ? "recent" : "name";
+  renderSortState();
   renderPackages();
   renderDetail();
 }
@@ -848,9 +1153,57 @@ function setLocale(locale) {
   renderAll();
 }
 
+function showCopyToast(text) {
+  if (state.copyToastTimer) {
+    clearTimeout(state.copyToastTimer);
+    state.copyToastTimer = null;
+  }
+  el.copyToast.textContent = text;
+  el.copyToast.classList.remove("hidden");
+  state.copyToastTimer = setTimeout(() => {
+    el.copyToast.classList.add("hidden");
+    state.copyToastTimer = null;
+  }, 1400);
+}
+
+async function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const input = document.createElement("textarea");
+  input.value = text;
+  input.setAttribute("readonly", "readonly");
+  input.style.position = "fixed";
+  input.style.opacity = "0";
+  document.body.append(input);
+  input.select();
+  const ok = document.execCommand("copy");
+  document.body.removeChild(input);
+  if (!ok) {
+    throw new Error("copy failed");
+  }
+}
+
+async function handleCopy(text) {
+  try {
+    await copyText(text);
+    showCopyToast(t("copy_done"));
+  } catch (_) {
+    showCopyToast(t("copy_failed"));
+  }
+}
+
 function bindEvents() {
   el.langEn.addEventListener("click", () => setLocale("en"));
   el.langZh.addEventListener("click", () => setLocale("zh"));
+
+  el.refreshData.addEventListener("click", () => {
+    loadData(true);
+  });
+  el.retryLoad.addEventListener("click", () => {
+    loadData(true);
+  });
 
   el.globalSearch.addEventListener("input", (event) => {
     state.filters.query = String(event.target.value || "");
@@ -862,6 +1215,8 @@ function bindEvents() {
   el.kindAll.addEventListener("click", () => setKind("all"));
   el.kindTool.addEventListener("click", () => setKind("tool"));
   el.kindFlow.addEventListener("click", () => setKind("flow"));
+  el.sortName.addEventListener("click", () => setSort("name"));
+  el.sortRecent.addEventListener("click", () => setSort("recent"));
 
   el.depsOnly.addEventListener("change", (event) => {
     state.filters.depsOnly = Boolean(event.target.checked);
@@ -874,6 +1229,17 @@ function bindEvents() {
     renderPackages();
     renderDetail();
   });
+
+  el.copyLatest.addEventListener("click", () => {
+    handleCopy(el.installLatest.textContent || "");
+  });
+
+  el.copyVersion.addEventListener("click", () => {
+    handleCopy(el.installVersion.textContent || "");
+  });
+  el.copyChain.addEventListener("click", () => {
+    handleCopy(el.installChain.textContent || "");
+  });
 }
 
 async function fetchIndex() {
@@ -884,8 +1250,10 @@ async function fetchIndex() {
   return response.json();
 }
 
-async function loadData() {
+async function loadData(_manual = false) {
   state.syncState = "syncing";
+  state.syncError = "";
+  setRefreshLoading(true);
   renderSync();
   try {
     const indexJson = await fetchIndex();
@@ -893,26 +1261,38 @@ async function loadData() {
     state.packages = state.index.packages;
     state.packageMap = state.index.packageMap;
     state.repositories = state.index.repositories;
+    state.warnings = state.index.warnings;
     state.syncState = "done";
+    state.lastSuccessSyncAt = new Date().toISOString();
+    localStorage.setItem(LAST_SUCCESS_SYNC_AT_KEY, state.lastSuccessSyncAt);
+    if (state.index.generatedAt) {
+      state.lastSuccessGeneratedAt = state.index.generatedAt;
+      localStorage.setItem(LAST_SUCCESS_GENERATED_AT_KEY, state.lastSuccessGeneratedAt);
+    }
   } catch (error) {
     console.error("[taffish-hub] failed to load index:", error);
-    state.index = normalizeIndex({});
-    state.packages = [];
-    state.packageMap = new Map();
-    state.repositories = [];
     state.syncState = "failed";
+    state.syncError = String(error && error.message ? error.message : error);
+    if (!state.index) {
+      state.index = normalizeIndex({});
+      state.packages = [];
+      state.packageMap = new Map();
+      state.repositories = [];
+      state.warnings = [];
+    }
   }
+  setRefreshLoading(false);
   renderAll();
+
 }
 
 function boot() {
   bindEvents();
-  setKind(state.filters.kind);
+  renderAll();
   if (window.lucide && typeof window.lucide.createIcons === "function") {
     window.lucide.createIcons();
   }
-  renderAll();
-  loadData();
+  loadData(false);
 }
 
 boot();

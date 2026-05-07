@@ -21,6 +21,10 @@
             <button id="langEn" class="lang-pill active" type="button">EN</button>
             <button id="langZh" class="lang-pill" type="button">中文</button>
           </div>
+          <button id="refreshData" class="icon-button" type="button" title="Refresh index">
+            <i data-lucide="refresh-cw"></i>
+            <span data-i18n="refresh">Refresh</span>
+          </button>
           <a class="icon-button" href="https://github.com/taffish/taffish-index" target="_blank" rel="noreferrer">
             <i data-lucide="database"></i>
             <span data-i18n="nav_index_repo">Index Repo</span>
@@ -44,6 +48,17 @@
             <span id="syncState">Syncing...</span>
             <span id="syncTime"></span>
           </div>
+        </div>
+        <div id="syncAlert" class="container sync-alert hidden" role="status" aria-live="polite">
+          <div class="sync-alert-text">
+            <p id="syncAlertTitle" class="sync-alert-title"></p>
+            <p id="syncAlertDetail" class="sync-alert-detail"></p>
+            <p id="syncAlertLastSuccess" class="sync-alert-last"></p>
+          </div>
+          <button id="retryLoad" class="icon-button" type="button">
+            <i data-lucide="rotate-cw"></i>
+            <span data-i18n="retry_sync">Retry</span>
+          </button>
         </div>
       </section>
 
@@ -81,6 +96,11 @@
             <button class="seg-btn" id="kindFlow" type="button" data-kind="flow">Flow</button>
           </div>
 
+          <div class="segmented" role="tablist" aria-label="Sort packages">
+            <button class="seg-btn active" id="sortName" type="button" data-sort="name" data-i18n="sort_name">Name</button>
+            <button class="seg-btn" id="sortRecent" type="button" data-sort="recent" data-i18n="sort_recent">Recent</button>
+          </div>
+
           <label class="check-item">
             <input id="depsOnly" type="checkbox">
             <span data-i18n="filter_deps_only">Dependencies only</span>
@@ -116,8 +136,37 @@
 
               <div class="install-box">
                 <p class="subhead" data-i18n="install_commands">Install Commands</p>
-                <pre id="installLatest"></pre>
-                <pre id="installVersion"></pre>
+                <div class="command-row">
+                  <pre id="installLatest"></pre>
+                  <button id="copyLatest" class="mini-icon-button" type="button" data-i18n-title="copy_latest" title="Copy latest install command">
+                    <i data-lucide="copy"></i>
+                  </button>
+                </div>
+                <div class="command-row">
+                  <pre id="installVersion"></pre>
+                  <button id="copyVersion" class="mini-icon-button" type="button" data-i18n-title="copy_version" title="Copy pinned install command">
+                    <i data-lucide="copy"></i>
+                  </button>
+                </div>
+                <p class="subhead" data-i18n="install_chain">Install Chain</p>
+                <div class="command-row">
+                  <pre id="installChain"></pre>
+                  <button id="copyChain" class="mini-icon-button" type="button" data-i18n-title="copy_chain" title="Copy dependency-aware install chain">
+                    <i data-lucide="copy"></i>
+                  </button>
+                </div>
+                <p id="copyToast" class="copy-toast hidden"></p>
+              </div>
+
+              <div class="detail-actions">
+                <a id="detailRepoLink" class="icon-button slim hidden" href="#" target="_blank" rel="noreferrer">
+                  <i data-lucide="folder-git-2"></i>
+                  <span data-i18n="open_repo">Repository</span>
+                </a>
+                <a id="detailSourceLink" class="icon-button slim hidden" href="#" target="_blank" rel="noreferrer">
+                  <i data-lucide="external-link"></i>
+                  <span data-i18n="open_source">Source</span>
+                </a>
               </div>
 
               <div class="kv-grid" id="detailMeta"></div>
@@ -130,6 +179,7 @@
               <div class="subsection">
                 <p class="subhead" data-i18n="detail_dependencies">Dependencies</p>
                 <div id="dependenciesTable" class="mini-table"></div>
+                <div id="dependenciesExpanded" class="dependency-expanded"></div>
               </div>
 
               <div class="subsection">
@@ -138,6 +188,17 @@
               </div>
             </div>
           </aside>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="container surface">
+          <div class="surface-head">
+            <h2 data-i18n="section_warnings">Warnings</h2>
+            <span id="warningsCount" class="head-meta">0</span>
+          </div>
+          <div id="warningsEmpty" class="empty hidden" data-i18n="empty_warnings">No warnings.</div>
+          <div id="warningsTable" class="mini-table"></div>
         </div>
       </section>
 
