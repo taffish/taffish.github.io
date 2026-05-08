@@ -7,7 +7,7 @@ Static web registry for `taffish`, backed by `taffish-index`.
 - English + Chinese UI (default English, one-click switch in header)
 - Package search and filtering (`tool` / `flow`, dependencies only, container only)
 - Package sorting (`name` / `recent`)
-- Package detail pane with versions, dependencies, platform constraints, and install commands
+- Package detail pane with versions, upstream source metadata, dependencies, platform constraints, and install commands
 - One-click copy for install commands, including full dependency-aware install chain
 - Warnings panel (from index build warnings)
 - Sync failure panel with explicit retry and last successful sync time

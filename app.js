@@ -71,6 +71,17 @@ const I18N = {
     label_license: "License",
     label_source_ref: "Source Ref",
     label_source_commit: "Source Commit",
+    label_upstream: "Upstream",
+    label_upstream_type: "Upstream Type",
+    label_upstream_homepage: "Upstream Homepage",
+    label_upstream_repository: "Upstream Repository",
+    label_upstream_release_url: "Upstream Releases",
+    label_upstream_docker_image: "Upstream Docker Image",
+    label_upstream_version: "Upstream Version",
+    label_upstream_license: "Upstream License",
+    label_upstream_citation: "Upstream Citation",
+    label_upstream_doi: "Upstream DOI",
+    label_upstream_pmid: "Upstream PMID",
     label_runtime: "Runtime",
     label_main: "Main",
     label_help: "Help",
@@ -148,6 +159,17 @@ const I18N = {
     label_license: "许可证",
     label_source_ref: "源码引用",
     label_source_commit: "源码提交",
+    label_upstream: "原始软件",
+    label_upstream_type: "原始来源类型",
+    label_upstream_homepage: "原始主页",
+    label_upstream_repository: "原始仓库",
+    label_upstream_release_url: "原始发布页",
+    label_upstream_docker_image: "原始 Docker 镜像",
+    label_upstream_version: "原始版本",
+    label_upstream_license: "原始许可证",
+    label_upstream_citation: "原始引用",
+    label_upstream_doi: "原始 DOI",
+    label_upstream_pmid: "原始 PMID",
     label_runtime: "运行模式",
     label_main: "入口脚本",
     label_help: "帮助文档",
@@ -394,6 +416,35 @@ function buildInstallCommand(target, versionId = "") {
     : `taf install ${target} ${versionId}`;
 }
 
+function parseUpstream(rawUpstream) {
+  const upstream = asObject(rawUpstream);
+  const fields = [
+    ["name", "name"],
+    ["type", "type"],
+    ["homepage", "homepage"],
+    ["repository", "repository"],
+    ["release_url", "releaseUrl"],
+    ["docker_image", "dockerImage"],
+    ["version", "version"],
+    ["license", "license"],
+    ["citation", "citation"],
+    ["doi", "doi"],
+    ["pmid", "pmid"]
+  ];
+  const result = {};
+  for (const [rawKey, key] of fields) {
+    const value = upstream[rawKey];
+    if (isNonEmptyString(value)) {
+      result[key] = key === "type" ? value.trim().toLowerCase() : value.trim();
+    }
+  }
+  return Object.keys(result).length ? result : null;
+}
+
+function upstreamSearchText(upstream) {
+  return upstream ? Object.values(upstream).join(" ").toLowerCase() : "";
+}
+
 function parsePlatform(rawPlatform) {
   const platform = asObject(rawPlatform);
   const minCpus = Number.isFinite(platform.min_cpus) ? platform.min_cpus : null;
@@ -415,6 +466,7 @@ function buildVersionRecord(versionId, rawRecord, packageEntry) {
   const source = asObject(record.source);
   const container = asObject(record.container);
   const dependencies = parseDependencies(record.dependencies);
+  const upstream = parseUpstream(record.upstream);
 
   const commandName = isNonEmptyString(command.name)
     ? command.name
@@ -441,6 +493,8 @@ function buildVersionRecord(versionId, rawRecord, packageEntry) {
     repositorySlug,
     dependencies,
     dependencyCount: dependencies.length,
+    upstream,
+    upstreamSearchText: upstreamSearchText(upstream),
     platform: parsePlatform(record.platform),
     paths: {
       main: isNonEmptyString(paths.main) ? paths.main : "",
@@ -502,7 +556,8 @@ function buildPackageRecord(packageName, rawEntry) {
     commandName,
     repositorySlug,
     repositoryUrl,
-    ...versions.map((item) => item.versionId)
+    ...versions.map((item) => item.versionId),
+    ...versions.map((item) => item.upstreamSearchText)
   ].join(" ").toLowerCase();
 
   return {
@@ -800,6 +855,12 @@ function appendKv(key, value) {
   el.detailMeta.append(createCell(value || "-", "kv-value"));
 }
 
+function appendOptionalKv(key, value) {
+  if (value instanceof Node || isNonEmptyString(value)) {
+    appendKv(key, value);
+  }
+}
+
 function buildLinkNode(text, url) {
   const link = document.createElement("a");
   link.className = "cell-link";
@@ -808,6 +869,32 @@ function buildLinkNode(text, url) {
   link.rel = "noreferrer";
   link.textContent = text;
   return link;
+}
+
+function isHttpUrl(value) {
+  return /^https?:\/\//i.test(String(value || ""));
+}
+
+function upstreamRepositoryUrl(upstream) {
+  const repository = upstream && upstream.repository;
+  if (!isNonEmptyString(repository)) return "";
+  if (isHttpUrl(repository)) return repository;
+  if (upstream.type === "github" && repository.includes("/")) {
+    return `https://github.com/${repository}`;
+  }
+  if (upstream.type === "gitlab" && repository.includes("/")) {
+    return `https://gitlab.com/${repository}`;
+  }
+  return "";
+}
+
+function appendOptionalLinkKv(key, text, url) {
+  if (!isNonEmptyString(text)) return;
+  if (isNonEmptyString(url)) {
+    appendKv(key, buildLinkNode(text, url));
+    return;
+  }
+  appendKv(key, text);
 }
 
 function renderVersionsTable(pkg) {
@@ -953,6 +1040,44 @@ function renderDetailActionLinks(version) {
   }
 }
 
+function renderUpstreamMeta(upstream) {
+  if (!upstream) return;
+
+  appendOptionalKv(t("label_upstream"), upstream.name);
+  appendOptionalKv(t("label_upstream_type"), upstream.type);
+  appendOptionalLinkKv(
+    t("label_upstream_homepage"),
+    upstream.homepage,
+    isHttpUrl(upstream.homepage) ? upstream.homepage : ""
+  );
+  appendOptionalLinkKv(
+    t("label_upstream_repository"),
+    upstream.repository,
+    upstreamRepositoryUrl(upstream)
+  );
+  appendOptionalLinkKv(
+    t("label_upstream_release_url"),
+    upstream.releaseUrl,
+    isHttpUrl(upstream.releaseUrl) ? upstream.releaseUrl : ""
+  );
+  appendOptionalKv(t("label_upstream_docker_image"), upstream.dockerImage);
+  appendOptionalKv(t("label_upstream_version"), upstream.version);
+  appendOptionalKv(t("label_upstream_license"), upstream.license);
+  appendOptionalKv(t("label_upstream_citation"), upstream.citation);
+  appendOptionalLinkKv(
+    t("label_upstream_doi"),
+    upstream.doi,
+    isNonEmptyString(upstream.doi) ? `https://doi.org/${upstream.doi}` : ""
+  );
+  appendOptionalLinkKv(
+    t("label_upstream_pmid"),
+    upstream.pmid,
+    isNonEmptyString(upstream.pmid)
+      ? `https://pubmed.ncbi.nlm.nih.gov/${upstream.pmid}/`
+      : ""
+  );
+}
+
 function renderDetail() {
   const pkg = state.packageMap.get(state.selectedPackage || "");
   if (!pkg) {
@@ -999,6 +1124,7 @@ function renderDetail() {
   appendKv(t("label_license"), version.license || "-");
   appendKv(t("label_source_ref"), version.source.ref || "-");
   appendKv(t("label_source_commit"), version.source.commit || "-");
+  renderUpstreamMeta(version.upstream);
   appendKv(t("label_runtime"), formatRuntime(version.runtime));
   appendKv(t("label_main"), version.paths.main || "-");
   appendKv(t("label_help"), version.paths.help || "-");
