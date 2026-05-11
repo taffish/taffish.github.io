@@ -29,3 +29,13 @@ Static web registry for `taffish`, backed by `taffish-index`.
 1. Create repository: `taffish/taffish.github.io`
 2. Push these files to `main`
 3. In repository settings, enable Pages from branch `main` (root)
+
+## License
+
+The website source code is licensed under the [Apache License 2.0](LICENSE).
+
+Original website text and documentation-like content are licensed under
+[Creative Commons Attribution 4.0 International](CONTENT-LICENSE) (CC BY 4.0).
+
+Package metadata displayed by the website is loaded from `taffish-index` and is
+covered by the data license of that repository.
