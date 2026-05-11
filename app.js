@@ -7,6 +7,8 @@ const LAST_SUCCESS_GENERATED_AT_KEY = "taffish_hub_last_success_generated_at";
 
 const I18N = {
   en: {
+    nav_website: "Website",
+    nav_github: "GitHub",
     nav_index_repo: "Index Repo",
     refresh: "Refresh",
     title: "Package Registry",
@@ -91,10 +93,20 @@ const I18N = {
     label_package_count: "Packages",
     install_chain: "Install Chain",
     latest_prefix: "latest",
+    footer_tagline: "Static package registry for reproducible bioinformatics tools and flows.",
+    footer_organization: "Organization",
+    footer_center: "Center for Informational Biology",
+    footer_university: "University of Electronic Science and Technology of China",
+    footer_resources: "Resources",
+    footer_github_org: "GitHub Organization",
+    footer_docs: "Documentation",
+    footer_preprint: "Preprint",
     any: "any",
     none: "none"
   },
   zh: {
+    nav_website: "官网",
+    nav_github: "GitHub",
     nav_index_repo: "索引仓库",
     refresh: "刷新",
     title: "软件包索引",
@@ -179,6 +191,14 @@ const I18N = {
     label_package_count: "软件包数",
     install_chain: "安装链",
     latest_prefix: "最新",
+    footer_tagline: "面向可复现生信工具与流程的静态软件包索引。",
+    footer_organization: "机构",
+    footer_center: "信息生物学中心",
+    footer_university: "电子科技大学",
+    footer_resources: "资源",
+    footer_github_org: "GitHub 组织",
+    footer_docs: "文档",
+    footer_preprint: "预印本",
     any: "任意",
     none: "无"
   }

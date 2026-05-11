@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TAFFISH Hub</title>
     <meta name="description" content="TAFFISH package hub">
+    <meta name="theme-color" content="#0b4fb3">
+    <link rel="icon" href="./assets/taffish-logo.png">
     <link rel="preconnect" href="https://raw.githubusercontent.com">
     <link rel="stylesheet" href="./styles.css">
   </head>
@@ -12,7 +14,7 @@
     <header class="app-header">
       <div class="container app-header-inner">
         <a class="brand" href="https://github.com/taffish" target="_blank" rel="noreferrer">
-          <span class="brand-mark">T</span>
+          <img class="brand-mark" src="./assets/taffish-logo.png" alt="" width="42" height="42">
           <span class="brand-text">TAFFISH Hub</span>
         </a>
 
@@ -25,6 +27,14 @@
             <i data-lucide="refresh-cw"></i>
             <span data-i18n="refresh">Refresh</span>
           </button>
+          <a class="icon-button" href="https://taffish.com" target="_blank" rel="noreferrer">
+            <i data-lucide="globe"></i>
+            <span data-i18n="nav_website">Website</span>
+          </a>
+          <a class="icon-button" href="https://github.com/taffish" target="_blank" rel="noreferrer">
+            <i data-lucide="github"></i>
+            <span data-i18n="nav_github">GitHub</span>
+          </a>
           <a class="icon-button" href="https://github.com/taffish/taffish-index" target="_blank" rel="noreferrer">
             <i data-lucide="database"></i>
             <span data-i18n="nav_index_repo">Index Repo</span>
@@ -214,9 +224,35 @@
     </main>
 
     <footer class="app-footer">
-      <div class="container app-footer-inner">
-        <span>TAFFISH</span>
-        <a href="https://github.com/taffish" target="_blank" rel="noreferrer">github.com/taffish</a>
+      <div class="container app-footer-grid">
+        <div class="footer-brand">
+          <img src="./assets/taffish-logo.png" alt="" width="44" height="44">
+          <div>
+            <strong>TAFFISH Hub</strong>
+            <p data-i18n="footer_tagline">Static package registry for reproducible bioinformatics tools and flows.</p>
+          </div>
+        </div>
+
+        <div class="footer-column">
+          <h2 data-i18n="footer_organization">Organization</h2>
+          <a href="http://lin-group.cn" target="_blank" rel="noreferrer">LinDing Group</a>
+          <span data-i18n="footer_center">Center for Informational Biology</span>
+          <a href="https://www.uestc.edu.cn" target="_blank" rel="noreferrer" data-i18n="footer_university">
+            University of Electronic Science and Technology of China
+          </a>
+        </div>
+
+        <div class="footer-column">
+          <h2 data-i18n="footer_resources">Resources</h2>
+          <a href="https://taffish.com" target="_blank" rel="noreferrer">taffish.com</a>
+          <a href="https://github.com/taffish" target="_blank" rel="noreferrer" data-i18n="footer_github_org">GitHub Organization</a>
+          <a href="https://github.com/taffish/taffish-docs" target="_blank" rel="noreferrer" data-i18n="footer_docs">Documentation</a>
+          <a href="https://www.biorxiv.org/content/10.1101/2025.09.15.672424v2" target="_blank" rel="noreferrer" data-i18n="footer_preprint">Preprint</a>
+        </div>
+      </div>
+
+      <div class="container app-footer-meta">
+        <a href="mailto:support@taffish.com">support@taffish.com</a>
       </div>
     </footer>
 
