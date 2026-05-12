@@ -90,6 +90,14 @@ const I18N = {
     label_dockerfile: "Dockerfile",
     label_container_image: "Container Image",
     label_container_tag: "Image Tag",
+    label_container_digest: "Image Digest",
+    label_container_platforms: "Image Platforms",
+    label_smoke_status: "Smoke Status",
+    label_smoke_backend: "Smoke Backend",
+    label_smoke_checked_at: "Smoke Checked",
+    label_trust_status: "Trust Status",
+    label_trust_policy: "Trust Policy",
+    label_trust_checked_at: "Trust Checked",
     label_package_count: "Packages",
     install_chain: "Install Chain",
     latest_prefix: "latest",
@@ -188,6 +196,14 @@ const I18N = {
     label_dockerfile: "Dockerfile",
     label_container_image: "容器镜像",
     label_container_tag: "镜像标签",
+    label_container_digest: "镜像 Digest",
+    label_container_platforms: "镜像平台",
+    label_smoke_status: "Smoke 状态",
+    label_smoke_backend: "Smoke 后端",
+    label_smoke_checked_at: "Smoke 检查时间",
+    label_trust_status: "可信状态",
+    label_trust_policy: "可信策略",
+    label_trust_checked_at: "可信检查时间",
     label_package_count: "软件包数",
     install_chain: "安装链",
     latest_prefix: "最新",
@@ -478,6 +494,31 @@ function parsePlatform(rawPlatform) {
   };
 }
 
+function parseSmoke(rawSmoke) {
+  const smoke = asObject(rawSmoke);
+  if (!Object.keys(smoke).length) return null;
+  return {
+    backend: isNonEmptyString(smoke.backend) ? smoke.backend : "",
+    timeout: Number.isFinite(smoke.timeout) ? smoke.timeout : null,
+    exist: normalizeStringList(smoke.exist),
+    test: normalizeStringList(smoke.test),
+    status: isNonEmptyString(smoke.status) ? smoke.status : "",
+    checkedAt: isNonEmptyString(smoke.checked_at) ? smoke.checked_at : "",
+    backendUsed: isNonEmptyString(smoke.backend_used) ? smoke.backend_used : ""
+  };
+}
+
+function parseTrust(rawTrust) {
+  const trust = asObject(rawTrust);
+  if (!Object.keys(trust).length) return null;
+  return {
+    status: isNonEmptyString(trust.status) ? trust.status : "",
+    checkedAt: isNonEmptyString(trust.checked_at) ? trust.checked_at : "",
+    policy: isNonEmptyString(trust.policy) ? trust.policy : "",
+    source: isNonEmptyString(trust.source) ? trust.source : ""
+  };
+}
+
 function buildVersionRecord(versionId, rawRecord, packageEntry) {
   const record = asObject(rawRecord);
   const command = asObject(record.command);
@@ -528,8 +569,12 @@ function buildVersionRecord(versionId, rawRecord, packageEntry) {
     container: {
       image: containerImage,
       dockerfile: isNonEmptyString(container.dockerfile) ? container.dockerfile : "",
-      imageTag: isNonEmptyString(container.image_tag) ? container.image_tag : ""
+      imageTag: isNonEmptyString(container.image_tag) ? container.image_tag : "",
+      digest: isNonEmptyString(container.digest) ? container.digest : "",
+      platforms: normalizeStringList(container.platforms)
     },
+    smoke: parseSmoke(record.smoke),
+    trust: parseTrust(record.trust),
     hasContainerImage,
     source: {
       ref: isNonEmptyString(source.ref) ? source.ref : "",
@@ -1151,6 +1196,21 @@ function renderDetail() {
   appendKv(t("label_dockerfile"), version.paths.dockerfile || "-");
   appendKv(t("label_container_image"), version.container.image || "-");
   appendKv(t("label_container_tag"), version.container.imageTag || "-");
+  appendOptionalKv(t("label_container_digest"), version.container.digest);
+  appendOptionalKv(
+    t("label_container_platforms"),
+    version.container.platforms.length ? version.container.platforms.join(", ") : ""
+  );
+  if (version.smoke) {
+    appendKv(t("label_smoke_status"), version.smoke.status || "-");
+    appendKv(t("label_smoke_backend"), version.smoke.backendUsed || version.smoke.backend || "-");
+    appendOptionalKv(t("label_smoke_checked_at"), version.smoke.checkedAt);
+  }
+  if (version.trust) {
+    appendKv(t("label_trust_status"), version.trust.status || "-");
+    appendOptionalKv(t("label_trust_policy"), version.trust.policy);
+    appendOptionalKv(t("label_trust_checked_at"), version.trust.checkedAt);
+  }
 
   renderVersionsTable(pkg);
   renderDependenciesTable(version);
