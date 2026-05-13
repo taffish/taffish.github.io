@@ -34,6 +34,9 @@ const I18N = {
     empty_repositories: "No repository data.",
     empty_warnings: "No warnings.",
     empty_detail: "Select a package to view details.",
+    loading_packages_short: "Loading...",
+    loading_packages: "Loading TAFFISH index data...",
+    loading_detail: "Package details will appear after the index is loaded.",
     install_commands: "Install Commands",
     detail_versions: "Versions",
     detail_dependencies: "Dependencies",
@@ -43,6 +46,17 @@ const I18N = {
     detail_runtime_container: "Runtime / Container",
     detail_validation: "Validation",
     detail_upstream: "Upstream",
+    group_identity: "Identity",
+    group_discovery: "Discovery",
+    group_app_source: "App Repository",
+    group_release_source: "Release Source",
+    group_runtime: "Runtime",
+    group_container: "Container Image",
+    group_trust: "Trust Gate",
+    group_smoke: "Smoke Test",
+    group_upstream_identity: "Upstream Identity",
+    group_upstream_links: "Links",
+    group_upstream_reference: "Reference",
     open_repo: "Repository",
     open_source: "Source",
     copy_latest: "Copy latest install command",
@@ -114,7 +128,7 @@ const I18N = {
     label_smoke_status: "Smoke Status",
     label_smoke_backend: "Smoke Backend",
     label_smoke_timeout: "Smoke Timeout",
-    label_smoke_exist: "Smoke Exist Checks",
+    label_smoke_exist: "Required Executables",
     label_smoke_test: "Smoke Test Commands",
     label_smoke_checked_at: "Smoke Checked",
     label_trust_status: "Trust Status",
@@ -132,6 +146,9 @@ const I18N = {
     footer_github_org: "GitHub Organization",
     footer_docs: "Documentation",
     footer_preprint: "Preprint",
+    quick_search: "Search",
+    quick_packages: "Packages",
+    quick_top: "Top",
     any: "any",
     none: "none"
   },
@@ -163,6 +180,9 @@ const I18N = {
     empty_repositories: "暂无仓库数据。",
     empty_warnings: "暂无告警。",
     empty_detail: "请选择一个软件包查看详情。",
+    loading_packages_short: "加载中...",
+    loading_packages: "正在加载 TAFFISH 索引数据...",
+    loading_detail: "索引加载完成后会显示软件包详情。",
     install_commands: "安装命令",
     detail_versions: "版本",
     detail_dependencies: "依赖",
@@ -172,6 +192,17 @@ const I18N = {
     detail_runtime_container: "运行 / 容器",
     detail_validation: "验证",
     detail_upstream: "原始软件",
+    group_identity: "身份信息",
+    group_discovery: "发现信息",
+    group_app_source: "App 仓库",
+    group_release_source: "发布来源",
+    group_runtime: "运行方式",
+    group_container: "容器镜像",
+    group_trust: "可信 Gate",
+    group_smoke: "Smoke 测试",
+    group_upstream_identity: "原始软件身份",
+    group_upstream_links: "链接",
+    group_upstream_reference: "引用",
     open_repo: "仓库",
     open_source: "源码",
     copy_latest: "复制最新安装命令",
@@ -243,7 +274,7 @@ const I18N = {
     label_smoke_status: "Smoke 状态",
     label_smoke_backend: "Smoke 后端",
     label_smoke_timeout: "Smoke 超时",
-    label_smoke_exist: "Smoke 存在性检查",
+    label_smoke_exist: "需存在的可执行程序",
     label_smoke_test: "Smoke 测试命令",
     label_smoke_checked_at: "Smoke 检查时间",
     label_trust_status: "可信状态",
@@ -261,6 +292,9 @@ const I18N = {
     footer_github_org: "GitHub 组织",
     footer_docs: "文档",
     footer_preprint: "预印本",
+    quick_search: "搜索",
+    quick_packages: "列表",
+    quick_top: "顶部",
     any: "任意",
     none: "无"
   }
@@ -290,6 +324,10 @@ const state = {
   selectedVersion: initialUrlState.selectedVersion || null,
   copyToastTimer: null
 };
+
+function isInitialLoading() {
+  return state.syncState === "syncing" && !state.index;
+}
 
 const el = {
   langEn: document.getElementById("langEn"),
@@ -341,7 +379,12 @@ const el = {
   warningsEmpty: document.getElementById("warningsEmpty"),
   warningsTable: document.getElementById("warningsTable"),
   reposEmpty: document.getElementById("reposEmpty"),
-  reposGrid: document.getElementById("reposGrid")
+  reposGrid: document.getElementById("reposGrid"),
+  searchSection: document.getElementById("searchSection"),
+  packagesSection: document.getElementById("packagesSection"),
+  quickSearch: document.getElementById("quickSearch"),
+  quickPackages: document.getElementById("quickPackages"),
+  quickTop: document.getElementById("quickTop")
 };
 
 function readStoredLocale() {
@@ -848,6 +891,24 @@ function createHeaderRow(labels, extraClass = "") {
   return row;
 }
 
+function createLoadingRows() {
+  const fragment = document.createDocumentFragment();
+  for (let rowIndex = 0; rowIndex < 4; rowIndex += 1) {
+    const row = document.createElement("div");
+    row.className = "table-row loading-row";
+    for (let columnIndex = 0; columnIndex < 6; columnIndex += 1) {
+      const cell = document.createElement("div");
+      const bar = document.createElement("span");
+      bar.className = "skeleton-line";
+      bar.style.width = `${84 - ((rowIndex + columnIndex) % 3) * 16}%`;
+      cell.append(bar);
+      row.append(cell);
+    }
+    fragment.append(row);
+  }
+  return fragment;
+}
+
 function createMiniRow(values, classNames = [], extraClass = "") {
   const row = document.createElement("div");
   row.className = `mini-row ${extraClass}`.trim();
@@ -920,6 +981,15 @@ function renderSync() {
 }
 
 function renderMetrics() {
+  if (isInitialLoading()) {
+    el.metricPackages.textContent = "-";
+    el.metricVersions.textContent = "-";
+    el.metricCommands.textContent = "-";
+    el.metricRepositories.textContent = "-";
+    el.metricFailed.textContent = "-";
+    return;
+  }
+
   const counts = state.index ? state.index.counts : {};
   const packageCount = state.packages.length || Number(counts.packages) || 0;
   const versionCount = Number(counts.versions) || state.packages.reduce((sum, pkg) => sum + pkg.versions.length, 0);
@@ -935,6 +1005,19 @@ function renderMetrics() {
 }
 
 function renderPackages() {
+  if (isInitialLoading()) {
+    el.resultCount.textContent = t("loading_packages_short");
+    el.packagesEmpty.textContent = t("loading_packages");
+    el.packagesEmpty.classList.add("loading-empty");
+    el.packagesEmpty.classList.remove("hidden");
+    el.packagesTable.textContent = "";
+    el.packagesTable.append(createLoadingRows());
+    return;
+  }
+
+  el.packagesEmpty.classList.remove("loading-empty");
+  el.packagesEmpty.textContent = t("empty_packages");
+
   const filtered = getFilteredPackages();
   ensureSelection(filtered);
 
@@ -1015,11 +1098,37 @@ function createDetailSection(title, modifier = "") {
   label.textContent = title;
   head.append(label);
 
+  const body = document.createElement("div");
+  body.className = "detail-card-body";
+
+  section.append(head, body);
+  el.detailMeta.append(section);
+  return body;
+}
+
+function appendDetailSummary(text, target) {
+  if (!isNonEmptyString(text)) return;
+  const summary = document.createElement("p");
+  summary.className = "detail-summary";
+  summary.textContent = text.trim();
+  target.append(summary);
+}
+
+function createDetailGroup(title, target, modifier = "") {
+  const group = document.createElement("div");
+  group.className = `detail-group ${modifier}`.trim();
+
+  if (isNonEmptyString(title)) {
+    const label = document.createElement("p");
+    label.className = "detail-group-title";
+    label.textContent = title;
+    group.append(label);
+  }
+
   const grid = document.createElement("div");
   grid.className = "kv-grid";
-
-  section.append(head, grid);
-  el.detailMeta.append(section);
+  group.append(grid);
+  target.append(group);
   return grid;
 }
 
@@ -1057,6 +1166,19 @@ function buildCodeListNode(values) {
   for (const value of values) {
     if (!isNonEmptyString(value)) continue;
     const item = document.createElement("code");
+    item.textContent = value.trim();
+    list.append(item);
+  }
+  return list.childElementCount ? list : null;
+}
+
+function buildExecutableListNode(values) {
+  const list = document.createElement("div");
+  list.className = "kv-executable-list";
+  for (const value of values) {
+    if (!isNonEmptyString(value)) continue;
+    const item = document.createElement("span");
+    item.className = "kv-executable cell-mono";
     item.textContent = value.trim();
     list.append(item);
   }
@@ -1289,53 +1411,75 @@ function renderDetailActionLinks(version) {
 function renderUpstreamMeta(upstream, target) {
   if (!upstream) return;
 
-  appendOptionalKv(t("label_upstream"), upstream.name, target);
-  appendOptionalKv(t("label_upstream_type"), upstream.type, target);
-  appendOptionalLinkKv(
-    t("label_upstream_url"),
-    upstream.url,
-    isHttpUrl(upstream.url) ? upstream.url : "",
-    target
-  );
-  appendOptionalLinkKv(
-    t("label_upstream_homepage"),
-    upstream.homepage,
-    isHttpUrl(upstream.homepage) ? upstream.homepage : "",
-    target
-  );
-  appendOptionalLinkKv(
-    t("label_upstream_repository"),
-    upstream.repository,
-    upstreamRepositoryUrl(upstream),
-    target
-  );
-  appendOptionalLinkKv(
-    t("label_upstream_release_url"),
-    upstream.releaseUrl,
-    isHttpUrl(upstream.releaseUrl) ? upstream.releaseUrl : "",
-    target
-  );
-  appendOptionalKv(t("label_upstream_docker_image"), upstream.dockerImage, target);
-  appendOptionalKv(t("label_upstream_version"), upstream.version, target);
-  appendOptionalKv(t("label_upstream_license"), upstream.license, target);
-  appendOptionalKv(t("label_upstream_citation"), upstream.citation, target);
-  appendOptionalLinkKv(
-    t("label_upstream_doi"),
-    upstream.doi,
-    isNonEmptyString(upstream.doi) ? `https://doi.org/${upstream.doi}` : "",
-    target
-  );
-  appendOptionalLinkKv(
-    t("label_upstream_pmid"),
-    upstream.pmid,
-    isNonEmptyString(upstream.pmid)
-      ? `https://pubmed.ncbi.nlm.nih.gov/${upstream.pmid}/`
-      : "",
-    target
-  );
+  if (upstream.name || upstream.type || upstream.version || upstream.license) {
+    const identity = createDetailGroup(t("group_upstream_identity"), target);
+    appendOptionalKv(t("label_upstream"), upstream.name, identity);
+    appendOptionalKv(t("label_upstream_type"), upstream.type, identity);
+    appendOptionalKv(t("label_upstream_version"), upstream.version, identity);
+    appendOptionalKv(t("label_upstream_license"), upstream.license, identity);
+  }
+
+  if (upstream.url || upstream.homepage || upstream.repository || upstream.releaseUrl || upstream.dockerImage) {
+    const links = createDetailGroup(t("group_upstream_links"), target);
+    appendOptionalLinkKv(
+      t("label_upstream_url"),
+      upstream.url,
+      isHttpUrl(upstream.url) ? upstream.url : "",
+      links
+    );
+    appendOptionalLinkKv(
+      t("label_upstream_homepage"),
+      upstream.homepage,
+      isHttpUrl(upstream.homepage) ? upstream.homepage : "",
+      links
+    );
+    appendOptionalLinkKv(
+      t("label_upstream_repository"),
+      upstream.repository,
+      upstreamRepositoryUrl(upstream),
+      links
+    );
+    appendOptionalLinkKv(
+      t("label_upstream_release_url"),
+      upstream.releaseUrl,
+      isHttpUrl(upstream.releaseUrl) ? upstream.releaseUrl : "",
+      links
+    );
+    appendOptionalKv(t("label_upstream_docker_image"), upstream.dockerImage, links);
+  }
+
+  if (upstream.citation || upstream.doi || upstream.pmid) {
+    const reference = createDetailGroup(t("group_upstream_reference"), target);
+    appendOptionalKv(t("label_upstream_citation"), upstream.citation, reference);
+    appendOptionalLinkKv(
+      t("label_upstream_doi"),
+      upstream.doi,
+      isNonEmptyString(upstream.doi) ? `https://doi.org/${upstream.doi}` : "",
+      reference
+    );
+    appendOptionalLinkKv(
+      t("label_upstream_pmid"),
+      upstream.pmid,
+      isNonEmptyString(upstream.pmid)
+        ? `https://pubmed.ncbi.nlm.nih.gov/${upstream.pmid}/`
+        : "",
+      reference
+    );
+  }
 }
 
 function renderDetail() {
+  if (isInitialLoading()) {
+    el.detailEmpty.textContent = t("loading_detail");
+    el.detailEmpty.classList.add("loading-empty");
+    el.detailEmpty.classList.remove("hidden");
+    el.detailPane.classList.add("hidden");
+    return;
+  }
+
+  el.detailEmpty.textContent = t("empty_detail");
+  el.detailEmpty.classList.remove("loading-empty");
+
   const pkg = state.packageMap.get(state.selectedPackage || "");
   if (!pkg) {
     el.detailEmpty.classList.remove("hidden");
@@ -1369,83 +1513,96 @@ function renderDetail() {
 
   el.detailMeta.textContent = "";
   const overview = createDetailSection(t("detail_overview"), "overview");
-  if (version.meta) {
-    appendOptionalKv(t("label_description"), version.meta.description, overview);
-    appendOptionalKv(t("label_domain"), version.meta.domain, overview);
+  appendDetailSummary(version.meta && version.meta.description, overview);
+
+  const identity = createDetailGroup(t("group_identity"), overview);
+  appendKv(t("label_command"), version.commandName || "-", identity);
+  appendKv(t("label_tag"), version.tag || "-", identity);
+  appendKv(t("label_license"), version.license || "-", identity);
+
+  if (version.meta && (version.meta.domain || version.meta.categories.length || version.meta.keywords.length)) {
+    const discovery = createDetailGroup(t("group_discovery"), overview);
+    appendOptionalKv(t("label_domain"), version.meta.domain, discovery);
     if (version.meta.categories.length) {
-      appendKv(t("label_categories"), buildChipListNode(version.meta.categories), overview);
+      appendKv(t("label_categories"), buildChipListNode(version.meta.categories), discovery);
     }
     if (version.meta.keywords.length) {
-      appendKv(t("label_keywords"), buildChipListNode(version.meta.keywords), overview);
+      appendKv(t("label_keywords"), buildChipListNode(version.meta.keywords), discovery);
     }
   }
-  appendKv(t("label_command"), version.commandName || "-", overview);
-  appendKv(t("label_tag"), version.tag || "-", overview);
-  appendKv(t("label_license"), version.license || "-", overview);
 
   const source = createDetailSection(t("detail_source"));
+  const appSource = createDetailGroup(t("group_app_source"), source);
   if (isNonEmptyString(version.repositoryUrl)) {
     appendKv(
       t("label_repository"),
       buildLinkNode(version.repositorySlug || version.repositoryUrl, version.repositoryUrl),
-      source
+      appSource
     );
   } else {
-    appendKv(t("label_repository"), "-", source);
+    appendKv(t("label_repository"), "-", appSource);
   }
-  appendKv(t("label_source_ref"), version.source.ref || "-", source);
-  appendKv(t("label_source_commit"), version.source.commit || "-", source);
+  const releaseSource = createDetailGroup(t("group_release_source"), source);
+  appendKv(t("label_source_ref"), version.source.ref || "-", releaseSource);
+  appendKv(t("label_source_commit"), version.source.commit || "-", releaseSource);
 
   const runtimeContainer = createDetailSection(t("detail_runtime_container"));
-  appendKv(t("label_runtime"), formatRuntime(version.runtime), runtimeContainer);
-  appendKv(t("label_main"), version.paths.main || "-", runtimeContainer);
-  appendKv(t("label_help"), version.paths.help || "-", runtimeContainer);
-  appendKv(t("label_dockerfile"), version.paths.dockerfile || "-", runtimeContainer);
-  appendKv(t("label_container_image"), version.container.image || "-", runtimeContainer);
-  appendKv(t("label_container_tag"), version.container.imageTag || "-", runtimeContainer);
-  appendOptionalKv(t("label_container_digest"), version.container.digest, runtimeContainer);
-  appendOptionalKv(
-    t("label_container_platforms"),
-    version.container.platforms.length
-      ? buildChipListNode(version.container.platforms, true)
-      : "",
-    runtimeContainer
-  );
-  if (version.container.platformDigests.length) {
-    appendKv(
-      t("label_container_platform_digests"),
-      buildPlatformDigestNode(version.container.platformDigests),
-      runtimeContainer
+  const runtimeGroup = createDetailGroup(t("group_runtime"), runtimeContainer);
+  appendKv(t("label_runtime"), formatRuntime(version.runtime), runtimeGroup);
+  appendKv(t("label_main"), version.paths.main || "-", runtimeGroup);
+  appendKv(t("label_help"), version.paths.help || "-", runtimeGroup);
+
+  if (version.paths.dockerfile || version.container.image || version.container.imageTag || version.container.digest || version.container.platforms.length) {
+    const containerGroup = createDetailGroup(t("group_container"), runtimeContainer);
+    appendKv(t("label_dockerfile"), version.paths.dockerfile || "-", containerGroup);
+    appendKv(t("label_container_image"), version.container.image || "-", containerGroup);
+    appendKv(t("label_container_tag"), version.container.imageTag || "-", containerGroup);
+    appendOptionalKv(t("label_container_digest"), version.container.digest, containerGroup);
+    appendOptionalKv(
+      t("label_container_platforms"),
+      version.container.platforms.length
+        ? buildChipListNode(version.container.platforms, true)
+        : "",
+      containerGroup
     );
+    if (version.container.platformDigests.length) {
+      appendKv(
+        t("label_container_platform_digests"),
+        buildPlatformDigestNode(version.container.platformDigests),
+        containerGroup
+      );
+    }
   }
 
   if (version.smoke || version.trust) {
     const validation = createDetailSection(t("detail_validation"), "validation");
     if (version.trust) {
-      appendKv(t("label_trust_status"), buildStatusPill(version.trust.status), validation);
-      appendOptionalKv(t("label_trust_policy"), version.trust.policy, validation);
-      appendOptionalKv(t("label_trust_source"), version.trust.source, validation);
-      appendOptionalKv(t("label_trust_checked_at"), version.trust.checkedAt, validation);
+      const trust = createDetailGroup(t("group_trust"), validation);
+      appendKv(t("label_trust_status"), buildStatusPill(version.trust.status), trust);
+      appendOptionalKv(t("label_trust_policy"), version.trust.policy, trust);
+      appendOptionalKv(t("label_trust_source"), version.trust.source, trust);
+      appendOptionalKv(t("label_trust_checked_at"), version.trust.checkedAt, trust);
     }
     if (version.smoke) {
-      appendKv(t("label_smoke_status"), buildStatusPill(version.smoke.status), validation);
+      const smoke = createDetailGroup(t("group_smoke"), validation);
+      appendKv(t("label_smoke_status"), buildStatusPill(version.smoke.status), smoke);
       appendKv(
         t("label_smoke_backend"),
         version.smoke.backendUsed || version.smoke.backend || "-",
-        validation
+        smoke
       );
       appendOptionalKv(
         t("label_smoke_timeout"),
         version.smoke.timeout == null ? "" : `${version.smoke.timeout}s`,
-        validation
+        smoke
       );
       if (version.smoke.exist.length) {
-        appendKv(t("label_smoke_exist"), buildCodeListNode(version.smoke.exist), validation);
+        appendKv(t("label_smoke_exist"), buildExecutableListNode(version.smoke.exist), smoke);
       }
       if (version.smoke.test.length) {
-        appendKv(t("label_smoke_test"), buildCodeListNode(version.smoke.test), validation);
+        appendKv(t("label_smoke_test"), buildCodeListNode(version.smoke.test), smoke);
       }
-      appendOptionalKv(t("label_smoke_checked_at"), version.smoke.checkedAt, validation);
+      appendOptionalKv(t("label_smoke_checked_at"), version.smoke.checkedAt, smoke);
     }
   }
 
@@ -1590,7 +1747,6 @@ function renderAll() {
   renderPackages();
   renderDetail();
   renderWarnings();
-  renderRepositories();
 }
 
 function setKind(kind) {
@@ -1654,6 +1810,22 @@ async function handleCopy(text) {
   }
 }
 
+function scrollToNode(node, focusNode = null) {
+  if (!node) return;
+  const header = document.querySelector(".app-header");
+  const headerHeight = header ? header.getBoundingClientRect().height : 0;
+  const top = window.scrollY + node.getBoundingClientRect().top - headerHeight - 14;
+  window.scrollTo({
+    top: Math.max(0, top),
+    behavior: "smooth"
+  });
+  if (focusNode) {
+    window.setTimeout(() => {
+      focusNode.focus({ preventScroll: true });
+    }, 260);
+  }
+}
+
 function bindEvents() {
   el.langEn.addEventListener("click", () => setLocale("en"));
   el.langZh.addEventListener("click", () => setLocale("zh"));
@@ -1669,7 +1841,6 @@ function bindEvents() {
     state.filters.query = String(event.target.value || "");
     renderPackages();
     renderDetail();
-    renderRepositories();
   });
 
   el.kindAll.addEventListener("click", () => setKind("all"));
@@ -1688,6 +1859,16 @@ function bindEvents() {
     state.filters.containerOnly = Boolean(event.target.checked);
     renderPackages();
     renderDetail();
+  });
+
+  el.quickSearch.addEventListener("click", () => {
+    scrollToNode(el.searchSection, el.globalSearch);
+  });
+  el.quickPackages.addEventListener("click", () => {
+    scrollToNode(el.packagesSection);
+  });
+  el.quickTop.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
   el.copyLatest.addEventListener("click", () => {

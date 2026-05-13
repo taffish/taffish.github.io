@@ -101,7 +101,7 @@
         </div>
       </section>
 
-      <section class="band">
+      <section class="band" id="searchSection">
         <div class="container toolbar">
           <label class="search-box">
             <i data-lucide="search"></i>
@@ -130,7 +130,7 @@
         </div>
       </section>
 
-      <section class="band">
+      <section class="band" id="packagesSection">
         <div class="container hub-grid">
           <section class="surface">
             <div class="surface-head">
@@ -220,15 +220,6 @@
         </div>
       </section>
 
-      <section class="band band-light">
-        <div class="container surface">
-          <div class="surface-head">
-            <h2 data-i18n="section_repositories">Repositories</h2>
-          </div>
-          <div id="reposEmpty" class="empty hidden" data-i18n="empty_repositories">No repository data.</div>
-          <div id="reposGrid" class="repo-grid"></div>
-        </div>
-      </section>
     </main>
 
     <footer class="app-footer">
@@ -263,6 +254,21 @@
         <a href="mailto:support@taffish.com">support@taffish.com</a>
       </div>
     </footer>
+
+    <nav class="quick-nav" aria-label="Quick page navigation">
+      <button id="quickSearch" class="quick-nav-button" type="button" data-i18n-title="quick_search" title="Search">
+        <i data-lucide="search"></i>
+        <span data-i18n="quick_search">Search</span>
+      </button>
+      <button id="quickPackages" class="quick-nav-button" type="button" data-i18n-title="quick_packages" title="Packages">
+        <i data-lucide="package-search"></i>
+        <span data-i18n="quick_packages">Packages</span>
+      </button>
+      <button id="quickTop" class="quick-nav-button" type="button" data-i18n-title="quick_top" title="Top">
+        <i data-lucide="arrow-up"></i>
+        <span data-i18n="quick_top">Top</span>
+      </button>
+    </nav>
 
     <script src="https://unpkg.com/lucide@0.511.0/dist/umd/lucide.min.js"></script>
     <script src="./app.js"></script>
