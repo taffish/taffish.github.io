@@ -43,6 +43,10 @@
             <i data-lucide="file-json"></i>
             <span>index.json</span>
           </a>
+          <a class="icon-button" href="https://raw.githubusercontent.com/taffish/taffish-index/main/index/reports/latest.json" target="_blank" rel="noreferrer">
+            <i data-lucide="shield-check"></i>
+            <span data-i18n="nav_trust_report">Trust Report</span>
+          </a>
         </div>
       </div>
     </header>
@@ -89,6 +93,10 @@
           <article class="stat-item">
             <p class="stat-label" data-i18n="metric_repositories">Repositories</p>
             <p class="stat-value" id="metricRepositories">-</p>
+          </article>
+          <article class="stat-item stat-warning">
+            <p class="stat-label" data-i18n="metric_failed_gates">Failed Gates</p>
+            <p class="stat-value" id="metricFailed">-</p>
           </article>
         </div>
       </section>

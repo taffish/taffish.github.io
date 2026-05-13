@@ -10,6 +10,7 @@ const I18N = {
     nav_website: "Website",
     nav_github: "GitHub",
     nav_index_repo: "Index Repo",
+    nav_trust_report: "Trust Report",
     refresh: "Refresh",
     title: "Package Registry",
     subtitle: "Search apps, inspect versions, and install with deterministic dependencies.",
@@ -17,6 +18,7 @@ const I18N = {
     metric_versions: "Versions",
     metric_commands: "Commands",
     metric_repositories: "Repositories",
+    metric_failed_gates: "Failed Gates",
     search: "Search package, command, repository",
     kind_all: "All",
     kind_tool: "Tool",
@@ -92,11 +94,16 @@ const I18N = {
     label_container_tag: "Image Tag",
     label_container_digest: "Image Digest",
     label_container_platforms: "Image Platforms",
+    label_container_platform_digests: "Platform Digests",
     label_smoke_status: "Smoke Status",
     label_smoke_backend: "Smoke Backend",
+    label_smoke_timeout: "Smoke Timeout",
+    label_smoke_exist: "Smoke Exist Checks",
+    label_smoke_test: "Smoke Test Commands",
     label_smoke_checked_at: "Smoke Checked",
     label_trust_status: "Trust Status",
     label_trust_policy: "Trust Policy",
+    label_trust_source: "Trust Source",
     label_trust_checked_at: "Trust Checked",
     label_package_count: "Packages",
     install_chain: "Install Chain",
@@ -116,6 +123,7 @@ const I18N = {
     nav_website: "官网",
     nav_github: "GitHub",
     nav_index_repo: "索引仓库",
+    nav_trust_report: "可信报告",
     refresh: "刷新",
     title: "软件包索引",
     subtitle: "检索应用、查看版本，并基于确定性依赖完成安装。",
@@ -123,6 +131,7 @@ const I18N = {
     metric_versions: "版本数",
     metric_commands: "命令数",
     metric_repositories: "仓库数",
+    metric_failed_gates: "失败 Gate",
     search: "搜索包名、命令名或仓库",
     kind_all: "全部",
     kind_tool: "工具",
@@ -198,11 +207,16 @@ const I18N = {
     label_container_tag: "镜像标签",
     label_container_digest: "镜像 Digest",
     label_container_platforms: "镜像平台",
+    label_container_platform_digests: "平台 Digest",
     label_smoke_status: "Smoke 状态",
     label_smoke_backend: "Smoke 后端",
+    label_smoke_timeout: "Smoke 超时",
+    label_smoke_exist: "Smoke 存在性检查",
+    label_smoke_test: "Smoke 测试命令",
     label_smoke_checked_at: "Smoke 检查时间",
     label_trust_status: "可信状态",
     label_trust_policy: "可信策略",
+    label_trust_source: "可信来源",
     label_trust_checked_at: "可信检查时间",
     label_package_count: "软件包数",
     install_chain: "安装链",
@@ -260,6 +274,7 @@ const el = {
   metricVersions: document.getElementById("metricVersions"),
   metricCommands: document.getElementById("metricCommands"),
   metricRepositories: document.getElementById("metricRepositories"),
+  metricFailed: document.getElementById("metricFailed"),
   globalSearch: document.getElementById("globalSearch"),
   kindAll: document.getElementById("kindAll"),
   kindTool: document.getElementById("kindTool"),
@@ -519,6 +534,17 @@ function parseTrust(rawTrust) {
   };
 }
 
+function parsePlatformDigests(rawPlatformDigests) {
+  const platformDigests = asObject(rawPlatformDigests);
+  return Object.keys(platformDigests)
+    .sort()
+    .filter((platform) => isNonEmptyString(platform) && isNonEmptyString(platformDigests[platform]))
+    .map((platform) => ({
+      platform,
+      digest: String(platformDigests[platform]).trim()
+    }));
+}
+
 function buildVersionRecord(versionId, rawRecord, packageEntry) {
   const record = asObject(rawRecord);
   const command = asObject(record.command);
@@ -571,7 +597,8 @@ function buildVersionRecord(versionId, rawRecord, packageEntry) {
       dockerfile: isNonEmptyString(container.dockerfile) ? container.dockerfile : "",
       imageTag: isNonEmptyString(container.image_tag) ? container.image_tag : "",
       digest: isNonEmptyString(container.digest) ? container.digest : "",
-      platforms: normalizeStringList(container.platforms)
+      platforms: normalizeStringList(container.platforms),
+      platformDigests: parsePlatformDigests(container.platform_digests)
     },
     smoke: parseSmoke(record.smoke),
     trust: parseTrust(record.trust),
@@ -831,11 +858,13 @@ function renderMetrics() {
   const versionCount = Number(counts.versions) || state.packages.reduce((sum, pkg) => sum + pkg.versions.length, 0);
   const commandCount = Number(counts.commands) || state.packages.filter((pkg) => isNonEmptyString(pkg.commandName)).length;
   const repoCount = state.repositories.length || Number(counts.repositories) || 0;
+  const failedCount = Number(counts.failed) || 0;
 
   el.metricPackages.textContent = formatCount(packageCount);
   el.metricVersions.textContent = formatCount(versionCount);
   el.metricCommands.textContent = formatCount(commandCount);
   el.metricRepositories.textContent = formatCount(repoCount);
+  el.metricFailed.textContent = formatCount(failedCount);
 }
 
 function renderPackages() {
@@ -934,6 +963,23 @@ function buildLinkNode(text, url) {
   link.rel = "noreferrer";
   link.textContent = text;
   return link;
+}
+
+function buildCodeListNode(values) {
+  const list = document.createElement("div");
+  list.className = "kv-code-list";
+  for (const value of values) {
+    if (!isNonEmptyString(value)) continue;
+    const item = document.createElement("code");
+    item.textContent = value.trim();
+    list.append(item);
+  }
+  return list.childElementCount ? list : null;
+}
+
+function buildPlatformDigestNode(platformDigests) {
+  const values = platformDigests.map((item) => `${item.platform}: ${item.digest}`);
+  return buildCodeListNode(values);
 }
 
 function isHttpUrl(value) {
@@ -1201,14 +1247,31 @@ function renderDetail() {
     t("label_container_platforms"),
     version.container.platforms.length ? version.container.platforms.join(", ") : ""
   );
+  if (version.container.platformDigests.length) {
+    appendKv(
+      t("label_container_platform_digests"),
+      buildPlatformDigestNode(version.container.platformDigests)
+    );
+  }
   if (version.smoke) {
     appendKv(t("label_smoke_status"), version.smoke.status || "-");
     appendKv(t("label_smoke_backend"), version.smoke.backendUsed || version.smoke.backend || "-");
+    appendOptionalKv(
+      t("label_smoke_timeout"),
+      version.smoke.timeout == null ? "" : `${version.smoke.timeout}s`
+    );
+    if (version.smoke.exist.length) {
+      appendKv(t("label_smoke_exist"), buildCodeListNode(version.smoke.exist));
+    }
+    if (version.smoke.test.length) {
+      appendKv(t("label_smoke_test"), buildCodeListNode(version.smoke.test));
+    }
     appendOptionalKv(t("label_smoke_checked_at"), version.smoke.checkedAt);
   }
   if (version.trust) {
     appendKv(t("label_trust_status"), version.trust.status || "-");
     appendOptionalKv(t("label_trust_policy"), version.trust.policy);
+    appendOptionalKv(t("label_trust_source"), version.trust.source);
     appendOptionalKv(t("label_trust_checked_at"), version.trust.checkedAt);
   }
 
