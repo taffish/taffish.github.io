@@ -37,7 +37,12 @@ const I18N = {
     install_commands: "Install Commands",
     detail_versions: "Versions",
     detail_dependencies: "Dependencies",
-    detail_platform: "Platform",
+    detail_platform: "Runtime Requirements",
+    detail_overview: "Overview",
+    detail_source: "Source",
+    detail_runtime_container: "Runtime / Container",
+    detail_validation: "Validation",
+    detail_upstream: "Upstream",
     open_repo: "Repository",
     open_source: "Source",
     copy_latest: "Copy latest install command",
@@ -67,6 +72,12 @@ const I18N = {
     table_tag: "Tag",
     table_key: "Key",
     table_value: "Value",
+    platform_no_constraints: "No explicit OS, architecture, container, CPU, or memory constraints declared.",
+    platform_os: "OS",
+    platform_arch: "Architecture",
+    platform_container: "Container Policy",
+    platform_min_cpus: "Minimum CPUs",
+    platform_min_memory: "Minimum Memory",
     warning_message: "Message",
     warning_source: "Source",
     label_command: "Command",
@@ -81,6 +92,7 @@ const I18N = {
     label_source_commit: "Source Commit",
     label_upstream: "Upstream",
     label_upstream_type: "Upstream Type",
+    label_upstream_url: "Upstream URL",
     label_upstream_homepage: "Upstream Homepage",
     label_upstream_repository: "Upstream Repository",
     label_upstream_release_url: "Upstream Releases",
@@ -154,7 +166,12 @@ const I18N = {
     install_commands: "安装命令",
     detail_versions: "版本",
     detail_dependencies: "依赖",
-    detail_platform: "平台",
+    detail_platform: "运行要求",
+    detail_overview: "概览",
+    detail_source: "来源",
+    detail_runtime_container: "运行 / 容器",
+    detail_validation: "验证",
+    detail_upstream: "原始软件",
     open_repo: "仓库",
     open_source: "源码",
     copy_latest: "复制最新安装命令",
@@ -184,6 +201,12 @@ const I18N = {
     table_tag: "标签",
     table_key: "字段",
     table_value: "值",
+    platform_no_constraints: "未声明特殊操作系统、架构、容器、CPU 或内存约束。",
+    platform_os: "操作系统",
+    platform_arch: "CPU 架构",
+    platform_container: "容器策略",
+    platform_min_cpus: "最小 CPU 数",
+    platform_min_memory: "最小内存",
     warning_message: "信息",
     warning_source: "来源",
     label_command: "命令",
@@ -198,6 +221,7 @@ const I18N = {
     label_source_commit: "源码提交",
     label_upstream: "原始软件",
     label_upstream_type: "原始来源类型",
+    label_upstream_url: "原始链接",
     label_upstream_homepage: "原始主页",
     label_upstream_repository: "原始仓库",
     label_upstream_release_url: "原始发布页",
@@ -480,6 +504,7 @@ function parseUpstream(rawUpstream) {
   const fields = [
     ["name", "name"],
     ["type", "type"],
+    ["url", "url"],
     ["homepage", "homepage"],
     ["repository", "repository"],
     ["release_url", "releaseUrl"],
@@ -520,11 +545,17 @@ function parsePlatform(rawPlatform) {
 function parseMeta(rawMeta) {
   const meta = asObject(rawMeta);
   if (!Object.keys(meta).length) return null;
+  const categories = normalizeStringList(meta.categories);
+  if (!categories.length && isNonEmptyString(meta.category)) {
+    categories.push(meta.category.trim());
+  }
   const result = {
     domain: isNonEmptyString(meta.domain) ? meta.domain.trim() : "",
-    categories: normalizeStringList(meta.categories),
+    categories,
     keywords: normalizeStringList(meta.keywords),
-    description: isNonEmptyString(meta.description) ? meta.description.trim() : ""
+    description: isNonEmptyString(meta.description)
+      ? meta.description.trim()
+      : (isNonEmptyString(meta.summary) ? meta.summary.trim() : "")
   };
   return result.domain || result.categories.length || result.keywords.length || result.description
     ? result
@@ -973,21 +1004,40 @@ function renderPackages() {
   writeUrlState();
 }
 
-function appendKv(key, value) {
-  el.detailMeta.append(createCell(key, "kv-key"));
+function createDetailSection(title, modifier = "") {
+  const section = document.createElement("section");
+  section.className = `detail-card ${modifier}`.trim();
+
+  const head = document.createElement("div");
+  head.className = "detail-card-head";
+  const label = document.createElement("p");
+  label.className = "subhead";
+  label.textContent = title;
+  head.append(label);
+
+  const grid = document.createElement("div");
+  grid.className = "kv-grid";
+
+  section.append(head, grid);
+  el.detailMeta.append(section);
+  return grid;
+}
+
+function appendKv(key, value, target = el.detailMeta) {
+  target.append(createCell(key, "kv-key"));
   if (value instanceof Node) {
     const valueWrapper = document.createElement("div");
     valueWrapper.className = "kv-value";
     valueWrapper.append(value);
-    el.detailMeta.append(valueWrapper);
+    target.append(valueWrapper);
     return;
   }
-  el.detailMeta.append(createCell(value || "-", "kv-value"));
+  target.append(createCell(value || "-", "kv-value"));
 }
 
-function appendOptionalKv(key, value) {
+function appendOptionalKv(key, value, target = el.detailMeta) {
   if (value instanceof Node || isNonEmptyString(value)) {
-    appendKv(key, value);
+    appendKv(key, value, target);
   }
 }
 
@@ -1013,6 +1063,35 @@ function buildCodeListNode(values) {
   return list.childElementCount ? list : null;
 }
 
+function buildChipListNode(values, mono = false) {
+  const list = document.createElement("div");
+  list.className = "kv-chip-list";
+  for (const value of values) {
+    if (!isNonEmptyString(value)) continue;
+    const item = document.createElement("span");
+    item.className = `kv-chip ${mono ? "cell-mono" : ""}`.trim();
+    item.textContent = value.trim();
+    list.append(item);
+  }
+  return list.childElementCount ? list : null;
+}
+
+function buildStatusPill(value) {
+  const status = isNonEmptyString(value) ? value.trim() : "-";
+  const normalized = status.toLowerCase();
+  const pill = document.createElement("span");
+  pill.className = "status-pill";
+  if (["passed", "trusted", "ok", "valid"].includes(normalized)) {
+    pill.classList.add("passed");
+  } else if (["failed", "error", "blocked", "invalid"].includes(normalized)) {
+    pill.classList.add("failed");
+  } else {
+    pill.classList.add("neutral");
+  }
+  pill.textContent = status;
+  return pill;
+}
+
 function buildPlatformDigestNode(platformDigests) {
   const values = platformDigests.map((item) => `${item.platform}: ${item.digest}`);
   return buildCodeListNode(values);
@@ -1035,13 +1114,13 @@ function upstreamRepositoryUrl(upstream) {
   return "";
 }
 
-function appendOptionalLinkKv(key, text, url) {
+function appendOptionalLinkKv(key, text, url, target = el.detailMeta) {
   if (!isNonEmptyString(text)) return;
   if (isNonEmptyString(url)) {
-    appendKv(key, buildLinkNode(text, url));
+    appendKv(key, buildLinkNode(text, url), target);
     return;
   }
-  appendKv(key, text);
+  appendKv(key, text, target);
 }
 
 function renderVersionsTable(pkg) {
@@ -1150,23 +1229,43 @@ function renderDependenciesExpanded(version) {
 
 function renderPlatformTable(version) {
   el.platformTable.textContent = "";
+  const platform = version.platform;
+  const hasOs = platform.os.length > 0;
+  const hasArch = platform.arch.length > 0;
+  const hasContainerPolicy = isNonEmptyString(platform.container) && platform.container !== "optional";
+  const hasMinCpus = platform.minCpus != null;
+  const hasMinMemory = platform.minMemoryMb != null;
+
+  if (!hasOs && !hasArch && !hasContainerPolicy && !hasMinCpus && !hasMinMemory) {
+    const note = document.createElement("div");
+    note.className = "runtime-note";
+    note.textContent = t("platform_no_constraints");
+    el.platformTable.append(note);
+    return;
+  }
+
   const header = document.createElement("div");
   header.className = "mini-row header";
   header.append(createCell(t("table_key")), createCell(t("table_value")));
   el.platformTable.append(header);
 
-  const platform = version.platform;
-  const osValue = platform.os.length ? platform.os.join(", ") : t("any");
-  const archValue = platform.arch.length ? platform.arch.join(", ") : t("any");
-  const containerValue = platform.container || "optional";
-  const minCpuValue = platform.minCpus == null ? t("none") : String(platform.minCpus);
-  const minMemoryValue = platform.minMemoryMb == null ? t("none") : String(platform.minMemoryMb);
-
-  el.platformTable.append(createMiniRow(["os", osValue], ["cell-mono", "cell-mono"]));
-  el.platformTable.append(createMiniRow(["arch", archValue], ["cell-mono", "cell-mono"]));
-  el.platformTable.append(createMiniRow(["container", containerValue], ["cell-mono", "cell-mono"]));
-  el.platformTable.append(createMiniRow(["min_cpus", minCpuValue], ["cell-mono", "cell-mono"]));
-  el.platformTable.append(createMiniRow(["min_memory_mb", minMemoryValue], ["cell-mono", "cell-mono"]));
+  if (hasOs) {
+    el.platformTable.append(createMiniRow([t("platform_os"), platform.os.join(", ")], ["", "cell-mono"]));
+  }
+  if (hasArch) {
+    el.platformTable.append(createMiniRow([t("platform_arch"), platform.arch.join(", ")], ["", "cell-mono"]));
+  }
+  if (hasContainerPolicy) {
+    el.platformTable.append(createMiniRow([t("platform_container"), platform.container], ["", "cell-mono"]));
+  }
+  if (hasMinCpus) {
+    el.platformTable.append(createMiniRow([t("platform_min_cpus"), String(platform.minCpus)], ["", "cell-mono"]));
+  }
+  if (hasMinMemory) {
+    el.platformTable.append(
+      createMiniRow([t("platform_min_memory"), `${platform.minMemoryMb} MB`], ["", "cell-mono"])
+    );
+  }
 }
 
 function renderDetailActionLinks(version) {
@@ -1187,41 +1286,52 @@ function renderDetailActionLinks(version) {
   }
 }
 
-function renderUpstreamMeta(upstream) {
+function renderUpstreamMeta(upstream, target) {
   if (!upstream) return;
 
-  appendOptionalKv(t("label_upstream"), upstream.name);
-  appendOptionalKv(t("label_upstream_type"), upstream.type);
+  appendOptionalKv(t("label_upstream"), upstream.name, target);
+  appendOptionalKv(t("label_upstream_type"), upstream.type, target);
+  appendOptionalLinkKv(
+    t("label_upstream_url"),
+    upstream.url,
+    isHttpUrl(upstream.url) ? upstream.url : "",
+    target
+  );
   appendOptionalLinkKv(
     t("label_upstream_homepage"),
     upstream.homepage,
-    isHttpUrl(upstream.homepage) ? upstream.homepage : ""
+    isHttpUrl(upstream.homepage) ? upstream.homepage : "",
+    target
   );
   appendOptionalLinkKv(
     t("label_upstream_repository"),
     upstream.repository,
-    upstreamRepositoryUrl(upstream)
+    upstreamRepositoryUrl(upstream),
+    target
   );
   appendOptionalLinkKv(
     t("label_upstream_release_url"),
     upstream.releaseUrl,
-    isHttpUrl(upstream.releaseUrl) ? upstream.releaseUrl : ""
+    isHttpUrl(upstream.releaseUrl) ? upstream.releaseUrl : "",
+    target
   );
-  appendOptionalKv(t("label_upstream_docker_image"), upstream.dockerImage);
-  appendOptionalKv(t("label_upstream_version"), upstream.version);
-  appendOptionalKv(t("label_upstream_license"), upstream.license);
-  appendOptionalKv(t("label_upstream_citation"), upstream.citation);
+  appendOptionalKv(t("label_upstream_docker_image"), upstream.dockerImage, target);
+  appendOptionalKv(t("label_upstream_version"), upstream.version, target);
+  appendOptionalKv(t("label_upstream_license"), upstream.license, target);
+  appendOptionalKv(t("label_upstream_citation"), upstream.citation, target);
   appendOptionalLinkKv(
     t("label_upstream_doi"),
     upstream.doi,
-    isNonEmptyString(upstream.doi) ? `https://doi.org/${upstream.doi}` : ""
+    isNonEmptyString(upstream.doi) ? `https://doi.org/${upstream.doi}` : "",
+    target
   );
   appendOptionalLinkKv(
     t("label_upstream_pmid"),
     upstream.pmid,
     isNonEmptyString(upstream.pmid)
       ? `https://pubmed.ncbi.nlm.nih.gov/${upstream.pmid}/`
-      : ""
+      : "",
+    target
   );
 }
 
@@ -1258,67 +1368,89 @@ function renderDetail() {
   renderDetailActionLinks(version);
 
   el.detailMeta.textContent = "";
-  appendKv(t("label_command"), version.commandName || "-");
+  const overview = createDetailSection(t("detail_overview"), "overview");
+  if (version.meta) {
+    appendOptionalKv(t("label_description"), version.meta.description, overview);
+    appendOptionalKv(t("label_domain"), version.meta.domain, overview);
+    if (version.meta.categories.length) {
+      appendKv(t("label_categories"), buildChipListNode(version.meta.categories), overview);
+    }
+    if (version.meta.keywords.length) {
+      appendKv(t("label_keywords"), buildChipListNode(version.meta.keywords), overview);
+    }
+  }
+  appendKv(t("label_command"), version.commandName || "-", overview);
+  appendKv(t("label_tag"), version.tag || "-", overview);
+  appendKv(t("label_license"), version.license || "-", overview);
+
+  const source = createDetailSection(t("detail_source"));
   if (isNonEmptyString(version.repositoryUrl)) {
     appendKv(
       t("label_repository"),
-      buildLinkNode(version.repositorySlug || version.repositoryUrl, version.repositoryUrl)
+      buildLinkNode(version.repositorySlug || version.repositoryUrl, version.repositoryUrl),
+      source
     );
   } else {
-    appendKv(t("label_repository"), "-");
+    appendKv(t("label_repository"), "-", source);
   }
-  appendKv(t("label_tag"), version.tag || "-");
-  appendKv(t("label_license"), version.license || "-");
-  if (version.meta) {
-    appendOptionalKv(t("label_description"), version.meta.description);
-    appendOptionalKv(t("label_domain"), version.meta.domain);
-    if (version.meta.categories.length) {
-      appendKv(t("label_categories"), buildCodeListNode(version.meta.categories));
-    }
-    if (version.meta.keywords.length) {
-      appendKv(t("label_keywords"), buildCodeListNode(version.meta.keywords));
-    }
-  }
-  appendKv(t("label_source_ref"), version.source.ref || "-");
-  appendKv(t("label_source_commit"), version.source.commit || "-");
-  renderUpstreamMeta(version.upstream);
-  appendKv(t("label_runtime"), formatRuntime(version.runtime));
-  appendKv(t("label_main"), version.paths.main || "-");
-  appendKv(t("label_help"), version.paths.help || "-");
-  appendKv(t("label_dockerfile"), version.paths.dockerfile || "-");
-  appendKv(t("label_container_image"), version.container.image || "-");
-  appendKv(t("label_container_tag"), version.container.imageTag || "-");
-  appendOptionalKv(t("label_container_digest"), version.container.digest);
+  appendKv(t("label_source_ref"), version.source.ref || "-", source);
+  appendKv(t("label_source_commit"), version.source.commit || "-", source);
+
+  const runtimeContainer = createDetailSection(t("detail_runtime_container"));
+  appendKv(t("label_runtime"), formatRuntime(version.runtime), runtimeContainer);
+  appendKv(t("label_main"), version.paths.main || "-", runtimeContainer);
+  appendKv(t("label_help"), version.paths.help || "-", runtimeContainer);
+  appendKv(t("label_dockerfile"), version.paths.dockerfile || "-", runtimeContainer);
+  appendKv(t("label_container_image"), version.container.image || "-", runtimeContainer);
+  appendKv(t("label_container_tag"), version.container.imageTag || "-", runtimeContainer);
+  appendOptionalKv(t("label_container_digest"), version.container.digest, runtimeContainer);
   appendOptionalKv(
     t("label_container_platforms"),
-    version.container.platforms.length ? version.container.platforms.join(", ") : ""
+    version.container.platforms.length
+      ? buildChipListNode(version.container.platforms, true)
+      : "",
+    runtimeContainer
   );
   if (version.container.platformDigests.length) {
     appendKv(
       t("label_container_platform_digests"),
-      buildPlatformDigestNode(version.container.platformDigests)
+      buildPlatformDigestNode(version.container.platformDigests),
+      runtimeContainer
     );
   }
-  if (version.smoke) {
-    appendKv(t("label_smoke_status"), version.smoke.status || "-");
-    appendKv(t("label_smoke_backend"), version.smoke.backendUsed || version.smoke.backend || "-");
-    appendOptionalKv(
-      t("label_smoke_timeout"),
-      version.smoke.timeout == null ? "" : `${version.smoke.timeout}s`
-    );
-    if (version.smoke.exist.length) {
-      appendKv(t("label_smoke_exist"), buildCodeListNode(version.smoke.exist));
+
+  if (version.smoke || version.trust) {
+    const validation = createDetailSection(t("detail_validation"), "validation");
+    if (version.trust) {
+      appendKv(t("label_trust_status"), buildStatusPill(version.trust.status), validation);
+      appendOptionalKv(t("label_trust_policy"), version.trust.policy, validation);
+      appendOptionalKv(t("label_trust_source"), version.trust.source, validation);
+      appendOptionalKv(t("label_trust_checked_at"), version.trust.checkedAt, validation);
     }
-    if (version.smoke.test.length) {
-      appendKv(t("label_smoke_test"), buildCodeListNode(version.smoke.test));
+    if (version.smoke) {
+      appendKv(t("label_smoke_status"), buildStatusPill(version.smoke.status), validation);
+      appendKv(
+        t("label_smoke_backend"),
+        version.smoke.backendUsed || version.smoke.backend || "-",
+        validation
+      );
+      appendOptionalKv(
+        t("label_smoke_timeout"),
+        version.smoke.timeout == null ? "" : `${version.smoke.timeout}s`,
+        validation
+      );
+      if (version.smoke.exist.length) {
+        appendKv(t("label_smoke_exist"), buildCodeListNode(version.smoke.exist), validation);
+      }
+      if (version.smoke.test.length) {
+        appendKv(t("label_smoke_test"), buildCodeListNode(version.smoke.test), validation);
+      }
+      appendOptionalKv(t("label_smoke_checked_at"), version.smoke.checkedAt, validation);
     }
-    appendOptionalKv(t("label_smoke_checked_at"), version.smoke.checkedAt);
   }
-  if (version.trust) {
-    appendKv(t("label_trust_status"), version.trust.status || "-");
-    appendOptionalKv(t("label_trust_policy"), version.trust.policy);
-    appendOptionalKv(t("label_trust_source"), version.trust.source);
-    appendOptionalKv(t("label_trust_checked_at"), version.trust.checkedAt);
+
+  if (version.upstream) {
+    renderUpstreamMeta(version.upstream, createDetailSection(t("detail_upstream")));
   }
 
   renderVersionsTable(pkg);

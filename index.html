@@ -13,20 +13,12 @@
   <body>
     <header class="app-header">
       <div class="container app-header-inner">
-        <a class="brand" href="https://github.com/taffish" target="_blank" rel="noreferrer">
+        <a class="brand" href="./" aria-label="TAFFISH Hub home">
           <img class="brand-mark" src="./assets/taffish-logo.png" alt="" width="42" height="42">
           <span class="brand-text">TAFFISH Hub</span>
         </a>
 
         <div class="header-actions">
-          <div class="lang-switch" aria-label="Language switch">
-            <button id="langEn" class="lang-pill active" type="button">EN</button>
-            <button id="langZh" class="lang-pill" type="button">中文</button>
-          </div>
-          <button id="refreshData" class="icon-button" type="button" title="Refresh index">
-            <i data-lucide="refresh-cw"></i>
-            <span data-i18n="refresh">Refresh</span>
-          </button>
           <a class="icon-button" href="https://taffish.com" target="_blank" rel="noreferrer">
             <i data-lucide="globe"></i>
             <span data-i18n="nav_website">Website</span>
@@ -47,6 +39,14 @@
             <i data-lucide="shield-check"></i>
             <span data-i18n="nav_trust_report">Trust Report</span>
           </a>
+          <button id="refreshData" class="icon-button" type="button" title="Refresh index">
+            <i data-lucide="refresh-cw"></i>
+            <span data-i18n="refresh">Refresh</span>
+          </button>
+          <div class="lang-switch" aria-label="Language switch">
+            <button id="langEn" class="lang-pill active" type="button">EN</button>
+            <button id="langZh" class="lang-pill" type="button">中文</button>
+          </div>
         </div>
       </div>
     </header>
@@ -187,7 +187,7 @@
                 </a>
               </div>
 
-              <div class="kv-grid" id="detailMeta"></div>
+              <div class="detail-sections" id="detailMeta"></div>
 
               <div class="subsection">
                 <p class="subhead" data-i18n="detail_versions">Versions</p>
