@@ -73,6 +73,10 @@ const I18N = {
     label_repository: "Repository",
     label_tag: "Tag",
     label_license: "License",
+    label_description: "Description",
+    label_domain: "Domain",
+    label_categories: "Categories",
+    label_keywords: "Keywords",
     label_source_ref: "Source Ref",
     label_source_commit: "Source Commit",
     label_upstream: "Upstream",
@@ -186,6 +190,10 @@ const I18N = {
     label_repository: "仓库",
     label_tag: "标签",
     label_license: "许可证",
+    label_description: "说明",
+    label_domain: "领域",
+    label_categories: "分类",
+    label_keywords: "关键词",
     label_source_ref: "源码引用",
     label_source_commit: "源码提交",
     label_upstream: "原始软件",
@@ -509,6 +517,30 @@ function parsePlatform(rawPlatform) {
   };
 }
 
+function parseMeta(rawMeta) {
+  const meta = asObject(rawMeta);
+  if (!Object.keys(meta).length) return null;
+  const result = {
+    domain: isNonEmptyString(meta.domain) ? meta.domain.trim() : "",
+    categories: normalizeStringList(meta.categories),
+    keywords: normalizeStringList(meta.keywords),
+    description: isNonEmptyString(meta.description) ? meta.description.trim() : ""
+  };
+  return result.domain || result.categories.length || result.keywords.length || result.description
+    ? result
+    : null;
+}
+
+function metaSearchText(meta) {
+  if (!meta) return "";
+  return [
+    meta.domain,
+    meta.description,
+    ...meta.categories,
+    ...meta.keywords
+  ].join(" ").toLowerCase();
+}
+
 function parseSmoke(rawSmoke) {
   const smoke = asObject(rawSmoke);
   if (!Object.keys(smoke).length) return null;
@@ -554,6 +586,7 @@ function buildVersionRecord(versionId, rawRecord, packageEntry) {
   const container = asObject(record.container);
   const dependencies = parseDependencies(record.dependencies);
   const upstream = parseUpstream(record.upstream);
+  const meta = parseMeta(record.meta);
 
   const commandName = isNonEmptyString(command.name)
     ? command.name
@@ -580,6 +613,8 @@ function buildVersionRecord(versionId, rawRecord, packageEntry) {
     repositorySlug,
     dependencies,
     dependencyCount: dependencies.length,
+    meta,
+    metaSearchText: metaSearchText(meta),
     upstream,
     upstreamSearchText: upstreamSearchText(upstream),
     platform: parsePlatform(record.platform),
@@ -649,6 +684,7 @@ function buildPackageRecord(packageName, rawEntry) {
     repositorySlug,
     repositoryUrl,
     ...versions.map((item) => item.versionId),
+    ...versions.map((item) => item.metaSearchText),
     ...versions.map((item) => item.upstreamSearchText)
   ].join(" ").toLowerCase();
 
@@ -1233,6 +1269,16 @@ function renderDetail() {
   }
   appendKv(t("label_tag"), version.tag || "-");
   appendKv(t("label_license"), version.license || "-");
+  if (version.meta) {
+    appendOptionalKv(t("label_description"), version.meta.description);
+    appendOptionalKv(t("label_domain"), version.meta.domain);
+    if (version.meta.categories.length) {
+      appendKv(t("label_categories"), buildCodeListNode(version.meta.categories));
+    }
+    if (version.meta.keywords.length) {
+      appendKv(t("label_keywords"), buildCodeListNode(version.meta.keywords));
+    }
+  }
   appendKv(t("label_source_ref"), version.source.ref || "-");
   appendKv(t("label_source_commit"), version.source.commit || "-");
   renderUpstreamMeta(version.upstream);
