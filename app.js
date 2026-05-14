@@ -387,7 +387,6 @@ const el = {
   detailMeta: document.getElementById("detailMeta"),
   detailSurface: document.querySelector(".detail-surface"),
   versionsTable: document.getElementById("versionsTable"),
-  dependenciesTable: document.getElementById("dependenciesTable"),
   dependenciesExpanded: document.getElementById("dependenciesExpanded"),
   platformTable: document.getElementById("platformTable"),
   warningsCount: document.getElementById("warningsCount"),
@@ -1427,27 +1426,6 @@ function buildInstallChain(pkg, version) {
   return lines;
 }
 
-function renderDependenciesTable(version) {
-  el.dependenciesTable.textContent = "";
-  const header = document.createElement("div");
-  header.className = "mini-row header";
-  header.append(createCell(t("table_dependency")), createCell(t("table_versions")));
-  el.dependenciesTable.append(header);
-
-  if (!version.dependencies.length) {
-    el.dependenciesTable.append(createMiniRow(["-", t("none")]));
-    return;
-  }
-
-  for (const dependency of version.dependencies) {
-    const versionText = dependency.versions.length ? dependency.versions.join(", ") : t("none");
-    const dependencyLink = buildPackageJumpLink(dependency.name, "", dependency.name);
-    el.dependenciesTable.append(
-      createMiniRow([dependencyLink, versionText], ["cell-mono", "cell-mono"])
-    );
-  }
-}
-
 function renderDependenciesExpanded(version) {
   el.dependenciesExpanded.textContent = "";
   if (!version.dependencies.length) {
@@ -1753,7 +1731,6 @@ function renderDetail() {
   }
 
   renderVersionsTable(pkg);
-  renderDependenciesTable(version);
   renderDependenciesExpanded(version);
   renderPlatformTable(version);
   writeUrlState();
