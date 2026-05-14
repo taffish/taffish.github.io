@@ -371,6 +371,7 @@ const el = {
   detailRepoLink: document.getElementById("detailRepoLink"),
   detailSourceLink: document.getElementById("detailSourceLink"),
   detailMeta: document.getElementById("detailMeta"),
+  detailSurface: document.querySelector(".detail-surface"),
   versionsTable: document.getElementById("versionsTable"),
   dependenciesTable: document.getElementById("dependenciesTable"),
   dependenciesExpanded: document.getElementById("dependenciesExpanded"),
@@ -882,6 +883,12 @@ function createCell(text, className = "") {
   return div;
 }
 
+function createPackageCell(text, className, label) {
+  const cell = createCell(text, className);
+  cell.dataset.label = label;
+  return cell;
+}
+
 function createHeaderRow(labels, extraClass = "") {
   const row = document.createElement("div");
   row.className = `table-row header ${extraClass}`.trim();
@@ -907,6 +914,10 @@ function createLoadingRows() {
     fragment.append(row);
   }
   return fragment;
+}
+
+function isMobileViewport() {
+  return window.matchMedia("(max-width: 700px)").matches;
 }
 
 function createMiniRow(values, classNames = [], extraClass = "") {
@@ -1057,12 +1068,12 @@ function renderPackages() {
     const kindLabel = pkg.kind === "flow" ? t("kind_flow") : t("kind_tool");
 
     row.append(
-      createCell(pkg.name),
-      createCell(pkg.latest || "-", "cell-mono"),
-      createCell(kindLabel, "cell-kind"),
-      createCell(pkg.commandName || "-", "cell-mono"),
-      createCell(String(pkg.dependencyCount), "cell-center"),
-      createCell(repositoryLabel, "cell-mono")
+      createPackageCell(pkg.name, "cell-package", t("table_package")),
+      createPackageCell(pkg.latest || "-", "cell-latest cell-mono", t("table_latest")),
+      createPackageCell(kindLabel, "cell-kind", t("table_kind")),
+      createPackageCell(pkg.commandName || "-", "cell-command cell-mono", t("table_command")),
+      createPackageCell(String(pkg.dependencyCount), "cell-deps cell-center", t("table_dependencies")),
+      createPackageCell(repositoryLabel, "cell-repo cell-mono", t("table_repository"))
     );
 
     const choose = () => {
@@ -1071,6 +1082,9 @@ function renderPackages() {
       renderPackages();
       renderDetail();
       writeUrlState();
+      if (isMobileViewport()) {
+        window.setTimeout(() => scrollToNode(el.detailSurface), 80);
+      }
     };
 
     row.addEventListener("click", choose);
