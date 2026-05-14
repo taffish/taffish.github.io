@@ -54,6 +54,7 @@ const I18N = {
     group_container: "Container Image",
     group_trust: "Trust Gate",
     group_smoke: "Smoke Test",
+    note: "Note",
     group_upstream_identity: "Upstream Identity",
     group_upstream_links: "Links",
     group_upstream_reference: "Reference",
@@ -135,6 +136,12 @@ const I18N = {
     label_trust_policy: "Trust Policy",
     label_trust_source: "Trust Source",
     label_trust_checked_at: "Trust Checked",
+    status_passed: "Passed",
+    status_failed: "Failed",
+    status_unknown: "Unknown",
+    status_not_applicable: "Not applicable",
+    trust_not_applicable_flow: "Flow apps do not have their own container image. TAFFISH checks dependency metadata, and dependency tools keep their own container trust records.",
+    trust_not_applicable_non_container: "This version has no container image, so the container smoke gate does not apply.",
     label_package_count: "Packages",
     install_chain: "Install Chain",
     latest_prefix: "latest",
@@ -200,6 +207,7 @@ const I18N = {
     group_container: "容器镜像",
     group_trust: "可信 Gate",
     group_smoke: "Smoke 测试",
+    note: "说明",
     group_upstream_identity: "原始软件身份",
     group_upstream_links: "链接",
     group_upstream_reference: "引用",
@@ -281,6 +289,12 @@ const I18N = {
     label_trust_policy: "可信策略",
     label_trust_source: "可信来源",
     label_trust_checked_at: "可信检查时间",
+    status_passed: "已通过",
+    status_failed: "失败",
+    status_unknown: "未知",
+    status_not_applicable: "不适用",
+    trust_not_applicable_flow: "Flow app 没有独立容器镜像；TAFFISH 会检查依赖元数据，依赖工具保留各自的容器可信记录。",
+    trust_not_applicable_non_container: "此版本没有容器镜像，因此不适用容器 smoke gate。",
     label_package_count: "软件包数",
     install_chain: "安装链",
     latest_prefix: "最新",
@@ -1215,6 +1229,34 @@ function buildChipListNode(values, options = {}) {
   return list.childElementCount ? list : null;
 }
 
+function localizedStatusLabel(value) {
+  const status = isNonEmptyString(value) ? value.trim() : "";
+  const normalized = status.toLowerCase();
+  if (["passed", "trusted", "ok", "valid"].includes(normalized)) {
+    return t("status_passed");
+  }
+  if (["failed", "error", "blocked", "invalid"].includes(normalized)) {
+    return t("status_failed");
+  }
+  if (normalized === "not_applicable") {
+    return t("status_not_applicable");
+  }
+  if (!status || normalized === "unknown") {
+    return t("status_unknown");
+  }
+  return status;
+}
+
+function trustNotApplicableNote(version) {
+  const status = version && version.trust && version.trust.status;
+  if (!isNonEmptyString(status) || status.trim().toLowerCase() !== "not_applicable") {
+    return "";
+  }
+  return version.kind === "flow"
+    ? t("trust_not_applicable_flow")
+    : t("trust_not_applicable_non_container");
+}
+
 function buildStatusPill(value) {
   const status = isNonEmptyString(value) ? value.trim() : "-";
   const normalized = status.toLowerCase();
@@ -1227,7 +1269,7 @@ function buildStatusPill(value) {
   } else {
     pill.classList.add("neutral");
   }
-  pill.textContent = status;
+  pill.textContent = localizedStatusLabel(status);
   return pill;
 }
 
@@ -1596,6 +1638,7 @@ function renderDetail() {
     if (version.trust) {
       const trust = createDetailGroup(t("group_trust"), validation);
       appendKv(t("label_trust_status"), buildStatusPill(version.trust.status), trust);
+      appendOptionalKv(t("note"), trustNotApplicableNote(version), trust);
       appendOptionalKv(t("label_trust_policy"), version.trust.policy, trust);
       appendOptionalKv(t("label_trust_source"), version.trust.source, trust);
       appendOptionalKv(t("label_trust_checked_at"), version.trust.checkedAt, trust);
