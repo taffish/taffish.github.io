@@ -557,6 +557,77 @@ function buildInstallCommand(target, versionId = "") {
     : `taf install ${target} ${versionId}`;
 }
 
+function packageHasVersion(pkg, versionId) {
+  if (!pkg || isDefaultVersionAlias(versionId)) return true;
+  return pkg.versions.some((item) => item.versionId === versionId);
+}
+
+function findPackageByDependencyName(name) {
+  const value = isNonEmptyString(name) ? name.trim() : "";
+  if (!value) return null;
+  if (state.packageMap.has(value)) return state.packageMap.get(value);
+  return state.packages.find((pkg) => pkg.commandName === value)
+    || state.packages.find((pkg) => pkg.versions.some((version) => version.commandName === value))
+    || null;
+}
+
+function resolvePackageVersion(pkg, versionId = "") {
+  if (!pkg) return "";
+  return packageHasVersion(pkg, versionId) && !isDefaultVersionAlias(versionId)
+    ? versionId
+    : pkg.latest;
+}
+
+function buildPackageHref(packageName, versionId = "") {
+  const pkg = findPackageByDependencyName(packageName);
+  const params = new URLSearchParams();
+  if (state.locale === "zh") params.set("lang", "zh");
+  params.set("pkg", pkg ? pkg.name : packageName);
+  const resolvedVersion = resolvePackageVersion(pkg, versionId);
+  if (resolvedVersion) params.set("ver", resolvedVersion);
+  return `?${params.toString()}`;
+}
+
+function navigateToPackage(packageName, versionId = "") {
+  const pkg = findPackageByDependencyName(packageName);
+  if (!pkg) return false;
+
+  state.filters.query = "";
+  state.filters.kind = "all";
+  state.filters.depsOnly = false;
+  state.filters.containerOnly = false;
+  state.selectedPackage = pkg.name;
+  state.selectedVersion = resolvePackageVersion(pkg, versionId);
+
+  renderFilterInputs();
+  renderPackages();
+  renderDetail();
+  window.setTimeout(() => scrollToNode(el.detailSurface), 80);
+  return true;
+}
+
+function buildPackageJumpLink(packageName, versionId = "", text = packageName, className = "cell-link cell-mono") {
+  if (!findPackageByDependencyName(packageName)) {
+    const span = document.createElement("span");
+    span.className = className
+      .replace(/\b(cell-link|dep-link)\b/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    span.textContent = text;
+    return span;
+  }
+
+  const link = document.createElement("a");
+  link.className = className;
+  link.href = buildPackageHref(packageName, versionId);
+  link.textContent = text;
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+    navigateToPackage(packageName, versionId);
+  });
+  return link;
+}
+
 function parseUpstream(rawUpstream) {
   const upstream = asObject(rawUpstream);
   const fields = [
@@ -893,7 +964,11 @@ function formatCount(value) {
 function createCell(text, className = "") {
   const div = document.createElement("div");
   div.className = className;
-  div.textContent = text;
+  if (text instanceof Node) {
+    div.append(text);
+  } else {
+    div.textContent = text;
+  }
   return div;
 }
 
@@ -1366,8 +1441,9 @@ function renderDependenciesTable(version) {
 
   for (const dependency of version.dependencies) {
     const versionText = dependency.versions.length ? dependency.versions.join(", ") : t("none");
+    const dependencyLink = buildPackageJumpLink(dependency.name, "", dependency.name);
     el.dependenciesTable.append(
-      createMiniRow([dependency.name, versionText], ["cell-mono", "cell-mono"])
+      createMiniRow([dependencyLink, versionText], ["cell-mono", "cell-mono"])
     );
   }
 }
@@ -1388,7 +1464,7 @@ function renderDependenciesExpanded(version) {
 
     const name = document.createElement("p");
     name.className = "dep-name cell-mono";
-    name.textContent = dependency.name;
+    name.append(buildPackageJumpLink(dependency.name, "", dependency.name, "dep-link cell-mono"));
 
     const versions = document.createElement("div");
     versions.className = "dep-versions";
@@ -1397,9 +1473,15 @@ function renderDependenciesExpanded(version) {
       ? dependency.versions
       : [t("none")];
     for (const versionId of normalizedVersions) {
-      const tag = document.createElement("span");
-      tag.className = "dep-version cell-mono";
-      tag.textContent = versionId;
+      const canLinkVersion = dependency.versions.length
+        && packageHasVersion(findPackageByDependencyName(dependency.name), versionId);
+      const tag = canLinkVersion
+        ? buildPackageJumpLink(dependency.name, versionId, versionId, "dep-version dep-link cell-mono")
+        : document.createElement("span");
+      if (!canLinkVersion) {
+        tag.className = "dep-version cell-mono";
+        tag.textContent = versionId;
+      }
       versions.append(tag);
     }
 
