@@ -1199,14 +1199,17 @@ function buildExecutableListNode(values) {
   return list.childElementCount ? list : null;
 }
 
-function buildChipListNode(values, mono = false) {
+function buildChipListNode(values, options = {}) {
+  const normalized = typeof options === "boolean" ? { mono: options } : options;
+  const variant = normalized.variant || "";
+  const prefix = normalized.prefix || "";
   const list = document.createElement("div");
-  list.className = "kv-chip-list";
+  list.className = `kv-chip-list ${variant}`.trim();
   for (const value of values) {
     if (!isNonEmptyString(value)) continue;
     const item = document.createElement("span");
-    item.className = `kv-chip ${mono ? "cell-mono" : ""}`.trim();
-    item.textContent = value.trim();
+    item.className = `kv-chip ${variant} ${normalized.mono ? "cell-mono" : ""}`.trim();
+    item.textContent = `${prefix}${value.trim()}`;
     list.append(item);
   }
   return list.childElementCount ? list : null;
@@ -1538,10 +1541,10 @@ function renderDetail() {
     const discovery = createDetailGroup(t("group_discovery"), overview);
     appendOptionalKv(t("label_domain"), version.meta.domain, discovery);
     if (version.meta.categories.length) {
-      appendKv(t("label_categories"), buildChipListNode(version.meta.categories), discovery);
+      appendKv(t("label_categories"), buildChipListNode(version.meta.categories, { variant: "category" }), discovery);
     }
     if (version.meta.keywords.length) {
-      appendKv(t("label_keywords"), buildChipListNode(version.meta.keywords), discovery);
+      appendKv(t("label_keywords"), buildChipListNode(version.meta.keywords, { variant: "keyword", prefix: "#" }), discovery);
     }
   }
 

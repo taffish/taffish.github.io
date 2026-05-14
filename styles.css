@@ -818,6 +818,10 @@ pre {
   gap: 5px;
 }
 
+.kv-chip-list.category {
+  gap: 6px;
+}
+
 .kv-chip {
   display: inline-flex;
   align-items: center;
@@ -830,6 +834,21 @@ pre {
   font-size: 11px;
   font-weight: 750;
   overflow-wrap: anywhere;
+}
+
+.kv-chip.category {
+  border-color: rgba(39, 122, 120, 0.2);
+  border-radius: 7px;
+  background: #eef8f5;
+  color: var(--teal-dark);
+  font-weight: 850;
+}
+
+.kv-chip.keyword {
+  border-color: rgba(15, 23, 42, 0.1);
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
 }
 
 .status-pill {
