@@ -1,0 +1,5 @@
+metric	value
+tree_engine	iqtree
+bootstrap_type	UFBoot
+bootstrap_replicates	0
+alrt_replicates	0

@@ -1,0 +1,3 @@
+layout	svg	png	pdf	summary	annotations
+rectangular	03_results/tree/plots/rectangular/tree.svg	03_results/tree/plots/rectangular/tree.png	03_results/tree/plots/rectangular/tree.pdf	03_results/tree/plots/rectangular/tree_plot_summary.tsv	03_results/tree/plots/rectangular/tree_tip_annotations.tsv
+circular	03_results/tree/plots/circular/tree.svg	03_results/tree/plots/circular/tree.png	03_results/tree/plots/circular/tree.pdf	03_results/tree/plots/circular/tree_plot_summary.tsv	03_results/tree/plots/circular/tree_tip_annotations.tsv

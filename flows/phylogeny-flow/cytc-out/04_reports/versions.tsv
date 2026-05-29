@@ -1,0 +1,11 @@
+tool	version	source
+phylogeny-flow	0.1.0-r1	taffish flow
+taf-seqkit	2.13.0-r2	taffish dependency
+taf-mafft	7.525-r3	taffish dependency
+taf-trimal	1.5.1-r1	taffish dependency
+taf-iqtree	3.1.2-r1	taffish dependency
+taf-fasttree	2.2.0-r1	taffish dependency
+taf-clipkit	2.12.0-r1	taffish dependency
+taf-muscle	5.3-r4	taffish dependency
+taf-clustal-omega	1.2.4-r1	taffish dependency
+taf-bioconductor-bioviz	3.23-r2	taffish dependency

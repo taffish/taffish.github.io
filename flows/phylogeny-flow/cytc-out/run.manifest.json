@@ -1,0 +1,37 @@
+{
+  "name": "phylogeny-flow",
+  "version": "0.1.0-r1",
+  "started_at": "2026-05-28T17:32:41Z",
+  "completed_at": "2026-05-28T17:32:53Z",
+  "outdir": "cytc-out",
+  "input": "tests/fixtures/cytochrome-c-uniprot-reviewed-v1/sequences/cytochrome_c_24.fa",
+  "parameters": {
+    "input_mode": "raw_fasta",
+    "seq_type": "protein",
+    "aligner": "mafft",
+    "trimmer": "trimal",
+    "tree_engine": "iqtree",
+    "model": "LG",
+    "bootstrap": "0",
+    "alrt": "0",
+    "threads": "6",
+    "seed": "20260528",
+    "plot_tree": "true",
+    "plot_layout": "rectangular",
+    "plot_formats": "pdf,png,svg",
+    "plot_style": "journal",
+    "plot_gallery_layouts": "rectangular,circular",
+    "plot_label_align": "none",
+    "plot_label_transform": "pretty",
+    "plot_scale_bar": "auto"
+  },
+  "outputs": {
+    "tree": "03_results/tree/tree.nwk",
+    "alignment": "03_results/alignment/aligned.fa",
+    "trimmed_alignment": "03_results/alignment/trimmed.fa",
+    "tree_plot_status": "generated",
+    "tree_plot_dir": "03_results/tree/plots",
+    "tree_plot_gallery": "03_results/tree/plots/tree_plot_gallery.tsv",
+    "report": "04_reports/phylogeny_report.html"
+  }
+}

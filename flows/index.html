@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TAFFISH Flow Portal</title>
+    <meta
+      name="description"
+      content="Problem-oriented TAFFISH flow routes for reproducible bioinformatics command pipelines."
+    />
+    <link rel="icon" type="image/png" href="../assets/taffish-logo.png" />
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      :root {
+        --portal-line: rgba(38, 55, 77, 0.14);
+        --portal-muted: #667085;
+        --portal-ink: #172033;
+        --portal-blue: #1d4ed8;
+        --portal-green: #15803d;
+        --portal-orange: #b45309;
+      }
+
+      html[data-lang="en"] .lang-zh,
+      html[data-lang="zh"] .lang-en {
+        display: none;
+      }
+
+      .portal-main {
+        min-height: calc(100vh - 84px);
+      }
+
+      .portal-band {
+        border-bottom: 1px solid var(--portal-line);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0)),
+          var(--surface);
+      }
+
+      .portal-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+        gap: 24px;
+        padding: 34px 0 28px;
+        align-items: stretch;
+      }
+
+      .portal-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        padding: 5px 9px;
+        border: 1px solid var(--portal-line);
+        border-radius: 999px;
+        color: var(--portal-blue);
+        background: rgba(29, 78, 216, 0.06);
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .portal-title {
+        margin: 18px 0 12px;
+        max-width: 820px;
+        color: var(--portal-ink);
+        font-size: clamp(2rem, 4vw, 4rem);
+        line-height: 1.03;
+        letter-spacing: 0;
+      }
+
+      .portal-lead {
+        max-width: 820px;
+        margin: 0;
+        color: var(--portal-muted);
+        font-size: 1.05rem;
+        line-height: 1.75;
+      }
+
+      .portal-note {
+        margin-top: 18px;
+        padding: 13px 14px;
+        border-left: 3px solid var(--portal-blue);
+        background: rgba(255, 255, 255, 0.72);
+        color: #334155;
+        line-height: 1.65;
+      }
+
+      .portal-stats {
+        display: grid;
+        gap: 10px;
+      }
+
+      .stat-box {
+        border: 1px solid var(--portal-line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.82);
+        padding: 15px;
+      }
+
+      .stat-label {
+        margin: 0 0 6px;
+        color: var(--portal-muted);
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .stat-value {
+        margin: 0;
+        color: var(--portal-ink);
+        font-size: 1.18rem;
+        font-weight: 800;
+      }
+
+      .portal-section {
+        padding: 28px 0;
+      }
+
+      .section-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 16px;
+      }
+
+      .section-heading h2 {
+        margin: 0;
+        color: var(--portal-ink);
+        font-size: 1.45rem;
+      }
+
+      .section-heading p {
+        max-width: 760px;
+        margin: 0;
+        color: var(--portal-muted);
+        line-height: 1.65;
+      }
+
+      .flow-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 16px;
+      }
+
+      .flow-card,
+      .route-card,
+      .use-card {
+        border: 1px solid var(--portal-line);
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 12px 34px rgba(15, 23, 42, 0.06);
+      }
+
+      .flow-card {
+        display: grid;
+        gap: 16px;
+        padding: 18px;
+      }
+
+      .flow-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .flow-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        color: #fff;
+        background: var(--portal-blue);
+      }
+
+      .flow-icon.green {
+        background: var(--portal-green);
+      }
+
+      .flow-title {
+        margin: 0;
+        color: var(--portal-ink);
+        font-size: 1.2rem;
+      }
+
+      .flow-subtitle {
+        margin: 5px 0 0;
+        color: var(--portal-muted);
+        line-height: 1.55;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+        border-radius: 999px;
+        padding: 5px 9px;
+        font-size: 0.76rem;
+        font-weight: 800;
+        background: rgba(21, 128, 61, 0.09);
+        color: var(--portal-green);
+      }
+
+      .status-pill.blue {
+        background: rgba(29, 78, 216, 0.09);
+        color: var(--portal-blue);
+      }
+
+      .route-list {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .route-list li {
+        display: flex;
+        gap: 9px;
+        align-items: flex-start;
+        color: #334155;
+        line-height: 1.55;
+      }
+
+      .route-list i {
+        width: 17px;
+        height: 17px;
+        margin-top: 3px;
+        color: var(--portal-blue);
+        flex: 0 0 auto;
+      }
+
+      .flow-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .portal-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        min-height: 38px;
+        padding: 8px 11px;
+        border-radius: 8px;
+        border: 1px solid var(--portal-line);
+        background: #fff;
+        color: var(--portal-ink);
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .portal-button.primary {
+        background: var(--portal-ink);
+        color: #fff;
+      }
+
+      .portal-button i {
+        width: 17px;
+        height: 17px;
+      }
+
+      .route-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .route-card {
+        padding: 15px;
+      }
+
+      .route-card h3 {
+        margin: 0 0 8px;
+        color: var(--portal-ink);
+        font-size: 1rem;
+      }
+
+      .route-card p {
+        margin: 0;
+        color: var(--portal-muted);
+        line-height: 1.55;
+      }
+
+      .stage-tag {
+        display: inline-block;
+        margin-bottom: 10px;
+        color: var(--portal-orange);
+        font-size: 0.76rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .use-card {
+        display: grid;
+        grid-template-columns: minmax(0, 0.85fr) minmax(320px, 1.15fr);
+        gap: 18px;
+        padding: 18px;
+      }
+
+      .use-card p {
+        margin: 0;
+        color: var(--portal-muted);
+        line-height: 1.65;
+      }
+
+      .command-block {
+        overflow-x: auto;
+        margin: 0;
+        border-radius: 8px;
+        background: #111827;
+        color: #e5e7eb;
+        padding: 14px;
+        font-size: 0.88rem;
+        line-height: 1.7;
+      }
+
+      @media (max-width: 920px) {
+        .portal-hero,
+        .flow-grid,
+        .use-card {
+          grid-template-columns: 1fr;
+        }
+
+        .route-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 640px) {
+        .portal-title {
+          font-size: 2.1rem;
+        }
+
+        .section-heading {
+          display: grid;
+        }
+
+        .route-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .flow-card-header {
+          display: grid;
+        }
+
+        .status-pill {
+          width: fit-content;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="container app-header-inner">
+        <a class="brand" href="../" aria-label="TAFFISH Hub home">
+          <img class="brand-mark" src="../assets/taffish-logo.png" alt="TAFFISH logo" width="42" height="42" />
+          <span class="brand-text">TAFFISH Hub</span>
+        </a>
+
+        <div class="header-actions">
+          <a class="icon-button" href="../">
+            <i data-lucide="database"></i>
+            <span class="lang-en">Registry</span>
+            <span class="lang-zh">应用索引</span>
+          </a>
+          <a class="icon-button" href="../rnaseq-flows/">
+            <i data-lucide="dna"></i>
+            <span class="lang-en">RNA-seq</span>
+            <span class="lang-zh">RNA-seq</span>
+          </a>
+          <a class="icon-button" href="https://taffish.com" target="_blank" rel="noreferrer">
+            <i data-lucide="globe"></i>
+            <span class="lang-en">Website</span>
+            <span class="lang-zh">官网</span>
+          </a>
+          <a class="icon-button" href="https://github.com/taffish" target="_blank" rel="noreferrer">
+            <i data-lucide="github"></i>
+            <span>GitHub</span>
+          </a>
+          <div class="lang-switch" aria-label="Language switch">
+            <button id="langEn" class="lang-pill active" type="button">EN</button>
+            <button id="langZh" class="lang-pill" type="button">中文</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="portal-main">
+      <section class="portal-band">
+        <div class="container portal-hero">
+          <div>
+            <span class="portal-kicker">
+              <i data-lucide="git-branch"></i>
+              <span class="lang-en">Curated flow routes</span>
+              <span class="lang-zh">策划型流程路线</span>
+            </span>
+            <h1 class="portal-title">
+              <span class="lang-en">TAFFISH Flow Portal</span>
+              <span class="lang-zh">TAFFISH 流程门户</span>
+            </h1>
+            <p class="portal-lead">
+              <span class="lang-en">
+                Problem-oriented reference routes composed from reproducible TAFFISH commands. Each flow keeps a stable
+                domain interface while preserving the shell-native, command-level reproducibility that defines TAFFISH.
+              </span>
+              <span class="lang-zh">
+                这里收纳由可复现 TAFFISH 命令组成的问题导向参考路线。每个流程提供稳定领域接口，同时保留
+                TAFFISH 的原生 shell 命令层级可复现性定位。
+              </span>
+            </p>
+            <div class="portal-note">
+              <span class="lang-en">
+                This page is a map of official analysis routes, not a new workflow engine layer. The concrete work is
+                still done by normal TAFFISH commands, explicit inputs, and a single output directory.
+              </span>
+              <span class="lang-zh">
+                这个页面是官方分析路线图，不是把 TAFFISH 包装成新的工作流引擎。真正执行仍然来自普通
+                TAFFISH 命令、显式输入和单一输出目录。
+              </span>
+            </div>
+          </div>
+
+          <div class="portal-stats" aria-label="Flow portal status">
+            <div class="stat-box">
+              <p class="stat-label">
+                <span class="lang-en">Active families</span>
+                <span class="lang-zh">当前主线</span>
+              </p>
+              <p class="stat-value">
+                <span class="lang-en">5 available families</span>
+                <span class="lang-zh">5 条可用主线</span>
+              </p>
+            </div>
+            <div class="stat-box">
+              <p class="stat-label">
+                <span class="lang-en">Default contract</span>
+                <span class="lang-zh">默认约定</span>
+              </p>
+              <p class="stat-value">
+                <span class="lang-en">one outdir, full provenance</span>
+                <span class="lang-zh">单输出目录 + 完整记录</span>
+              </p>
+            </div>
+            <div class="stat-box">
+              <p class="stat-label">
+                <span class="lang-en">Audience</span>
+                <span class="lang-zh">面向对象</span>
+              </p>
+              <p class="stat-value">
+                <span class="lang-en">researchers and maintainers</span>
+                <span class="lang-zh">科研用户与维护者</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="container portal-section">
+        <div class="section-heading">
+          <h2>
+            <span class="lang-en">Official Flow Families</span>
+            <span class="lang-zh">官方流程家族</span>
+          </h2>
+          <p>
+            <span class="lang-en">
+              These routes are meant to be small enough to inspect, serious enough for real examples, and strict about
+              inputs, outputs, logs, versions, and methods.
+            </span>
+            <span class="lang-zh">
+              这些路线希望足够小、足够清楚，也足够真实：输入、输出、日志、版本和方法记录都应能被检查和复现。
+            </span>
+          </p>
+        </div>
+
+        <div class="flow-grid">
+          <article class="flow-card">
+            <div class="flow-card-header">
+              <div>
+                <span class="flow-icon"><i data-lucide="dna"></i></span>
+                <h3 class="flow-title">
+                  <span class="lang-en">RNA-seq Flow Family</span>
+                  <span class="lang-zh">RNA-seq 流程家族</span>
+                </h3>
+                <p class="flow-subtitle">
+                  <span class="lang-en">
+                    A modular route from reference/index preparation to quantification, differential expression,
+                    enrichment, and report generation.
+                  </span>
+                  <span class="lang-zh">
+                    从参考/index 准备，到定量、差异表达、富集分析和报告生成的模块化路线。
+                  </span>
+                </p>
+              </div>
+              <span class="status-pill blue">
+                <span class="lang-en">public portal</span>
+                <span class="lang-zh">已有独立页面</span>
+              </span>
+            </div>
+            <ul class="route-list">
+              <li>
+                <i data-lucide="arrow-right"></i>
+                <span class="lang-en">Inputs: FASTQ reads, sample sheet, reference genome and annotation.</span>
+                <span class="lang-zh">输入：FASTQ 数据、样本表、参考基因组和注释。</span>
+              </li>
+              <li>
+                <i data-lucide="arrow-right"></i>
+                <span class="lang-en">Outputs: QC, indexes, expression matrices, DE tables, enrichment results, report.</span>
+                <span class="lang-zh">输出：质控、索引、表达矩阵、差异分析表、富集结果和报告。</span>
+              </li>
+              <li>
+                <i data-lucide="arrow-right"></i>
+                <span class="lang-en">Best use: real RNA-seq case studies and article-facing demonstrations.</span>
+                <span class="lang-zh">适合：真实 RNA-seq 案例、文章展示和用户学习。</span>
+              </li>
+            </ul>
+            <div class="flow-actions">
+              <a class="portal-button primary" href="../rnaseq-flows/">
+                <i data-lucide="external-link"></i>
+                <span class="lang-en">Open RNA-seq portal</span>
+                <span class="lang-zh">打开 RNA-seq 页面</span>
+              </a>
+              <a class="portal-button" href="../">
+                <i data-lucide="search"></i>
+                <span class="lang-en">Search Hub</span>
+                <span class="lang-zh">搜索 Hub</span>
+              </a>
+            </div>
+          </article>
+
+          <article class="flow-card">
+            <div class="flow-card-header">
+              <div>
+                <span class="flow-icon"><i data-lucide="clipboard-check"></i></span>
+                <h3 class="flow-title">
+                  <span class="lang-en">NGS QC Flow</span>
+                  <span class="lang-zh">NGS 质控流程</span>
+                </h3>
+                <p class="flow-subtitle">
+                  <span class="lang-en">
+                    Foundation FASTQ quality-control route for raw read statistics, FastQC, optional fastp cleaning,
+                    clean-read checks, MultiQC, and provenance.
+                  </span>
+                  <span class="lang-zh">
+                    基础 FASTQ 质控路线：原始数据统计、FastQC、可选 fastp 清洗、清洗后数据检查、MultiQC 和溯源记录。
+                  </span>
+                </p>
+              </div>
+              <span class="status-pill">
+                <span class="lang-en">available</span>
+                <span class="lang-zh">已可用</span>
+              </span>
+            </div>
+            <ul class="route-list">
+              <li>
+                <i data-lucide="arrow-right"></i>
+                <span class="lang-en">Inputs: single-end, paired-end, or multi-sample FASTQ tables.</span>
+                <span class="lang-zh">输入：单端、双端或多样本 FASTQ 表。</span>
+              </li>
+              <li>
+                <i data-lucide="arrow-right"></i>
+                <span class="lang-en">Outputs: raw and clean QC metrics, optional cleaned FASTQ, MultiQC report.</span>
+                <span class="lang-zh">输出：原始和清洗后质控指标、可选清洗后 FASTQ、MultiQC 报告。</span>
+              </li>
+              <li>
+                <i data-lucide="arrow-right"></i>
+                <span class="lang-en">Best use: first-pass read inspection before RNA-seq, WGS, metagenomics, or custom routes.</span>
+                <span class="lang-zh">适合：RNA-seq、WGS、宏基因组或自定义流程前的 reads 初筛。</span>
+              </li>
+            </ul>
+            <div class="flow-actions">
+              <a class="portal-button primary" href="../?q=ngs-qc-flow&amp;kind=flow">
+                <i data-lucide="search"></i>
+                <span class="lang-en">Open in Hub</span>
+                <span class="lang-zh">在 Hub 中打开</span>
+              </a>
+            </div>
+          </article>
+
+          <article class="flow-card">
+            <div class="flow-card-header">
+              <div>
+                <span class="flow-icon green"><i data-lucide="bar-chart-3"></i></span>
+                <h3 class="flow-title">
+                  <span class="lang-en">BAM QC Flow</span>
+                  <span class="lang-zh">BAM 质控流程</span>
+                </h3>
+                <p class="flow-subtitle">
+                  <span class="lang-en">
+                    Foundation alignment QC route for coordinate-sorted BAM files using Samtools, mosdepth, MultiQC,
+                    fixed output structure, and audit files.
+                  </span>
+                  <span class="lang-zh">
+                    面向已排序 BAM 的基础比对质控路线：Samtools、mosdepth、MultiQC、固定输出结构和审计文件。
+                  </span>
+                </p>
+              </div>
+              <span class="status-pill">
+                <span class="lang-en">available</span>
+                <span class="lang-zh">已可用</span>
+              </span>
+            </div>
+            <ul class="route-list">
+              <li>
+                <i data-lucide="arrow-right"></i>
+                <span class="lang-en">Inputs: indexed coordinate-sorted BAM files or a multi-sample BAM table.</span>
+                <span class="lang-zh">输入：带索引的 coordinate-sorted BAM，或多样本 BAM 表。</span>
+              </li>
+              <li>
+                <i data-lucide="arrow-right"></i>
+                <span class="lang-en">Outputs: flagstat, stats, idxstats, coverage, optional region summaries, MultiQC.</span>
+                <span class="lang-zh">输出：flagstat、stats、idxstats、coverage、可选区域覆盖摘要、MultiQC。</span>
+              </li>
+              <li>
+                <i data-lucide="arrow-right"></i>
+                <span class="lang-en">Best use: alignment deliverable checks before variant calling or downstream interpretation.</span>
+                <span class="lang-zh">适合：变异检测或后续解释前的比对结果验收。</span>
+              </li>
+            </ul>
+            <div class="flow-actions">
+              <a class="portal-button primary" href="../?q=bam-qc-flow&amp;kind=flow">
+                <i data-lucide="search"></i>
+                <span class="lang-en">Open in Hub</span>
+                <span class="lang-zh">在 Hub 中打开</span>
+              </a>
+            </div>
+          </article>
+
+          <article class="flow-card">
+            <div class="flow-card-header">
+              <div>
+                <span class="flow-icon"><i data-lucide="search"></i></span>
+                <h3 class="flow-title">
+                  <span class="lang-en">BLAST Flow</span>
+                  <span class="lang-zh">BLAST 流程</span>
+                </h3>
+                <p class="flow-subtitle">
+                  <span class="lang-en">
+                    Focused local BLAST route that builds a database from FASTA, runs one BLAST+ search command, and
+                    writes results plus provenance.
+                  </span>
+                  <span class="lang-zh">
+                    聚焦的本地 BLAST 路线：从 FASTA 构建数据库，运行一次 BLAST+ 搜索，并输出结果与溯源记录。
+                  </span>
+                </p>
+              </div>
+              <span class="status-pill">
+                <span class="lang-en">available</span>
+                <span class="lang-zh">已可用</span>
+              </span>
+            </div>
+            <ul class="route-list">
+              <li>
+                <i data-lucide="arrow-right"></i>
+                <span class="lang-en">Inputs: subject FASTA, query FASTA, BLAST program, and optional output format.</span>
+                <span class="lang-zh">输入：数据库 FASTA、查询 FASTA、BLAST 程序和可选输出格式。</span>
+              </li>
+              <li>
+                <i data-lucide="arrow-right"></i>
+                <span class="lang-en">Outputs: local BLAST database, tabular hits, commands, versions, and manifest.</span>
+                <span class="lang-zh">输出：本地 BLAST 数据库、命中表、命令、版本和运行记录。</span>
+              </li>
+              <li>
+                <i data-lucide="arrow-right"></i>
+                <span class="lang-en">Best use: small reproducible similarity searches and teaching examples.</span>
+                <span class="lang-zh">适合：小型可复现相似性搜索和教学示例。</span>
+              </li>
+            </ul>
+            <div class="flow-actions">
+              <a class="portal-button primary" href="../?q=blast-flow&amp;kind=flow">
+                <i data-lucide="search"></i>
+                <span class="lang-en">Open in Hub</span>
+                <span class="lang-zh">在 Hub 中打开</span>
+              </a>
+            </div>
+          </article>
+
+          <article class="flow-card">
+            <div class="flow-card-header">
+              <div>
+                <span class="flow-icon green"><i data-lucide="network"></i></span>
+                <h3 class="flow-title">
+                  <span class="lang-en">Phylogeny Flow</span>
+                  <span class="lang-zh">系统发育流程</span>
+                </h3>
+                <p class="flow-subtitle">
+                  <span class="lang-en">
+                    A compact evolutionary analysis route for homologous sequences: align, optionally trim, infer a
+                    tree, visualize it, and preserve the exact commands.
+                  </span>
+                  <span class="lang-zh">
+                    面向同源序列的紧凑进化分析路线：比对、可选修剪、建树、可视化，并保存完整命令记录。
+                  </span>
+                </p>
+              </div>
+              <span class="status-pill">
+                <span class="lang-en">formal-ready</span>
+                <span class="lang-zh">正式测试路线</span>
+              </span>
+            </div>
+            <ul class="route-list">
+              <li>
+                <i data-lucide="arrow-right"></i>
+                <span class="lang-en">Inputs: unaligned or aligned homologous FASTA sequences.</span>
+                <span class="lang-zh">输入：未比对或已比对的同源 FASTA 序列。</span>
+              </li>
+              <li>
+                <i data-lucide="arrow-right"></i>
+                <span class="lang-en">Outputs: alignment, trimmed alignment, Newick tree, tree plots, methods and logs.</span>
+                <span class="lang-zh">输出：序列比对、修剪后比对、Newick 树、树图、方法记录和日志。</span>
+              </li>
+              <li>
+                <i data-lucide="arrow-right"></i>
+                <span class="lang-en">Best use: teaching, gene-family exploration, and lightweight comparative biology.</span>
+                <span class="lang-zh">适合：教学、基因家族探索和轻量级比较生物学分析。</span>
+              </li>
+            </ul>
+            <div class="flow-actions">
+              <a class="portal-button primary" href="./phylogeny-flow/">
+                <i data-lucide="external-link"></i>
+                <span class="lang-en">Open flow page</span>
+                <span class="lang-zh">打开流程主页</span>
+              </a>
+              <a class="portal-button" href="./phylogeny-flow/cytc-out/04_reports/phylogeny_report.html">
+                <i data-lucide="file-text"></i>
+                <span class="lang-en">Example report</span>
+                <span class="lang-zh">示例报告</span>
+              </a>
+              <a class="portal-button" href="../">
+                <i data-lucide="search"></i>
+                <span class="lang-en">Search Hub</span>
+                <span class="lang-zh">搜索 Hub</span>
+              </a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="container portal-section">
+        <div class="section-heading">
+          <h2>
+            <span class="lang-en">Candidate Route Map</span>
+            <span class="lang-zh">候选路线图</span>
+          </h2>
+          <p>
+            <span class="lang-en">
+              Future families should be added when the required taf-tools, test data, and output contracts are clear.
+            </span>
+            <span class="lang-zh">
+              后续路线应在 taf-tool、测试数据和输出契约足够明确后再纳入。
+            </span>
+          </p>
+        </div>
+        <div class="route-grid">
+          <article class="route-card">
+            <span class="stage-tag">
+              <span class="lang-en">planned</span>
+              <span class="lang-zh">计划中</span>
+            </span>
+            <h3>
+              <span class="lang-en">Variant / WGS</span>
+              <span class="lang-zh">变异分析 / WGS</span>
+            </h3>
+            <p>
+              <span class="lang-en">Mapping, BAM processing, variant calling, filtering, annotation, and reports.</span>
+              <span class="lang-zh">比对、BAM 处理、变异检测、过滤、注释和报告。</span>
+            </p>
+          </article>
+          <article class="route-card">
+            <span class="stage-tag">
+              <span class="lang-en">planned</span>
+              <span class="lang-zh">计划中</span>
+            </span>
+            <h3>
+              <span class="lang-en">Assembly / Annotation</span>
+              <span class="lang-zh">组装 / 注释</span>
+            </h3>
+            <p>
+              <span class="lang-en">Genome assembly checks, annotation preparation, evidence integration, and summaries.</span>
+              <span class="lang-zh">基因组组装检查、注释准备、证据整合和摘要输出。</span>
+            </p>
+          </article>
+          <article class="route-card">
+            <span class="stage-tag">
+              <span class="lang-en">planned</span>
+              <span class="lang-zh">计划中</span>
+            </span>
+            <h3>
+              <span class="lang-en">Metagenomics</span>
+              <span class="lang-zh">宏基因组</span>
+            </h3>
+            <p>
+              <span class="lang-en">Read QC, taxonomic profiling, abundance tables, diversity summaries, and reports.</span>
+              <span class="lang-zh">质控、物种组成、丰度表、多样性摘要和报告。</span>
+            </p>
+          </article>
+          <article class="route-card">
+            <span class="stage-tag">
+              <span class="lang-en">planned</span>
+              <span class="lang-zh">计划中</span>
+            </span>
+            <h3>
+              <span class="lang-en">Single-cell RNA-seq</span>
+              <span class="lang-zh">单细胞 RNA-seq</span>
+            </h3>
+            <p>
+              <span class="lang-en">Matrix generation, QC, clustering, annotation handoff, and reproducible reports.</span>
+              <span class="lang-zh">矩阵生成、质控、聚类、注释交接和可复现报告。</span>
+            </p>
+          </article>
+          <article class="route-card">
+            <span class="stage-tag">
+              <span class="lang-en">planned</span>
+              <span class="lang-zh">计划中</span>
+            </span>
+            <h3>
+              <span class="lang-en">Protein / Structure</span>
+              <span class="lang-zh">蛋白 / 结构</span>
+            </h3>
+            <p>
+              <span class="lang-en">Sequence search, alignment, structural inspection, lightweight visualization, and notes.</span>
+              <span class="lang-zh">序列搜索、比对、结构检查、轻量可视化和结果说明。</span>
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="container portal-section">
+        <div class="use-card">
+          <div>
+            <h2>
+              <span class="lang-en">Using A Flow</span>
+              <span class="lang-zh">如何使用流程</span>
+            </h2>
+            <p>
+              <span class="lang-en">
+                Install the flow like any other TAFFISH app, read its command help, and run it with an explicit output
+                directory. Flow outputs should stay under that directory, including commands, versions, logs, methods,
+                results, and reports.
+              </span>
+              <span class="lang-zh">
+                流程和普通 TAFFISH 应用一样安装；先阅读命令帮助，再用显式输出目录运行。所有新产物都应留在
+                输出目录内，包括命令、版本、日志、方法记录、结果和报告。
+              </span>
+            </p>
+          </div>
+          <pre class="command-block"><code>taf update
+taf install phylogeny-flow
+taf-phylogeny-flow --help
+
+taf install rnaseq-standard-flow
+taf-rnaseq-standard-flow --help</code></pre>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <div class="container footer-inner">
+        <span>
+          <span class="lang-en">TAFFISH Flow Portal</span>
+          <span class="lang-zh">TAFFISH 流程门户</span>
+        </span>
+        <span class="muted">
+          <span class="lang-en">Curated routes built from reproducible command packages.</span>
+          <span class="lang-zh">由可复现命令包组成的策划型路线。</span>
+        </span>
+      </div>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      const localeKey = "taffish_hub_locale";
+      const root = document.documentElement;
+      const langEn = document.getElementById("langEn");
+      const langZh = document.getElementById("langZh");
+
+      function setLanguage(lang) {
+        root.dataset.lang = lang;
+        root.lang = lang === "zh" ? "zh-CN" : "en";
+        langEn.classList.toggle("active", lang === "en");
+        langZh.classList.toggle("active", lang === "zh");
+        localStorage.setItem(localeKey, lang);
+      }
+
+      langEn.addEventListener("click", () => setLanguage("en"));
+      langZh.addEventListener("click", () => setLanguage("zh"));
+      setLanguage(localStorage.getItem(localeKey) || "en");
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    </script>
+  </body>
+</html>

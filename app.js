@@ -8,6 +8,7 @@ const LAST_SUCCESS_GENERATED_AT_KEY = "taffish_hub_last_success_generated_at";
 const I18N = {
   en: {
     nav_website: "Website",
+    nav_flows: "Flows",
     nav_github: "GitHub",
     nav_index_repo: "Index Repo",
     nav_trust_report: "Trust Report",
@@ -161,6 +162,7 @@ const I18N = {
   },
   zh: {
     nav_website: "官网",
+    nav_flows: "流程",
     nav_github: "GitHub",
     nav_index_repo: "索引仓库",
     nav_trust_report: "可信报告",

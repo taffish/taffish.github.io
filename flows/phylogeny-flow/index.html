@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>phylogeny-flow | TAFFISH Flow Portal</title>
+    <meta
+      name="description"
+      content="TAFFISH phylogeny-flow page with usage notes, outputs, and a real cytochrome c example report."
+    />
+    <link rel="icon" type="image/png" href="../../assets/taffish-logo.png" />
+    <link rel="stylesheet" href="../../styles.css" />
+    <style>
+      :root {
+        --flow-ink: #13252d;
+        --flow-muted: #64757d;
+        --flow-line: #dbe6e7;
+        --flow-soft: #f5f8f7;
+        --flow-teal: #087f74;
+        --flow-blue: #1d5fd7;
+        --flow-gold: #b7791f;
+      }
+
+      html[data-lang="en"] .lang-zh,
+      html[data-lang="zh"] .lang-en {
+        display: none;
+      }
+
+      .flow-page {
+        min-height: calc(100vh - 84px);
+      }
+
+      .flow-hero {
+        border-bottom: 1px solid var(--flow-line);
+        background: linear-gradient(135deg, #fff 0, #f4f8f7 60%, #fff8ea 100%);
+      }
+
+      .flow-hero-inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+        gap: 24px;
+        align-items: stretch;
+        padding: 34px 0 28px;
+      }
+
+      .kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        border: 1px solid rgba(8, 127, 116, 0.24);
+        border-radius: 999px;
+        background: rgba(8, 127, 116, 0.08);
+        color: var(--flow-teal);
+        padding: 5px 9px;
+        font-size: 0.8rem;
+        font-weight: 800;
+      }
+
+      .flow-title {
+        margin: 16px 0 12px;
+        color: var(--flow-ink);
+        font-size: clamp(2rem, 4vw, 3.8rem);
+        line-height: 1.04;
+        letter-spacing: 0;
+      }
+
+      .flow-lead {
+        max-width: 820px;
+        margin: 0;
+        color: var(--flow-muted);
+        font-size: 1.05rem;
+        line-height: 1.75;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .flow-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        min-height: 38px;
+        border: 1px solid var(--flow-line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--flow-ink);
+        padding: 8px 11px;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .flow-button.primary {
+        background: var(--flow-ink);
+        color: #fff;
+      }
+
+      .flow-button i {
+        width: 17px;
+        height: 17px;
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .metric {
+        border: 1px solid var(--flow-line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.84);
+        padding: 14px;
+      }
+
+      .metric span {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--flow-muted);
+        font-size: 0.76rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .metric strong {
+        display: block;
+        color: var(--flow-ink);
+        font-size: 1.18rem;
+      }
+
+      .flow-section {
+        padding: 28px 0;
+      }
+
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: end;
+        margin-bottom: 16px;
+      }
+
+      .section-head h2 {
+        margin: 0;
+        color: var(--flow-ink);
+        font-size: 1.45rem;
+      }
+
+      .section-head p {
+        max-width: 780px;
+        margin: 0;
+        color: var(--flow-muted);
+        line-height: 1.65;
+      }
+
+      .route-strip {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .route-node {
+        border: 1px solid rgba(8, 127, 116, 0.26);
+        border-radius: 8px;
+        background: #fff;
+        padding: 12px;
+      }
+
+      .route-node strong {
+        display: block;
+        color: var(--flow-ink);
+        font-size: 0.92rem;
+      }
+
+      .route-node span {
+        display: block;
+        margin-top: 4px;
+        color: var(--flow-muted);
+        font-size: 0.8rem;
+        line-height: 1.4;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .info-card,
+      .report-shell {
+        border: 1px solid var(--flow-line);
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 12px 34px rgba(15, 23, 42, 0.06);
+      }
+
+      .info-card {
+        padding: 16px;
+      }
+
+      .info-card h3 {
+        margin: 0 0 8px;
+        color: var(--flow-ink);
+        font-size: 1rem;
+      }
+
+      .info-card p {
+        margin: 0;
+        color: var(--flow-muted);
+        line-height: 1.6;
+      }
+
+      .param-table {
+        display: grid;
+        border: 1px solid var(--flow-line);
+        border-radius: 8px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 12px 34px rgba(15, 23, 42, 0.06);
+      }
+
+      .param-row {
+        display: grid;
+        grid-template-columns: minmax(180px, 0.52fr) minmax(0, 1fr) minmax(0, 1fr);
+        gap: 0;
+        border-bottom: 1px solid var(--flow-line);
+      }
+
+      .param-row:last-child {
+        border-bottom: 0;
+      }
+
+      .param-row > div {
+        padding: 12px 14px;
+        line-height: 1.58;
+      }
+
+      .param-row > div + div {
+        border-left: 1px solid var(--flow-line);
+      }
+
+      .param-row.header {
+        background: #f3f7f7;
+        color: #394b59;
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .param-name {
+        color: var(--flow-ink);
+        font-weight: 800;
+      }
+
+      .param-row p {
+        margin: 0;
+        color: var(--flow-muted);
+      }
+
+      .report-shell {
+        overflow: hidden;
+      }
+
+      .report-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid var(--flow-line);
+        background: #fbfdfc;
+        padding: 12px 14px;
+      }
+
+      .report-toolbar strong {
+        color: var(--flow-ink);
+      }
+
+      .report-frame {
+        display: block;
+        width: 100%;
+        height: min(820px, 80vh);
+        border: 0;
+        background: #fff;
+      }
+
+      .command-block {
+        overflow-x: auto;
+        margin: 0;
+        border-radius: 8px;
+        background: #111827;
+        color: #e5e7eb;
+        padding: 15px;
+        font-size: 0.88rem;
+        line-height: 1.7;
+      }
+
+      .boundary {
+        border-left: 3px solid var(--flow-gold);
+        background: #fff8ec;
+        padding: 14px;
+        color: #65410b;
+        line-height: 1.65;
+      }
+
+      @media (max-width: 980px) {
+        .flow-hero-inner,
+        .route-strip,
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .flow-title {
+          font-size: 2.1rem;
+        }
+
+        .metric-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .param-row,
+        .param-row.header {
+          grid-template-columns: 1fr;
+        }
+
+        .param-row.header {
+          display: none;
+        }
+
+        .param-row > div + div {
+          border-left: 0;
+          border-top: 1px solid var(--flow-line);
+        }
+
+        .section-head,
+        .report-toolbar {
+          display: grid;
+          align-items: start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="container app-header-inner">
+        <a class="brand" href="../../" aria-label="TAFFISH Hub home">
+          <img class="brand-mark" src="../../assets/taffish-logo.png" alt="TAFFISH logo" width="42" height="42" />
+          <span class="brand-text">TAFFISH Hub</span>
+        </a>
+
+        <div class="header-actions">
+          <a class="icon-button" href="../">
+            <i data-lucide="git-branch"></i>
+            <span class="lang-en">Flows</span>
+            <span class="lang-zh">流程</span>
+          </a>
+          <a class="icon-button" href="../../?q=phylogeny-flow&amp;kind=flow">
+            <i data-lucide="search"></i>
+            <span class="lang-en">Hub</span>
+            <span class="lang-zh">Hub</span>
+          </a>
+          <a class="icon-button" href="https://github.com/taffish/phylogeny-flow" target="_blank" rel="noreferrer">
+            <i data-lucide="github"></i>
+            <span>GitHub</span>
+          </a>
+          <div class="lang-switch" aria-label="Language switch">
+            <button id="langEn" class="lang-pill active" type="button">EN</button>
+            <button id="langZh" class="lang-pill" type="button">中文</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="flow-page">
+      <section class="flow-hero">
+        <div class="container flow-hero-inner">
+          <div>
+            <span class="kicker">
+              <i data-lucide="network"></i>
+              <span class="lang-en">TAFFISH flow page</span>
+              <span class="lang-zh">TAFFISH 流程主页</span>
+            </span>
+            <h1 class="flow-title">phylogeny-flow</h1>
+            <p class="flow-lead">
+              <span class="lang-en">
+                A compact, inspectable phylogenetic analysis route for homologous protein or DNA sequences: multiple
+                sequence alignment, optional trimming, tree inference, static tree visualization, report, and provenance.
+              </span>
+              <span class="lang-zh">
+                面向同源蛋白或 DNA 序列的紧凑、可检查系统发育分析路线：多序列比对、可选修剪、建树、静态树图、报告和溯源记录。
+              </span>
+            </p>
+            <div class="hero-actions">
+              <a class="flow-button primary" href="./cytc-out/04_reports/phylogeny_report.html">
+                <i data-lucide="file-text"></i>
+                <span class="lang-en">Open full example report</span>
+                <span class="lang-zh">打开完整示例报告</span>
+              </a>
+              <a class="flow-button" href="./cytc-out/03_results/tree/plots/rectangular/tree.png">
+                <i data-lucide="image"></i>
+                <span class="lang-en">Rectangular tree PNG</span>
+                <span class="lang-zh">矩形树图 PNG</span>
+              </a>
+              <a class="flow-button" href="./cytc-out/03_results/tree/tree.nwk">
+                <i data-lucide="file-code-2"></i>
+                <span class="lang-en">Newick tree</span>
+                <span class="lang-zh">Newick 树</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="metric-grid" aria-label="Cytochrome c example metrics">
+            <div class="metric">
+              <span>
+                <span class="lang-en">Example data</span>
+                <span class="lang-zh">示例数据</span>
+              </span>
+              <strong>
+                <span class="lang-en">24 cytochrome c proteins</span>
+                <span class="lang-zh">24 条 cytochrome c 蛋白序列</span>
+              </strong>
+            </div>
+            <div class="metric">
+              <span>
+                <span class="lang-en">Default route</span>
+                <span class="lang-zh">默认路线</span>
+              </span>
+              <strong>MAFFT -> trimAl -> IQ-TREE</strong>
+            </div>
+            <div class="metric">
+              <span>
+                <span class="lang-en">Tree model</span>
+                <span class="lang-zh">建树模型</span>
+              </span>
+              <strong>LG</strong>
+            </div>
+            <div class="metric">
+              <span>
+                <span class="lang-en">Report status</span>
+                <span class="lang-zh">报告状态</span>
+              </span>
+              <strong>
+                <span class="lang-en">bilingual static HTML</span>
+                <span class="lang-zh">双语静态 HTML</span>
+              </strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="container flow-section">
+        <div class="section-head">
+          <h2>
+            <span class="lang-en">Route</span>
+            <span class="lang-zh">流程路线</span>
+          </h2>
+          <p>
+            <span class="lang-en">
+              The flow is intentionally narrow: it starts from sequences that are already homologous and keeps the
+              command record transparent.
+            </span>
+            <span class="lang-zh">
+              这个流程有意保持边界清楚：它从已经确认同源的序列开始，并保留透明的命令记录。
+            </span>
+          </p>
+        </div>
+
+        <div class="route-strip">
+          <div class="route-node">
+            <strong>
+              <span class="lang-en">Input FASTA</span>
+              <span class="lang-zh">输入 FASTA</span>
+            </strong>
+            <span class="lang-en">Homologous sequences</span>
+            <span class="lang-zh">同源序列</span>
+          </div>
+          <div class="route-node">
+            <strong>
+              <span class="lang-en">MSA</span>
+              <span class="lang-zh">多序列比对</span>
+            </strong>
+            <span>MAFFT / MUSCLE / Clustal Omega</span>
+          </div>
+          <div class="route-node">
+            <strong>
+              <span class="lang-en">Trimming</span>
+              <span class="lang-zh">比对修剪</span>
+            </strong>
+            <span>trimAl / ClipKIT / none</span>
+          </div>
+          <div class="route-node">
+            <strong>
+              <span class="lang-en">Tree</span>
+              <span class="lang-zh">建树</span>
+            </strong>
+            <span>IQ-TREE / FastTree</span>
+          </div>
+          <div class="route-node">
+            <strong>
+              <span class="lang-en">Report</span>
+              <span class="lang-zh">报告</span>
+            </strong>
+            <span class="lang-en">Plots, methods, versions</span>
+            <span class="lang-zh">树图、方法、版本</span>
+          </div>
+        </div>
+
+        <div class="info-grid">
+          <article class="info-card">
+            <h3>
+              <span class="lang-en">Inputs</span>
+              <span class="lang-zh">输入</span>
+            </h3>
+            <p>
+              <span class="lang-en">
+                Use raw homologous FASTA with <code>--input</code>, or provide a pre-aligned FASTA with
+                <code>--alignment</code>.
+              </span>
+              <span class="lang-zh">
+                可以用 <code>--input</code> 传入同源 FASTA，也可以用 <code>--alignment</code> 传入已比对 FASTA。
+              </span>
+            </p>
+          </article>
+          <article class="info-card">
+            <h3>
+              <span class="lang-en">Outputs</span>
+              <span class="lang-zh">输出</span>
+            </h3>
+            <p>
+              <span class="lang-en">
+                Alignment FASTA, trimmed alignment, Newick tree, rectangular/circular tree plots, HTML report, commands,
+                versions, methods, logs, and manifest.
+              </span>
+              <span class="lang-zh">
+                输出比对 FASTA、修剪后比对、Newick 树、矩形/环形树图、HTML 报告、命令、版本、方法记录、日志和运行记录。
+              </span>
+            </p>
+          </article>
+          <article class="info-card">
+            <h3>
+              <span class="lang-en">Scientific boundary</span>
+              <span class="lang-zh">科学边界</span>
+            </h3>
+            <p>
+              <span class="lang-en">
+                The final tree is a gene/protein tree for the chosen sequence set. It does not choose homologs,
+                determine orthology, or automatically become a species tree.
+              </span>
+              <span class="lang-zh">
+                最终树是给定序列集下的基因/蛋白树。它不负责选择同源序列、判定直系同源，也不自动等同于物种树。
+              </span>
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="container flow-section">
+        <div class="section-head">
+          <h2>
+            <span class="lang-en">Parameter Guide</span>
+            <span class="lang-zh">参数说明</span>
+          </h2>
+          <p>
+            <span class="lang-en">
+              Most runs only need an input, an output directory, and a small number of route choices. The options below
+              are the stable user-facing controls exposed by the flow.
+            </span>
+            <span class="lang-zh">
+              大多数运行只需要输入、输出目录和少量路线选择。下面列出的是这个流程面向用户稳定暴露的主要参数。
+            </span>
+          </p>
+        </div>
+
+        <div class="param-table">
+          <div class="param-row header">
+            <div>
+              <span class="lang-en">Parameter</span>
+              <span class="lang-zh">参数</span>
+            </div>
+            <div>
+              <span class="lang-en">When to use it</span>
+              <span class="lang-zh">使用场景</span>
+            </div>
+            <div>
+              <span class="lang-en">Notes</span>
+              <span class="lang-zh">说明</span>
+            </div>
+          </div>
+          <div class="param-row">
+            <div class="param-name"><code>--input PATH</code><br /><code>--alignment PATH</code></div>
+            <div>
+              <p>
+                <span class="lang-en">Use <code>--input</code> for unaligned homologous FASTA; use <code>--alignment</code> when you already trust an aligned FASTA.</span>
+                <span class="lang-zh"><code>--input</code> 用于未比对的同源 FASTA；已有可信比对时用 <code>--alignment</code>。</span>
+              </p>
+            </div>
+            <div>
+              <p>
+                <span class="lang-en">They are mutually exclusive. Existing-alignment mode records <code>aligner=none</code>.</span>
+                <span class="lang-zh">二者不能同时使用；已比对输入会记录 <code>aligner=none</code>。</span>
+              </p>
+            </div>
+          </div>
+          <div class="param-row">
+            <div class="param-name"><code>--outdir PATH</code><br /><code>--force</code></div>
+            <div>
+              <p>
+                <span class="lang-en">Choose a dedicated output directory for one run.</span>
+                <span class="lang-zh">为一次运行选择专门的输出目录。</span>
+              </p>
+            </div>
+            <div>
+              <p>
+                <span class="lang-en">Existing directories are refused unless <code>--force</code> is set.</span>
+                <span class="lang-zh">默认拒绝已有目录；确认覆盖时才使用 <code>--force</code>。</span>
+              </p>
+            </div>
+          </div>
+          <div class="param-row">
+            <div class="param-name"><code>--seq-type auto|dna|protein</code></div>
+            <div>
+              <p>
+                <span class="lang-en">Tell the flow whether the sequences are DNA or protein, or keep automatic detection.</span>
+                <span class="lang-zh">指定序列是 DNA 还是蛋白；也可以保留自动判断。</span>
+              </p>
+            </div>
+            <div>
+              <p>
+                <span class="lang-en">Default is <code>auto</code>. Set it explicitly when the input is short or ambiguous.</span>
+                <span class="lang-zh">默认是 <code>auto</code>；输入较短或容易误判时建议显式指定。</span>
+              </p>
+            </div>
+          </div>
+          <div class="param-row">
+            <div class="param-name"><code>--aligner mafft|muscle|clustalo|none</code></div>
+            <div>
+              <p>
+                <span class="lang-en">Select the multiple-sequence aligner for raw FASTA input.</span>
+                <span class="lang-zh">为未比对 FASTA 选择多序列比对工具。</span>
+              </p>
+            </div>
+            <div>
+              <p>
+                <span class="lang-en">Default is <code>mafft</code>. Existing-alignment input forces <code>none</code>.</span>
+                <span class="lang-zh">默认是 <code>mafft</code>；已比对输入会强制使用 <code>none</code>。</span>
+              </p>
+            </div>
+          </div>
+          <div class="param-row">
+            <div class="param-name"><code>--trimmer trimal|clipkit|none</code></div>
+            <div>
+              <p>
+                <span class="lang-en">Choose whether and how to trim the alignment before tree inference.</span>
+                <span class="lang-zh">选择建树前是否修剪比对，以及使用哪种修剪工具。</span>
+              </p>
+            </div>
+            <div>
+              <p>
+                <span class="lang-en">Default is <code>trimal</code>. Use <code>none</code> when preserving every column matters.</span>
+                <span class="lang-zh">默认是 <code>trimal</code>；需要保留全部列时使用 <code>none</code>。</span>
+              </p>
+            </div>
+          </div>
+          <div class="param-row">
+            <div class="param-name"><code>--tree-engine iqtree|fasttree</code></div>
+            <div>
+              <p>
+                <span class="lang-en">Choose the tree inference engine.</span>
+                <span class="lang-zh">选择系统发育树推断工具。</span>
+              </p>
+            </div>
+            <div>
+              <p>
+                <span class="lang-en"><code>iqtree</code> is the stricter default; <code>fasttree</code> is faster and approximate.</span>
+                <span class="lang-zh"><code>iqtree</code> 是更严格的默认路线；<code>fasttree</code> 更快但更近似。</span>
+              </p>
+            </div>
+          </div>
+          <div class="param-row">
+            <div class="param-name"><code>--model MODEL</code></div>
+            <div>
+              <p>
+                <span class="lang-en">Set the IQ-TREE model, or use automatic model selection.</span>
+                <span class="lang-zh">设置 IQ-TREE 模型，或使用自动模型选择。</span>
+              </p>
+            </div>
+            <div>
+              <p>
+                <span class="lang-en">Default is <code>auto</code>. The cytochrome c example uses <code>LG</code>.</span>
+                <span class="lang-zh">默认是 <code>auto</code>；cytochrome c 示例使用 <code>LG</code>。</span>
+              </p>
+            </div>
+          </div>
+          <div class="param-row">
+            <div class="param-name"><code>--bootstrap N</code><br /><code>--alrt N</code><br /><code>--seed N</code></div>
+            <div>
+              <p>
+                <span class="lang-en">Control IQ-TREE support values and reproducible random choices.</span>
+                <span class="lang-zh">控制 IQ-TREE 支持率计算和可复现随机选择。</span>
+              </p>
+            </div>
+            <div>
+              <p>
+                <span class="lang-en">Defaults are 1000 for UFBoot and SH-aLRT; use <code>0</code> to disable in fast demos.</span>
+                <span class="lang-zh">UFBoot 和 SH-aLRT 默认都是 1000；快速演示时可设为 <code>0</code>。</span>
+              </p>
+            </div>
+          </div>
+          <div class="param-row">
+            <div class="param-name"><code>--plot-tree true|false</code><br /><code>--plot-layout rectangular|circular|fan</code><br /><code>--plot-formats pdf,png,svg</code></div>
+            <div>
+              <p>
+                <span class="lang-en">Control static tree visualization and the report gallery.</span>
+                <span class="lang-zh">控制静态树图和报告图集。</span>
+              </p>
+            </div>
+            <div>
+              <p>
+                <span class="lang-en">The default report keeps rectangular and circular views; fan is kept when selected as the primary layout.</span>
+                <span class="lang-zh">默认报告保留矩形和环形视图；扇形图只在设为主布局时保留。</span>
+              </p>
+            </div>
+          </div>
+          <div class="param-row">
+            <div class="param-name"><code>--sanitize-ids true|false</code><br /><code>--threads N</code></div>
+            <div>
+              <p>
+                <span class="lang-en">Normalize sequence IDs and set the thread count for supported tools.</span>
+                <span class="lang-zh">规范化序列 ID，并设置支持多线程工具的线程数。</span>
+              </p>
+            </div>
+            <div>
+              <p>
+                <span class="lang-en">ID normalization writes <code>00_inputs/sequence_id_map.tsv</code>; default thread count is 4.</span>
+                <span class="lang-zh">ID 规范化会写出 <code>00_inputs/sequence_id_map.tsv</code>；默认线程数为 4。</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="container flow-section">
+        <div class="section-head">
+          <h2>
+            <span class="lang-en">Real Example Report</span>
+            <span class="lang-zh">真实示例报告</span>
+          </h2>
+          <p>
+            <span class="lang-en">
+              This embedded report is copied from the flow repository's <code>cytc-out</code> example output. It is the
+              same static artifact a user opens after running the flow.
+            </span>
+            <span class="lang-zh">
+              下面嵌入的报告来自流程仓库中的 <code>cytc-out</code> 示例输出，也就是用户运行流程后会打开的静态结果。
+            </span>
+          </p>
+        </div>
+
+        <div class="report-shell">
+          <div class="report-toolbar">
+            <strong>cytc-out/04_reports/phylogeny_report.html</strong>
+            <a class="flow-button primary" href="./cytc-out/04_reports/phylogeny_report.html">
+              <i data-lucide="external-link"></i>
+              <span class="lang-en">Open report</span>
+              <span class="lang-zh">打开报告</span>
+            </a>
+          </div>
+          <iframe
+            class="report-frame"
+            title="phylogeny-flow cytochrome c example report"
+            src="./cytc-out/04_reports/phylogeny_report.html"
+          ></iframe>
+        </div>
+      </section>
+
+      <section class="container flow-section">
+        <div class="section-head">
+          <h2>
+            <span class="lang-en">Run Locally</span>
+            <span class="lang-zh">本地运行</span>
+          </h2>
+          <p>
+            <span class="lang-en">
+              Install from the Hub index, inspect help, then run with an explicit output directory.
+            </span>
+            <span class="lang-zh">
+              从 Hub 索引安装，先看 help，再用显式输出目录运行。
+            </span>
+          </p>
+        </div>
+        <pre class="command-block"><code>taf update
+taf install phylogeny-flow
+taf-phylogeny-flow --help
+
+taf-phylogeny-flow \
+  --input sequences.fa \
+  --outdir phylogeny-out \
+  --model LG \
+  --threads 4</code></pre>
+      </section>
+
+      <section class="container flow-section">
+        <div class="boundary">
+          <span class="lang-en">
+            Good flow pages should show both the stable interface and a real report artifact. GitHub remains the source
+            code home, but the public website should be the first reading surface for users who want to understand what a
+            TAFFISH flow does.
+          </span>
+          <span class="lang-zh">
+            好的流程主页应该同时展示稳定接口和真实报告产物。GitHub 仍然是源码入口，但官网应该成为用户理解一个
+            TAFFISH 流程做什么、产出什么、如何阅读结果的第一阅读面。
+          </span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <div class="container footer-inner">
+        <span>phylogeny-flow</span>
+        <span class="muted">
+          <span class="lang-en">TAFFISH Flow Portal</span>
+          <span class="lang-zh">TAFFISH 流程门户</span>
+        </span>
+      </div>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      const localeKey = "taffish_hub_locale";
+      const root = document.documentElement;
+      const langEn = document.getElementById("langEn");
+      const langZh = document.getElementById("langZh");
+
+      function setLanguage(lang) {
+        root.dataset.lang = lang;
+        root.lang = lang === "zh" ? "zh-CN" : "en";
+        langEn.classList.toggle("active", lang === "en");
+        langZh.classList.toggle("active", lang === "zh");
+        localStorage.setItem(localeKey, lang);
+      }
+
+      langEn.addEventListener("click", () => setLanguage("en"));
+      langZh.addEventListener("click", () => setLanguage("zh"));
+      setLanguage(localStorage.getItem(localeKey) || "en");
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    </script>
+  </body>
+</html>
