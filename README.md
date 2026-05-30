@@ -9,6 +9,9 @@ Static web registry for `taffish`, backed by `taffish-index`.
 - Package sorting (`name` / `recent`)
 - Package detail pane with versions, app meta descriptions, upstream source metadata, dependencies, platform constraints, container digest/platform metadata, platform digests, smoke/trust metadata, and install commands
 - One-click copy for install commands, including full dependency-aware install chain
+- Curated [TAFFISH Flow Portal](https://taffish.github.io/flows/) for official
+  flow families, route pages, example reports, and links back into the Hub
+  registry
 - Warnings panel (from index build warnings)
 - Trust-gate failure count and direct link to the latest index build report
 - Sync failure panel with explicit retry and last successful sync time
@@ -24,6 +27,7 @@ Static web registry for `taffish`, backed by `taffish-index`.
 - `index.html`: app layout
 - `styles.css`: responsive styles
 - `app.js`: index fetch, i18n, filters, and detail rendering
+- `flows/`: static flow portal pages and curated flow-family examples
 
 ## Publish on GitHub Pages
 
