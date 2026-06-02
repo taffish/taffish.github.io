@@ -106,6 +106,7 @@ const I18N = {
     label_keywords: "Keywords",
     label_source_ref: "Source Ref",
     label_source_commit: "Source Commit",
+    label_published_at: "Published",
     label_upstream: "Upstream",
     label_upstream_type: "Upstream Type",
     label_upstream_url: "Upstream URL",
@@ -260,6 +261,7 @@ const I18N = {
     label_keywords: "关键词",
     label_source_ref: "源码引用",
     label_source_commit: "源码提交",
+    label_published_at: "发布时间",
     label_upstream: "原始软件",
     label_upstream_type: "原始来源类型",
     label_upstream_url: "原始链接",
@@ -510,6 +512,19 @@ function compareVersionId(left, right) {
   if (coreCmp !== 0) return coreCmp;
   if (a.release !== b.release) return a.release - b.release;
   return String(left).localeCompare(String(right));
+}
+
+function timestampMillis(input) {
+  if (!isNonEmptyString(input)) return 0;
+  const value = Date.parse(input);
+  return Number.isFinite(value) ? value : 0;
+}
+
+function compareVersionRecordRecent(left, right) {
+  const leftTime = timestampMillis(left && left.publishedAt);
+  const rightTime = timestampMillis(right && right.publishedAt);
+  if (leftTime !== rightTime) return leftTime - rightTime;
+  return compareVersionId((left && left.versionId) || "", (right && right.versionId) || "");
 }
 
 function deriveRepositorySlug(value) {
@@ -767,6 +782,8 @@ function buildVersionRecord(versionId, rawRecord, packageEntry) {
     versionId,
     kind,
     tag: isNonEmptyString(record.tag) ? record.tag : "",
+    publishedAt: isNonEmptyString(record.published_at) ? record.published_at : "",
+    publishedAtSource: isNonEmptyString(record.published_at_source) ? record.published_at_source : "",
     release: Number.isFinite(record.release) ? record.release : null,
     license: isNonEmptyString(record.license) ? record.license : "",
     commandName,
@@ -824,6 +841,22 @@ function buildPackageRecord(packageName, rawEntry) {
     latestRecord = versions[0];
     latest = latestRecord.versionId;
   }
+  let recentVersion = isNonEmptyString(entry.recent_version) ? entry.recent_version : "";
+  let recentAt = isNonEmptyString(entry.recent_at) ? entry.recent_at : "";
+  let recentRecord = recentVersion
+    ? versions.find((item) => item.versionId === recentVersion) || null
+    : null;
+  if (!recentRecord && versions.length > 0) {
+    recentRecord = versions.reduce((best, item) =>
+      compareVersionRecordRecent(item, best) > 0 ? item : best
+    , versions[0]);
+  }
+  if (!recentVersion && recentRecord) {
+    recentVersion = recentRecord.versionId;
+  }
+  if (!recentAt && recentRecord) {
+    recentAt = recentRecord.publishedAt || "";
+  }
 
   const repositoryUrl = isNonEmptyString(entry.repository_url)
     ? entry.repository_url
@@ -860,6 +893,9 @@ function buildPackageRecord(packageName, rawEntry) {
     hasContainerImage,
     versions,
     latestRecord,
+    recentVersion,
+    recentAt,
+    recentRecord,
     searchText
   };
 }
@@ -925,6 +961,8 @@ function getFilteredPackages() {
 
   rows.sort((a, b) => {
     if (sort === "recent") {
+      const byRecent = timestampMillis(b.recentAt) - timestampMillis(a.recentAt);
+      if (byRecent !== 0) return byRecent;
       const byLatest = compareVersionId(b.latest || "", a.latest || "");
       if (byLatest !== 0) return byLatest;
     }
@@ -1666,6 +1704,11 @@ function renderDetail() {
   const releaseSource = createDetailGroup(t("group_release_source"), source);
   appendKv(t("label_source_ref"), version.source.ref || "-", releaseSource);
   appendKv(t("label_source_commit"), version.source.commit || "-", releaseSource);
+  appendOptionalKv(
+    t("label_published_at"),
+    version.publishedAt ? formatLocalDateTime(version.publishedAt) : "",
+    releaseSource
+  );
 
   const runtimeContainer = createDetailSection(t("detail_runtime_container"));
   const runtimeGroup = createDetailGroup(t("group_runtime"), runtimeContainer);
