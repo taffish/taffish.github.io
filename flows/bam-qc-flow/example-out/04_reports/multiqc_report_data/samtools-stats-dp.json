@@ -1,0 +1,17 @@
+{
+    "tiny": {
+        "Total sequences": 2e-06,
+        "Mapped &amp; paired": 0.0,
+        "Properly paired": 0.0,
+        "Duplicated": 0.0,
+        "QC Failed": 0.0,
+        "Reads MQ0": 0.0,
+        "Mapped bases (CIGAR)": 3.9999999999999996e-05,
+        "Bases Trimmed": 0.0,
+        "Duplicated bases": 0.0,
+        "Diff chromosomes": 0.0,
+        "Other orientation": 0.0,
+        "Inward pairs": 0.0,
+        "Outward pairs": 0.0
+    }
+}

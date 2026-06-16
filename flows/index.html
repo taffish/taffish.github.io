@@ -152,8 +152,10 @@
       }
 
       .flow-card {
-        display: grid;
+        display: flex;
+        flex-direction: column;
         gap: 16px;
+        height: 100%;
         padding: 18px;
       }
 
@@ -237,20 +239,26 @@
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
+        margin-top: auto;
       }
 
       .portal-button {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
         gap: 7px;
-        min-height: 38px;
-        padding: 8px 11px;
+        width: fit-content;
+        height: 48px;
+        padding: 0 14px;
         border-radius: 8px;
         border: 1px solid var(--portal-line);
         background: #fff;
         color: var(--portal-ink);
         font-weight: 800;
+        line-height: 1.2;
         text-decoration: none;
+        white-space: nowrap;
       }
 
       .portal-button.primary {
@@ -261,6 +269,7 @@
       .portal-button i {
         width: 17px;
         height: 17px;
+        flex: 0 0 auto;
       }
 
       .route-grid {
@@ -350,6 +359,7 @@
         .status-pill {
           width: fit-content;
         }
+
       }
     </style>
   </head>
@@ -520,13 +530,8 @@
             <div class="flow-actions">
               <a class="portal-button primary" href="../rnaseq-flows/">
                 <i data-lucide="external-link"></i>
-                <span class="lang-en">Open RNA-seq portal</span>
-                <span class="lang-zh">打开 RNA-seq 页面</span>
-              </a>
-              <a class="portal-button" href="../">
-                <i data-lucide="search"></i>
-                <span class="lang-en">Search Hub</span>
-                <span class="lang-zh">搜索 Hub</span>
+                <span class="lang-en">RNA-seq portal</span>
+                <span class="lang-zh">RNA-seq 页面</span>
               </a>
             </div>
           </article>
@@ -550,8 +555,8 @@
                 </p>
               </div>
               <span class="status-pill">
-                <span class="lang-en">available</span>
-                <span class="lang-zh">已可用</span>
+                <span class="lang-en">example report</span>
+                <span class="lang-zh">已有示例报告</span>
               </span>
             </div>
             <ul class="route-list">
@@ -562,8 +567,8 @@
               </li>
               <li>
                 <i data-lucide="arrow-right"></i>
-                <span class="lang-en">Outputs: raw and clean QC metrics, optional cleaned FASTQ, MultiQC report.</span>
-                <span class="lang-zh">输出：原始和清洗后质控指标、可选清洗后 FASTQ、MultiQC 报告。</span>
+                <span class="lang-en">Outputs: raw and clean QC metrics, optional cleaned FASTQ, MultiQC, standalone report.</span>
+                <span class="lang-zh">输出：原始和清洗后质控指标、可选清洗后 FASTQ、MultiQC 和独立报告。</span>
               </li>
               <li>
                 <i data-lucide="arrow-right"></i>
@@ -572,10 +577,19 @@
               </li>
             </ul>
             <div class="flow-actions">
-              <a class="portal-button primary" href="../?q=ngs-qc-flow&amp;kind=flow">
-                <i data-lucide="search"></i>
-                <span class="lang-en">Open in Hub</span>
-                <span class="lang-zh">在 Hub 中打开</span>
+              <a class="portal-button primary" href="./ngs-qc-flow/">
+                <i data-lucide="external-link"></i>
+                <span class="lang-en">Flow page</span>
+                <span class="lang-zh">流程主页</span>
+              </a>
+              <a class="portal-button" href="./ngs-qc-flow/example-out/04_reports/ngs_qc_report.html">
+                <i data-lucide="file-text"></i>
+                <span class="lang-en">Report</span>
+                <span class="lang-zh">示例报告</span>
+              </a>
+              <a class="portal-button" href="https://github.com/taffish/ngs-qc-flow" target="_blank" rel="noreferrer">
+                <span class="lang-en">GitHub</span>
+                <span class="lang-zh">GitHub</span>
               </a>
             </div>
           </article>
@@ -599,8 +613,8 @@
                 </p>
               </div>
               <span class="status-pill">
-                <span class="lang-en">available</span>
-                <span class="lang-zh">已可用</span>
+                <span class="lang-en">example report</span>
+                <span class="lang-zh">已有示例报告</span>
               </span>
             </div>
             <ul class="route-list">
@@ -611,8 +625,8 @@
               </li>
               <li>
                 <i data-lucide="arrow-right"></i>
-                <span class="lang-en">Outputs: flagstat, stats, idxstats, coverage, optional region summaries, MultiQC.</span>
-                <span class="lang-zh">输出：flagstat、stats、idxstats、coverage、可选区域覆盖摘要、MultiQC。</span>
+                <span class="lang-en">Outputs: flagstat, stats, idxstats, coverage, optional region summaries, MultiQC, standalone report.</span>
+                <span class="lang-zh">输出：flagstat、stats、idxstats、coverage、可选区域覆盖摘要、MultiQC 和独立报告。</span>
               </li>
               <li>
                 <i data-lucide="arrow-right"></i>
@@ -621,10 +635,19 @@
               </li>
             </ul>
             <div class="flow-actions">
-              <a class="portal-button primary" href="../?q=bam-qc-flow&amp;kind=flow">
-                <i data-lucide="search"></i>
-                <span class="lang-en">Open in Hub</span>
-                <span class="lang-zh">在 Hub 中打开</span>
+              <a class="portal-button primary" href="./bam-qc-flow/">
+                <i data-lucide="external-link"></i>
+                <span class="lang-en">Flow page</span>
+                <span class="lang-zh">流程主页</span>
+              </a>
+              <a class="portal-button" href="./bam-qc-flow/example-out/04_reports/bam_qc_report.html">
+                <i data-lucide="file-text"></i>
+                <span class="lang-en">Report</span>
+                <span class="lang-zh">示例报告</span>
+              </a>
+              <a class="portal-button" href="https://github.com/taffish/bam-qc-flow" target="_blank" rel="noreferrer">
+                <span class="lang-en">GitHub</span>
+                <span class="lang-zh">GitHub</span>
               </a>
             </div>
           </article>
@@ -660,8 +683,8 @@
               </li>
               <li>
                 <i data-lucide="arrow-right"></i>
-                <span class="lang-en">Outputs: local BLAST database, tabular hits, commands, versions, and manifest.</span>
-                <span class="lang-zh">输出：本地 BLAST 数据库、命中表、命令、版本和运行记录。</span>
+                <span class="lang-en">Outputs: local BLAST database, hits, commands, versions, methods, summary, and manifest.</span>
+                <span class="lang-zh">输出：本地 BLAST 数据库、命中结果、命令、版本、方法、摘要和运行记录。</span>
               </li>
               <li>
                 <i data-lucide="arrow-right"></i>
@@ -670,10 +693,9 @@
               </li>
             </ul>
             <div class="flow-actions">
-              <a class="portal-button primary" href="../?q=blast-flow&amp;kind=flow">
-                <i data-lucide="search"></i>
-                <span class="lang-en">Open in Hub</span>
-                <span class="lang-zh">在 Hub 中打开</span>
+              <a class="portal-button primary" href="https://github.com/taffish/blast-flow" target="_blank" rel="noreferrer">
+                <span class="lang-en">GitHub</span>
+                <span class="lang-zh">GitHub</span>
               </a>
             </div>
           </article>
@@ -721,18 +743,17 @@
             <div class="flow-actions">
               <a class="portal-button primary" href="./phylogeny-flow/">
                 <i data-lucide="external-link"></i>
-                <span class="lang-en">Open flow page</span>
-                <span class="lang-zh">打开流程主页</span>
+                <span class="lang-en">Flow page</span>
+                <span class="lang-zh">流程主页</span>
               </a>
               <a class="portal-button" href="./phylogeny-flow/cytc-out/04_reports/phylogeny_report.html">
                 <i data-lucide="file-text"></i>
-                <span class="lang-en">Example report</span>
+                <span class="lang-en">Report</span>
                 <span class="lang-zh">示例报告</span>
               </a>
-              <a class="portal-button" href="../">
-                <i data-lucide="search"></i>
-                <span class="lang-en">Search Hub</span>
-                <span class="lang-zh">搜索 Hub</span>
+              <a class="portal-button" href="https://github.com/taffish/phylogeny-flow" target="_blank" rel="noreferrer">
+                <span class="lang-en">GitHub</span>
+                <span class="lang-zh">GitHub</span>
               </a>
             </div>
           </article>
@@ -848,6 +869,12 @@
             </p>
           </div>
           <pre class="command-block"><code>taf update
+taf install ngs-qc-flow
+taf-ngs-qc-flow --help
+
+taf install bam-qc-flow
+taf-bam-qc-flow --help
+
 taf install phylogeny-flow
 taf-phylogeny-flow --help
 

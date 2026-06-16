@@ -1,0 +1,7 @@
+metric	value
+input_mode	raw_fasta
+sequence_count	24
+seq_type	protein
+min_length	104
+median_length	105
+max_length	112

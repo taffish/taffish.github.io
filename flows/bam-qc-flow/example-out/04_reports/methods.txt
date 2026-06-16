@@ -1,0 +1,9 @@
+bam-qc-flow 0.2.0-r1 performs a fixed quality-control path for coordinate-sorted, indexed short-read BAM files.
+
+Inputs were validated and normalized into 00_inputs/samples.normalized.tsv. BAM and index files were linked under 02_intermediate/bam_links/ so tools that expect adjacent BAM indexes can use the declared index without modifying inputs.
+
+Each sample was checked with taf-samtools 1.23.1-r1 using samtools quickcheck, flagstat, stats, idxstats, and coverage. Genome-level coverage summaries were computed with taf-mosdepth 0.3.14-r2 using mosdepth -n, which avoids default per-base depth output. When --regions-bed is supplied, mosdepth also runs with --by and thresholds 1,10,20,30 for target-level summaries.
+
+MultiQC 1.35-r2 summarizes outputs under 03_results into 04_reports/multiqc_report.html and its companion data directory. The TAFFISH standalone report 04_reports/bam_qc_report.html follows the taffish-flow-report 0.1.0 contract and embeds the native MultiQC HTML payload so the main report can be reviewed offline as one file.
+
+This 0.2.0 release does not sort BAMs, create indexes, process CRAM, mark duplicates, run BQSR, call variants, run Picard metrics, manage capture-kit interval logic, or emit per-base depth by default.

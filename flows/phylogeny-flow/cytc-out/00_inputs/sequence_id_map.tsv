@@ -1,0 +1,25 @@
+safe_id	original_id	full_header	order
+human_P99999_Homo	human|P99999|Homo	human|P99999|Homo sapiens	1
+chimpanzee_P99998_Pan	chimpanzee|P99998|Pan	chimpanzee|P99998|Pan troglodytes	2
+gorilla_Q6WUX8_Gorilla	gorilla|Q6WUX8|Gorilla	gorilla|Q6WUX8|Gorilla gorilla gorilla	3
+rhesus_macaque_P00002_Macaca	rhesus_macaque|P00002|Macaca	rhesus_macaque|P00002|Macaca mulatta	4
+horse_P00004_Equus	horse|P00004|Equus	horse|P00004|Equus caballus	5
+bovine_P62894_Bos	bovine|P62894|Bos	bovine|P62894|Bos taurus	6
+pig_P62895_Sus	pig|P62895|Sus	pig|P62895|Sus scrofa	7
+rabbit_P00008_Oryctolagus	rabbit|P00008|Oryctolagus	rabbit|P00008|Oryctolagus cuniculus	8
+mouse_P62897_Mus	mouse|P62897|Mus	mouse|P62897|Mus musculus	9
+rat_P62898_Rattus	rat|P62898|Rattus	rat|P62898|Rattus norvegicus	10
+kangaroo_P00014_Macropus	kangaroo|P00014|Macropus	kangaroo|P00014|Macropus giganteus	11
+chicken_P67881_Gallus	chicken|P67881|Gallus	chicken|P67881|Gallus gallus	12
+mallard_P00020_Anas	mallard|P00020|Anas	mallard|P00020|Anas platyrhynchos	13
+king_penguin_P00017_Aptenodytes	king_penguin|P00017|Aptenodytes	king_penguin|P00017|Aptenodytes patagonicus	14
+alligator_P81280_Alligator	alligator|P81280|Alligator	alligator|P81280|Alligator mississippiensis	15
+snapping_turtle_P00022_Chelydra	snapping_turtle|P00022|Chelydra	snapping_turtle|P00022|Chelydra serpentina	16
+bullfrog_P00024_Aquarana	bullfrog|P00024|Aquarana	bullfrog|P00024|Aquarana catesbeiana	17
+zebrafish_Q6IQM2_Danio	zebrafish|Q6IQM2|Danio	zebrafish|Q6IQM2|Danio rerio	18
+common_carp_P00026_Cyprinus	common_carp|P00026|Cyprinus	common_carp|P00026|Cyprinus carpio	19
+honeybee_P00038_Apis	honeybee|P00038|Apis	honeybee|P00038|Apis mellifera	20
+c_elegans_P19974_Caenorhabditis	c_elegans|P19974|Caenorhabditis	c_elegans|P19974|Caenorhabditis elegans	21
+budding_yeast_P00044_Saccharomyces	budding_yeast|P00044|Saccharomyces	budding_yeast|P00044|Saccharomyces cerevisiae S288c	22
+arabidopsis_P29380_Arabidopsis	arabidopsis|P29380|Arabidopsis	arabidopsis|P29380|Arabidopsis thaliana	23
+rice_Q0DI31_Oryza	rice|Q0DI31|Oryza	rice|Q0DI31|Oryza sativa subsp. japonica	24

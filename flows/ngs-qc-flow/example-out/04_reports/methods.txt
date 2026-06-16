@@ -1,0 +1,9 @@
+ngs-qc-flow 0.2.0-r1 performs a fixed FASTQ quality-control path for single-end and paired-end short-read data.
+
+Inputs were validated and normalized into 00_inputs/samples.normalized.tsv. Raw FASTQ statistics were computed with taf-seqkit 2.13.0-r2 using seqkit stats. Raw per-file quality-control reports were generated with taf-fastqc 0.12.1-r1.
+
+When --clean is enabled, reads are processed with taf-fastp 1.3.3-r3. The flow writes cleaned FASTQ files, fastp HTML/JSON reports, clean seqkit statistics, and clean FastQC reports. When --clean is not enabled, the flow leaves clean outputs empty and reports raw QC only.
+
+MultiQC 1.35-r2 summarizes outputs under 03_results into 04_reports/multiqc_report.html and 04_reports/multiqc_data/. ngs-qc-flow 0.2.0-r1 also creates 04_reports/ngs_qc_report.html, a TAFFISH standalone project-level QC report with embedded local HTML payloads for MultiQC, FastQC, and fastp reports when present.
+
+This release does not download SRA data, screen contamination, use a reference genome, merge lanes, apply UMI-specific logic, process long reads, manage complex adapter libraries, or infer sequencing platforms.

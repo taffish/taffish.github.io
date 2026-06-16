@@ -1,0 +1,14 @@
+{
+    "S2": {
+        "Unique Reads": "2.0",
+        "Duplicate Reads": "0.0"
+    },
+    "P1_R2": {
+        "Unique Reads": "2.0",
+        "Duplicate Reads": "0.0"
+    },
+    "P1_R1": {
+        "Unique Reads": "2.0",
+        "Duplicate Reads": "0.0"
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "ACGTACGTACGTACGTACGTACGT": {
+        "Reports": 2,
+        "Occurrences": 2,
+        "% of all reads": 33.33333333333333
+    },
+    "TGCATGCATGCATGCATGCATGCA": {
+        "Reports": 2,
+        "Occurrences": 2,
+        "% of all reads": 33.33333333333333
+    },
+    "GATTACAGATTACAGATTACAGAT": {
+        "Reports": 1,
+        "Occurrences": 1,
+        "% of all reads": 16.666666666666664
+    },
+    "CTAGCTAGCTAGCTAGCTAGCTAG": {
+        "Reports": 1,
+        "Occurrences": 1,
+        "% of all reads": 16.666666666666664
+    }
+}

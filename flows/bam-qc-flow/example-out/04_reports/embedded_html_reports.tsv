@@ -1,0 +1,2 @@
+id	group	label	path	status	source_bytes	embedded_bytes	unresolved_resources
+multiqc	MultiQC	MultiQC BAM QC report	04_reports/multiqc_report.html	ok	2351597	2351597	0

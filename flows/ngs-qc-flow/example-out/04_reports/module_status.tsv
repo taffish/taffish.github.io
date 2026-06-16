@@ -1,0 +1,7 @@
+module	status	note_en	note_zh
+Inputs	ok	2 sample(s), 3 FASTQ file(s) validated	已验证 2 个样本、3 个 FASTQ 文件
+Raw QC	ok	Raw SeqKit statistics and FastQC reports completed	原始 SeqKit 统计和 FastQC 报告已完成
+Cleaning	ok	fastp, clean SeqKit stats, and clean FastQC completed	fastp、清洗后 SeqKit 统计和清洗后 FastQC 均已完成
+MultiQC	ok	Native MultiQC report generated	原生 MultiQC 报告已生成
+Standalone report	ok	TAFFISH flow-report template shell and embedded HTML payload index generated	TAFFISH flow-report 模板壳和内嵌 HTML payload 索引已生成
+Native HTML resources	ok	No embedded native report declares external render resources	没有内嵌原生报告声明外部渲染资源

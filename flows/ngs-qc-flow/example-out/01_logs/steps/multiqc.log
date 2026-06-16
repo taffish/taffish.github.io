@@ -1,0 +1,11 @@
+
+/// MultiQC 🔍 v1.35
+
+     update_config | Report title: ngs-qc-real-run
+       file_search | Search path: example-out/03_results
+            seqkit | Found 3 stats reports
+             fastp | Found 2 reports
+            fastqc | Found 3 reports
+     write_results | Data        : tests/test-real-run-out/04_reports/multiqc_report_data
+     write_results | Report      : tests/test-real-run-out/04_reports/multiqc_report.html
+           multiqc | MultiQC complete

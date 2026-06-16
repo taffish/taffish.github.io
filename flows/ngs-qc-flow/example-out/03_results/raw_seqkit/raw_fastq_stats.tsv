@@ -1,0 +1,4 @@
+file	format	type	num_seqs	sum_len	min_len	avg_len	max_len	Q1	Q2	Q3	sum_gap	N50	N50_num	Q20(%)	Q30(%)	AvgQual	GC(%)	sum_n
+ngs-qc-flow/testdata/P1_R1.fastq	FASTQ	DNA	2	48	24	24.0	24	24	24	24	0	24	1	100	100	40.00	50.00	0
+ngs-qc-flow/testdata/P1_R2.fastq	FASTQ	DNA	2	48	24	24.0	24	24	24	24	0	24	1	100	100	40.00	50.00	0
+ngs-qc-flow/testdata/S2.fastq	FASTQ	DNA	2	48	24	24.0	24	24	24	24	0	24	1	100	100	40.00	39.58	0

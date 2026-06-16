@@ -1,0 +1,6 @@
+gate	status	evidence_en	evidence_zh	action_en	action_zh
+BAM readability	ok	All declared BAM and index files were readable.	所有声明的 BAM 与索引文件均可读取。	Proceed to alignment QC review.	继续审阅比对质控结果。
+BAM integrity	ok	1/1 samples passed samtools quickcheck.	1/1 个样本通过 samtools quickcheck。	Investigate any failed samples before downstream analysis.	若有失败样本，应先排查再继续下游分析。
+Alignment statistics	ok	Samtools metrics are available under 03_results/samtools/.	Samtools 指标位于 03_results/samtools/。	Review mapping, proper-pair, duplicate, and supplementary/secondary signals in MultiQC.	在 MultiQC 中审阅比对率、proper pair、重复、supplementary/secondary 等信号。
+Target coverage	ok	Region coverage and threshold files are available.	区域覆盖度与阈值文件已生成。	Use the region summaries to check capture/panel uniformity.	用区域汇总检查捕获/面板覆盖均一性。
+Report packaging	ok	Main HTML embeds the native MultiQC payload and key tables.	主 HTML 内嵌原生 MultiQC payload 和关键表格。	Share bam_qc_report.html for offline review; keep the output tree for audit.	离线审阅可分享 bam_qc_report.html；审计请保留完整输出目录。

@@ -1,0 +1,10 @@
+group	label	path
+multiqc	MultiQC project report	example-out/04_reports/multiqc_report.html
+raw_fastqc	P1_R1_fastqc.html	example-out/03_results/raw_fastqc/P1/P1_R1_fastqc.html
+raw_fastqc	P1_R2_fastqc.html	example-out/03_results/raw_fastqc/P1/P1_R2_fastqc.html
+raw_fastqc	S2_fastqc.html	example-out/03_results/raw_fastqc/S2/S2_fastqc.html
+fastp	P1.fastp.html	example-out/03_results/fastp/P1.fastp.html
+fastp	S2.fastp.html	example-out/03_results/fastp/S2.fastp.html
+clean_fastqc	P1_R1.clean_fastqc.html	example-out/03_results/clean_fastqc/P1/P1_R1.clean_fastqc.html
+clean_fastqc	P1_R2.clean_fastqc.html	example-out/03_results/clean_fastqc/P1/P1_R2.clean_fastqc.html
+clean_fastqc	S2.clean_fastqc.html	example-out/03_results/clean_fastqc/S2/S2.clean_fastqc.html

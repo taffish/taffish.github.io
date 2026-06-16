@@ -1,0 +1,25 @@
+metric	value
+tree_file	cytc-out/03_results/tree/tree.nwk
+tip_count	24
+internal_node_count	22
+metadata_file	NA
+metadata_id_column	NA
+metadata_rows	0
+metadata_matched_tips	0
+metadata_unmatched_tips	human_P99999_Homo,chimpanzee_P99998_Pan,rhesus_macaque_P00002_Macaca,horse_P00004_Equus,bovine_P62894_Bos,pig_P62895_Sus,rabbit_P00008_Oryctolagus,mouse_P62897_Mus,rat_P62898_Rattus,chicken_P67881_Gallus,king_penguin_P00017_Aptenodytes,mallard_P00020_Anas,alligator_P81280_Alligator,snapping_turtle_P00022_Chelydra,bullfrog_P00024_Aquarana,zebrafish_Q6IQM2_Danio,common_carp_P00026_Cyprinus,kangaroo_P00014_Macropus,honeybee_P00038_Apis,c_elegans_P19974_Caenorhabditis,budding_yeast_P00044_Saccharomyces,arabidopsis_P29380_Arabidopsis,rice_Q0DI31_Oryza,gorilla_Q6WUX8_Gorilla
+label_map_file	cytc-out/00_inputs/sequence_id_map.tsv
+label_map_from	safe_id
+label_map_to	original_id
+label_map_rows	24
+layout	rectangular
+style	journal
+label_align	none
+label_transform	pretty
+scale_bar	auto
+scale_bar_width	0.1
+scale_bar_label	0.1
+title	phylogeny-flow tree - rectangular
+formats	pdf,png,svg
+plot_width	10.36
+plot_height	7.26
+output_files	tree.pdf,tree.png,tree.svg

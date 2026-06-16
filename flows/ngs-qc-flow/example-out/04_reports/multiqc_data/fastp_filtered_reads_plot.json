@@ -1,0 +1,18 @@
+{
+    "S2": {
+        "Passed Filter": "2.0",
+        "Low Quality": "0.0",
+        "Too Many N": "0.0",
+        "Low Complexity": "nan",
+        "Too Short": "0.0",
+        "Too Long": "0.0"
+    },
+    "P1": {
+        "Passed Filter": "4.0",
+        "Low Quality": "0.0",
+        "Too Many N": "0.0",
+        "Low Complexity": "nan",
+        "Too Short": "0.0",
+        "Too Long": "0.0"
+    }
+}

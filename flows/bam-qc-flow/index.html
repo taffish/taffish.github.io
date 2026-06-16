@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bam-qc-flow | TAFFISH Flow Portal</title>
+    <meta
+      name="description"
+      content="TAFFISH bam-qc-flow page with BAM alignment QC route notes, stable interface, and a real standalone report example."
+    />
+    <link rel="icon" type="image/png" href="../../assets/taffish-logo.png" />
+    <link rel="stylesheet" href="../../styles.css" />
+    <style>
+      :root {
+        --flow-ink: #13252d;
+        --flow-muted: #64757d;
+        --flow-line: #dbe6e7;
+        --flow-teal: #087f74;
+        --flow-blue: #1d5fd7;
+        --flow-gold: #b7791f;
+      }
+
+      html[data-lang="en"] .lang-zh,
+      html[data-lang="zh"] .lang-en {
+        display: none;
+      }
+
+      .flow-page {
+        min-height: calc(100vh - 84px);
+      }
+
+      .flow-hero {
+        border-bottom: 1px solid var(--flow-line);
+        background: linear-gradient(135deg, #fff 0, #f4f8f7 58%, #fff8ea 100%);
+      }
+
+      .flow-hero-inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+        gap: 24px;
+        align-items: stretch;
+        padding: 34px 0 28px;
+      }
+
+      .kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        border: 1px solid rgba(8, 127, 116, 0.24);
+        border-radius: 999px;
+        background: rgba(8, 127, 116, 0.08);
+        color: var(--flow-teal);
+        padding: 5px 9px;
+        font-size: 0.8rem;
+        font-weight: 800;
+      }
+
+      .flow-title {
+        margin: 16px 0 12px;
+        color: var(--flow-ink);
+        font-size: clamp(2rem, 4vw, 3.8rem);
+        line-height: 1.04;
+        letter-spacing: 0;
+      }
+
+      .flow-lead {
+        max-width: 820px;
+        margin: 0;
+        color: var(--flow-muted);
+        font-size: 1.05rem;
+        line-height: 1.75;
+      }
+
+      .hero-actions,
+      .flow-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .flow-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        gap: 7px;
+        width: fit-content;
+        height: 48px;
+        border: 1px solid var(--flow-line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--flow-ink);
+        padding: 0 14px;
+        font-weight: 800;
+        line-height: 1.2;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+
+      .flow-button.primary {
+        background: var(--flow-ink);
+        color: #fff;
+      }
+
+      .flow-button i {
+        width: 17px;
+        height: 17px;
+        flex: 0 0 auto;
+      }
+
+      .metric-grid,
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .metric,
+      .info-card,
+      .report-shell {
+        border: 1px solid var(--flow-line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.88);
+        box-shadow: 0 12px 34px rgba(15, 23, 42, 0.06);
+      }
+
+      .metric {
+        padding: 14px;
+      }
+
+      .metric span {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--flow-muted);
+        font-size: 0.76rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .metric strong {
+        display: block;
+        color: var(--flow-ink);
+        font-size: 1.16rem;
+      }
+
+      .flow-section {
+        padding: 28px 0;
+      }
+
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: end;
+        margin-bottom: 16px;
+      }
+
+      .section-head h2 {
+        margin: 0;
+        color: var(--flow-ink);
+        font-size: 1.45rem;
+      }
+
+      .section-head p {
+        max-width: 780px;
+        margin: 0;
+        color: var(--flow-muted);
+        line-height: 1.65;
+      }
+
+      .route-strip {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .route-node {
+        border: 1px solid rgba(8, 127, 116, 0.26);
+        border-radius: 8px;
+        background: #fff;
+        padding: 12px;
+      }
+
+      .route-node strong,
+      .route-node span {
+        display: block;
+      }
+
+      .route-node strong {
+        color: var(--flow-ink);
+        font-size: 0.92rem;
+      }
+
+      .route-node span {
+        margin-top: 4px;
+        color: var(--flow-muted);
+        font-size: 0.8rem;
+        line-height: 1.4;
+      }
+
+      .info-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .info-card {
+        padding: 16px;
+      }
+
+      .info-card h3 {
+        margin: 0 0 8px;
+        color: var(--flow-ink);
+        font-size: 1rem;
+      }
+
+      .info-card p {
+        margin: 0;
+        color: var(--flow-muted);
+        line-height: 1.6;
+      }
+
+      .param-table {
+        display: grid;
+        border: 1px solid var(--flow-line);
+        border-radius: 8px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 12px 34px rgba(15, 23, 42, 0.06);
+      }
+
+      .param-row {
+        display: grid;
+        grid-template-columns: minmax(190px, 0.52fr) minmax(0, 1fr) minmax(0, 1fr);
+        border-bottom: 1px solid var(--flow-line);
+      }
+
+      .param-row:last-child {
+        border-bottom: 0;
+      }
+
+      .param-row > div {
+        padding: 12px 14px;
+        line-height: 1.58;
+      }
+
+      .param-row > div + div {
+        border-left: 1px solid var(--flow-line);
+      }
+
+      .param-row.header {
+        background: #f3f7f7;
+        color: #394b59;
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .param-name {
+        color: var(--flow-ink);
+        font-weight: 800;
+      }
+
+      .param-row p {
+        margin: 0;
+        color: var(--flow-muted);
+      }
+
+      .report-shell {
+        overflow: hidden;
+      }
+
+      .report-toolbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        align-items: center;
+        border-bottom: 1px solid var(--flow-line);
+        padding: 12px 14px;
+      }
+
+      .report-toolbar strong {
+        color: var(--flow-ink);
+        word-break: break-word;
+      }
+
+      .report-frame {
+        display: block;
+        width: 100%;
+        min-height: 720px;
+        border: 0;
+        background: #eef5f4;
+      }
+
+      .command-block {
+        overflow-x: auto;
+        margin: 0;
+        border-radius: 8px;
+        background: #111827;
+        color: #e5e7eb;
+        padding: 14px;
+        font-size: 0.88rem;
+        line-height: 1.7;
+      }
+
+      .boundary {
+        border: 1px solid rgba(183, 121, 31, 0.28);
+        border-radius: 8px;
+        background: #fff8ea;
+        color: #704b18;
+        padding: 15px;
+        line-height: 1.65;
+      }
+
+      @media (max-width: 980px) {
+        .flow-hero-inner,
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .route-strip {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 640px) {
+        .metric-grid,
+        .route-strip,
+        .param-row {
+          grid-template-columns: 1fr;
+        }
+
+        .param-row > div + div {
+          border-left: 0;
+          border-top: 1px solid var(--flow-line);
+        }
+
+        .section-head,
+        .report-toolbar {
+          display: grid;
+          align-items: start;
+        }
+
+        .report-frame {
+          min-height: 620px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="container app-header-inner">
+        <a class="brand" href="../../" aria-label="TAFFISH Hub home">
+          <img class="brand-mark" src="../../assets/taffish-logo.png" alt="TAFFISH logo" width="42" height="42" />
+          <span class="brand-text">TAFFISH Hub</span>
+        </a>
+
+        <div class="header-actions">
+          <a class="icon-button" href="../">
+            <i data-lucide="git-branch"></i>
+            <span class="lang-en">Flows</span>
+            <span class="lang-zh">流程</span>
+          </a>
+          <a class="icon-button" href="../../?q=bam-qc-flow&amp;kind=flow">
+            <i data-lucide="search"></i>
+            <span class="lang-en">Hub</span>
+            <span class="lang-zh">Hub</span>
+          </a>
+          <a class="icon-button" href="https://github.com/taffish/bam-qc-flow" target="_blank" rel="noreferrer">
+            <i data-lucide="github"></i>
+            <span>GitHub</span>
+          </a>
+          <div class="lang-switch" aria-label="Language switch">
+            <button id="langEn" class="lang-pill active" type="button">EN</button>
+            <button id="langZh" class="lang-pill" type="button">中文</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="flow-page">
+      <section class="flow-hero">
+        <div class="container flow-hero-inner">
+          <div>
+            <span class="kicker">
+              <i data-lucide="bar-chart-3"></i>
+              <span class="lang-en">TAFFISH flow page</span>
+              <span class="lang-zh">TAFFISH 流程主页</span>
+            </span>
+            <h1 class="flow-title">bam-qc-flow</h1>
+            <p class="flow-lead">
+              <span class="lang-en">
+                A foundation alignment quality-control route for coordinate-sorted BAM files. It checks file integrity,
+                mapping statistics, contig and region summaries, coverage distribution, MultiQC output, a standalone
+                TAFFISH report, and complete provenance.
+              </span>
+              <span class="lang-zh">
+                面向 coordinate-sorted BAM 的基础比对质控路线：检查文件完整性、mapping 统计、contig 与 region 摘要、
+                覆盖度分布、MultiQC、独立 TAFFISH 报告和完整溯源记录。
+              </span>
+            </p>
+            <div class="hero-actions">
+              <a class="flow-button primary" href="./example-out/04_reports/bam_qc_report.html">
+                <i data-lucide="file-text"></i>
+                <span class="lang-en">Full report</span>
+                <span class="lang-zh">完整示例报告</span>
+              </a>
+              <a class="flow-button" href="./example-out/04_reports/multiqc_report.html">
+                <i data-lucide="bar-chart-3"></i>
+                <span class="lang-en">MultiQC report</span>
+                <span class="lang-zh">MultiQC 报告</span>
+              </a>
+              <a class="flow-button" href="https://github.com/taffish/bam-qc-flow" target="_blank" rel="noreferrer">
+                <span class="lang-en">GitHub</span>
+                <span class="lang-zh">GitHub</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="metric-grid" aria-label="BAM QC example metrics">
+            <div class="metric">
+              <span>
+                <span class="lang-en">Flow version</span>
+                <span class="lang-zh">流程版本</span>
+              </span>
+              <strong>0.2.0-r1</strong>
+            </div>
+            <div class="metric">
+              <span>
+                <span class="lang-en">Example samples</span>
+                <span class="lang-zh">示例样本</span>
+              </span>
+              <strong>
+                <span class="lang-en">1 indexed BAM</span>
+                <span class="lang-zh">1 个带索引 BAM</span>
+              </strong>
+            </div>
+            <div class="metric">
+              <span>
+                <span class="lang-en">Region mode</span>
+                <span class="lang-zh">区域模式</span>
+              </span>
+              <strong>
+                <span class="lang-en">enabled in example</span>
+                <span class="lang-zh">示例中已启用</span>
+              </strong>
+            </div>
+            <div class="metric">
+              <span>
+                <span class="lang-en">Default route</span>
+                <span class="lang-zh">默认路线</span>
+              </span>
+              <strong>Samtools -> mosdepth -> MultiQC</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="container flow-section">
+        <div class="section-head">
+          <h2>
+            <span class="lang-en">Route</span>
+            <span class="lang-zh">流程路线</span>
+          </h2>
+          <p>
+            <span class="lang-en">
+              This flow is designed for alignment deliverable checks before variant calling, expression summary,
+              genome coverage review, or downstream interpretation.
+            </span>
+            <span class="lang-zh">
+              这个流程适合在变异检测、表达摘要、基因组覆盖度检查或后续解释之前，对比对交付物做验收。
+            </span>
+          </p>
+        </div>
+
+        <div class="route-strip">
+          <div class="route-node">
+            <strong>
+              <span class="lang-en">Input BAM</span>
+              <span class="lang-zh">输入 BAM</span>
+            </strong>
+            <span class="lang-en">sorted, indexed BAM files</span>
+            <span class="lang-zh">已排序且带索引 BAM</span>
+          </div>
+          <div class="route-node">
+            <strong>
+              <span class="lang-en">Integrity</span>
+              <span class="lang-zh">完整性</span>
+            </strong>
+            <span>samtools quickcheck</span>
+          </div>
+          <div class="route-node">
+            <strong>
+              <span class="lang-en">Alignment stats</span>
+              <span class="lang-zh">比对统计</span>
+            </strong>
+            <span>flagstat / stats / idxstats</span>
+          </div>
+          <div class="route-node">
+            <strong>
+              <span class="lang-en">Coverage</span>
+              <span class="lang-zh">覆盖度</span>
+            </strong>
+            <span>samtools coverage / mosdepth</span>
+          </div>
+          <div class="route-node">
+            <strong>
+              <span class="lang-en">Report</span>
+              <span class="lang-zh">报告</span>
+            </strong>
+            <span class="lang-en">TAFFISH report plus MultiQC</span>
+            <span class="lang-zh">TAFFISH 报告 + MultiQC</span>
+          </div>
+        </div>
+
+        <div class="info-grid">
+          <article class="info-card">
+            <h3>
+              <span class="lang-en">Inputs</span>
+              <span class="lang-zh">输入</span>
+            </h3>
+            <p>
+              <span class="lang-en">
+                Use a BAM table for multiple samples or direct BAM input for a compact run. Region BED files enable
+                target-level coverage summaries.
+              </span>
+              <span class="lang-zh">
+                多样本建议使用 BAM 表；小规模运行可直接传 BAM。提供 BED 后可以生成靶区级覆盖度摘要。
+              </span>
+            </p>
+          </article>
+          <article class="info-card">
+            <h3>
+              <span class="lang-en">Outputs</span>
+              <span class="lang-zh">输出</span>
+            </h3>
+            <p>
+              <span class="lang-en">
+                Samtools quickcheck, flagstat, stats, idxstats, coverage tables, mosdepth genome and region summaries,
+                MultiQC, logs, commands, versions, methods, and a standalone HTML report.
+              </span>
+              <span class="lang-zh">
+                输出 quickcheck、flagstat、stats、idxstats、coverage 表、mosdepth genome/region 摘要、MultiQC、日志、命令、版本、方法记录和独立 HTML 报告。
+              </span>
+            </p>
+          </article>
+          <article class="info-card">
+            <h3>
+              <span class="lang-en">Scientific boundary</span>
+              <span class="lang-zh">科学边界</span>
+            </h3>
+            <p>
+              <span class="lang-en">
+                BAM QC identifies technical alignment and coverage signals. It does not by itself decide variant,
+                expression, or biological interpretation quality.
+              </span>
+              <span class="lang-zh">
+                BAM 质控识别比对和覆盖度层面的技术信号，本身不直接判断变异、表达或生物学解释质量。
+              </span>
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="container flow-section">
+        <div class="section-head">
+          <h2>
+            <span class="lang-en">Parameter Guide</span>
+            <span class="lang-zh">参数说明</span>
+          </h2>
+          <p>
+            <span class="lang-en">
+              Stable top-level options define input, outdir, threads, and optional regions; advanced
+              <code>@step:</code> blocks pass extra native arguments into specific tool call sites.
+            </span>
+            <span class="lang-zh">
+              稳定顶层参数定义输入、输出目录、线程和可选 region；高级 <code>@step:</code> 参数块用于把额外原生命令参数传给具体工具调用点。
+            </span>
+          </p>
+        </div>
+
+        <div class="param-table">
+          <div class="param-row header">
+            <div>
+              <span class="lang-en">Parameter</span>
+              <span class="lang-zh">参数</span>
+            </div>
+            <div>
+              <span class="lang-en">When to use it</span>
+              <span class="lang-zh">使用场景</span>
+            </div>
+            <div>
+              <span class="lang-en">Notes</span>
+              <span class="lang-zh">说明</span>
+            </div>
+          </div>
+          <div class="param-row">
+            <div class="param-name"><code>--samples PATH</code><br /><code>--bam PATH</code></div>
+            <div>
+              <p>
+                <span class="lang-en">Use a table for multi-sample runs; use direct BAM input for a one-off check.</span>
+                <span class="lang-zh">多样本运行使用样本表；单次检查可直接传 BAM。</span>
+              </p>
+            </div>
+            <div>
+              <p>
+                <span class="lang-en">Inputs are recorded under <code>00_inputs/</code> and all generated files stay inside outdir.</span>
+                <span class="lang-zh">输入记录写入 <code>00_inputs/</code>，所有新产物都留在输出目录中。</span>
+              </p>
+            </div>
+          </div>
+          <div class="param-row">
+            <div class="param-name"><code>--outdir PATH</code><br /><code>--force</code></div>
+            <div>
+              <p>
+                <span class="lang-en">Choose one output directory for the run.</span>
+                <span class="lang-zh">为一次运行选择一个输出目录。</span>
+              </p>
+            </div>
+            <div>
+              <p>
+                <span class="lang-en">Existing output directories are refused unless <code>--force</code> is set.</span>
+                <span class="lang-zh">已有输出目录默认拒绝；确认覆盖时才使用 <code>--force</code>。</span>
+              </p>
+            </div>
+          </div>
+          <div class="param-row">
+            <div class="param-name"><code>--regions PATH</code><br /><code>--threads N</code></div>
+            <div>
+              <p>
+                <span class="lang-en">Add target regions for mosdepth region summaries and set shared thread budget.</span>
+                <span class="lang-zh">添加靶区 BED 以生成 mosdepth region 摘要，并设置共享线程数。</span>
+              </p>
+            </div>
+            <div>
+              <p>
+                <span class="lang-en">Genome-level summaries are still generated when region mode is used.</span>
+                <span class="lang-zh">启用 region 模式时仍会保留 genome-level 摘要。</span>
+              </p>
+            </div>
+          </div>
+          <div class="param-row">
+            <div class="param-name"><code>@samtools-flagstat-step:</code><br /><code>@samtools-stats-step:</code><br /><code>@samtools-coverage-step:</code></div>
+            <div>
+              <p>
+                <span class="lang-en">Pass advanced native options into selected Samtools call sites.</span>
+                <span class="lang-zh">向指定 Samtools 调用点传递高级原生命令参数。</span>
+              </p>
+            </div>
+            <div>
+              <p>
+                <span class="lang-en">These blocks are empty by default and should not replace flow-managed inputs or outputs.</span>
+                <span class="lang-zh">这些参数块默认为空，不应用来覆盖流程管理的输入输出参数。</span>
+              </p>
+            </div>
+          </div>
+          <div class="param-row">
+            <div class="param-name"><code>@mosdepth-genome-step:</code><br /><code>@mosdepth-regions-step:</code><br /><code>@multiqc-step:</code></div>
+            <div>
+              <p>
+                <span class="lang-en">Customize mosdepth and MultiQC behavior when a project needs extra native options.</span>
+                <span class="lang-zh">项目需要额外原生命令参数时，可微调 mosdepth 和 MultiQC 行为。</span>
+              </p>
+            </div>
+            <div>
+              <p>
+                <span class="lang-en">Use sparingly; defaults are intended to be reproducible and easy to audit.</span>
+                <span class="lang-zh">谨慎使用；默认路线以可复现和易审计为目标设计。</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="container flow-section">
+        <div class="section-head">
+          <h2>
+            <span class="lang-en">Real Example Report</span>
+            <span class="lang-zh">真实示例报告</span>
+          </h2>
+          <p>
+            <span class="lang-en">
+              This report is copied from the flow's real local example output. It shows the TAFFISH-level summary,
+              native MultiQC evidence, deliverables, methods, and provenance together.
+            </span>
+            <span class="lang-zh">
+              这个报告来自流程真实本地示例输出，把 TAFFISH 层摘要、原生 MultiQC 证据、交付物、方法和溯源记录放在一起。
+            </span>
+          </p>
+        </div>
+
+        <div class="report-shell">
+          <div class="report-toolbar">
+            <strong>example-out/04_reports/bam_qc_report.html</strong>
+            <a class="flow-button primary" href="./example-out/04_reports/bam_qc_report.html">
+              <i data-lucide="external-link"></i>
+              <span class="lang-en">Report</span>
+              <span class="lang-zh">报告</span>
+            </a>
+          </div>
+          <iframe
+            class="report-frame"
+            title="bam-qc-flow example report"
+            src="./example-out/04_reports/bam_qc_report.html"
+          ></iframe>
+        </div>
+      </section>
+
+      <section class="container flow-section">
+        <div class="section-head">
+          <h2>
+            <span class="lang-en">Run Locally</span>
+            <span class="lang-zh">本地运行</span>
+          </h2>
+          <p>
+            <span class="lang-en">Install from the Hub index, inspect help, then run with explicit inputs and outdir.</span>
+            <span class="lang-zh">从 Hub 索引安装，先阅读 help，再用显式输入和输出目录运行。</span>
+          </p>
+        </div>
+        <pre class="command-block"><code>taf update
+taf install bam-qc-flow
+taf-bam-qc-flow --help
+
+taf-bam-qc-flow \
+  --samples bams.tsv \
+  --regions targets.bed \
+  --outdir bam-qc-out \
+  --threads 4</code></pre>
+      </section>
+
+      <section class="container flow-section">
+        <div class="boundary">
+          <span class="lang-en">
+            bam-qc-flow checks alignment deliverables and coverage patterns. Use it as a technical gate before stronger
+            biological claims or downstream analysis.
+          </span>
+          <span class="lang-zh">
+            bam-qc-flow 用于检查比对交付物和覆盖度模式。它适合作为更强生物学结论或下游分析前的技术关卡。
+          </span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <div class="container footer-inner">
+        <span>bam-qc-flow</span>
+        <span class="muted">
+          <span class="lang-en">TAFFISH Flow Portal</span>
+          <span class="lang-zh">TAFFISH 流程门户</span>
+        </span>
+      </div>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      const localeKey = "taffish_hub_locale";
+      const root = document.documentElement;
+      const langEn = document.getElementById("langEn");
+      const langZh = document.getElementById("langZh");
+
+      function setLanguage(lang) {
+        root.dataset.lang = lang;
+        root.lang = lang === "zh" ? "zh-CN" : "en";
+        langEn.classList.toggle("active", lang === "en");
+        langZh.classList.toggle("active", lang === "zh");
+        localStorage.setItem(localeKey, lang);
+      }
+
+      langEn.addEventListener("click", () => setLanguage("en"));
+      langZh.addEventListener("click", () => setLanguage("zh"));
+      setLanguage(localStorage.getItem(localeKey) || "en");
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    </script>
+  </body>
+</html>

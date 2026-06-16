@@ -1,0 +1,22 @@
+{
+    "SeqKit": {
+        "stats": {
+            "P1_R1": "example-out/03_results/raw_seqkit/raw_fastq_stats.tsv",
+            "P1_R2": "example-out/03_results/raw_seqkit/raw_fastq_stats.tsv",
+            "S2": "example-out/03_results/raw_seqkit/raw_fastq_stats.tsv"
+        }
+    },
+    "fastp": {
+        "all_sections": {
+            "P1": "example-out/03_results/fastp/P1.fastp.json",
+            "S2": "example-out/03_results/fastp/S2.fastp.json"
+        }
+    },
+    "FastQC": {
+        "all_sections": {
+            "P1_R1": "example-out/03_results/clean_fastqc/P1/P1_R1.clean_fastqc.zip",
+            "P1_R2": "example-out/03_results/clean_fastqc/P1/P1_R2.clean_fastqc.zip",
+            "S2": "example-out/03_results/clean_fastqc/S2/S2.clean_fastqc.zip"
+        }
+    }
+}

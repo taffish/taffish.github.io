@@ -1,0 +1,9 @@
+category	path	description
+standalone_report	04_reports/ngs_qc_report.html	TAFFISH standalone project-level QC report
+multiqc	04_reports/multiqc_report.html	Native MultiQC HTML report
+summary	04_reports/flow_summary.tsv	Per-sample raw and clean output summary
+versions	04_reports/versions.tsv	Flow and dependency versions
+commands	04_reports/commands.sh	Executed command provenance
+manifest	run.manifest.json	Machine-readable run manifest
+report_manifest	04_reports/report.manifest.json	Template-compatible report manifest
+embedded_html_index	04_reports/embedded_html_reports.tsv	Embedded HTML payload index

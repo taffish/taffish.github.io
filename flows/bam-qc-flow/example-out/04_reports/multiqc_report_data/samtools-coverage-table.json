@@ -1,0 +1,10 @@
+{
+    "tiny.coverage": {
+        "Reads": 2e-06,
+        "Bases": 3.9999999999999996e-05,
+        "Coverage": 20.0,
+        "Mean depth": 0.2,
+        "Mean BQ": 40.0,
+        "Mean MQ": 60.0
+    }
+}

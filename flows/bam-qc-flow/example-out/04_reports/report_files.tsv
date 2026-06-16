@@ -1,0 +1,12 @@
+id	path	role
+standalone_report	04_reports/bam_qc_report.html	TAFFISH standalone BAM QC report
+multiqc	04_reports/multiqc_report.html	Native MultiQC HTML report
+flow_summary	04_reports/flow_summary.tsv	Per-sample primary output index
+quality_gates	04_reports/quality_gates.tsv	Machine-readable quality-gate summary
+module_status	04_reports/module_status.tsv	Machine-readable module status summary
+commands	04_reports/commands.sh	Executed command provenance
+versions	04_reports/versions.tsv	Flow and dependency versions
+methods	04_reports/methods.txt	Methods text
+run_manifest	run.manifest.json	Run manifest JSON
+report_manifest	04_reports/report.manifest.json	Report manifest JSON
+embedded_html_reports	04_reports/embedded_html_reports.tsv	Embedded native HTML payload index

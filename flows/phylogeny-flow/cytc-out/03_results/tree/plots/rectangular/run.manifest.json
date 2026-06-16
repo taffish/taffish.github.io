@@ -1,0 +1,131 @@
+{
+  "tool": "bioviz-tree",
+  "timestamp_utc": "2026-06-13T16:23:38Z",
+  "command_args": ["--tree", "cytc-out/03_results/tree/tree.nwk", "--label-map", "cytc-out/00_inputs/sequence_id_map.tsv", "--label-map-from", "safe_id", "--label-map-to", "original_id", "--layout", "rectangular", "--formats", "pdf,png,svg", "--style", "journal", "--label-align", "none", "--label-transform", "pretty", "--scale-bar", "auto", "--title", "phylogeny-flow tree - rectangular", "--outdir", "cytc-out/03_results/tree/plots/rectangular"],
+  "inputs": {
+    "tree": "cytc-out/03_results/tree/tree.nwk",
+    "metadata": {},
+    "label_map": "cytc-out/00_inputs/sequence_id_map.tsv"
+  },
+  "outputs": {
+    "tree_plots": ["tree.pdf", "tree.png", "tree.svg"],
+    "summary": "tree_plot_summary.tsv",
+    "annotations": "tree_tip_annotations.tsv",
+    "versions": "versions.tsv",
+    "manifest": "run.manifest.json",
+    "session_info": "sessionInfo.txt"
+  },
+  "parameters": {
+    "layout": "rectangular",
+    "style": "journal",
+    "label_align": "none",
+    "label_transform": "pretty",
+    "scale_bar": "auto",
+    "scale_bar_width": 0.1,
+    "scale_bar_label": "0.1",
+    "formats": ["pdf", "png", "svg"],
+    "metadata_id_column": null,
+    "label_map_from": "safe_id",
+    "label_map_to": "original_id",
+    "label_column": {},
+    "color_by": {},
+    "title": "phylogeny-flow tree - rectangular",
+    "width": 10.36,
+    "height": 7.26,
+    "dpi": 300,
+    "branch_line_width": 0.45,
+    "point_size": 0,
+    "tip_label_size": 2.8,
+    "label_offset": 0.0087,
+    "right_padding": 0.192,
+    "hide_tip_labels": false
+  },
+  "summary": {
+    "tip_count": 24,
+    "internal_node_count": 22,
+    "metadata_matched_tips": 0,
+    "metadata_unmatched_tips": ["human_P99999_Homo", "chimpanzee_P99998_Pan", "rhesus_macaque_P00002_Macaca", "horse_P00004_Equus", "bovine_P62894_Bos", "pig_P62895_Sus", "rabbit_P00008_Oryctolagus", "mouse_P62897_Mus", "rat_P62898_Rattus", "chicken_P67881_Gallus", "king_penguin_P00017_Aptenodytes", "mallard_P00020_Anas", "alligator_P81280_Alligator", "snapping_turtle_P00022_Chelydra", "bullfrog_P00024_Aquarana", "zebrafish_Q6IQM2_Danio", "common_carp_P00026_Cyprinus", "kangaroo_P00014_Macropus", "honeybee_P00038_Apis", "c_elegans_P19974_Caenorhabditis", "budding_yeast_P00044_Saccharomyces", "arabidopsis_P29380_Arabidopsis", "rice_Q0DI31_Oryza", "gorilla_Q6WUX8_Gorilla"]
+  },
+  "runtime": [
+    {
+      "component": "R",
+      "version": "4.6.0"
+    },
+    {
+      "component": "Bioconductor",
+      "version": "3.23"
+    },
+    {
+      "component": "bioviz-cli",
+      "version": "0.2.0"
+    },
+    {
+      "component": "ape",
+      "version": "5.8.1"
+    },
+    {
+      "component": "treeio",
+      "version": "1.36.1"
+    },
+    {
+      "component": "ggtree",
+      "version": "4.2.0"
+    },
+    {
+      "component": "tidytree",
+      "version": "0.4.7"
+    },
+    {
+      "component": "ggplot2",
+      "version": "4.0.3"
+    },
+    {
+      "component": "svglite",
+      "version": "2.2.2"
+    },
+    {
+      "component": "ragg",
+      "version": "1.5.2"
+    },
+    {
+      "component": "optparse",
+      "version": "1.8.2"
+    },
+    {
+      "component": "jsonlite",
+      "version": "2.0.0"
+    },
+    {
+      "component": "readr",
+      "version": "2.2.0"
+    },
+    {
+      "component": "data.table",
+      "version": "1.18.4"
+    },
+    {
+      "component": "ggrepel",
+      "version": "0.9.8"
+    },
+    {
+      "component": "patchwork",
+      "version": "1.3.2"
+    },
+    {
+      "component": "cowplot",
+      "version": "1.2.0"
+    },
+    {
+      "component": "scales",
+      "version": "1.4.0"
+    },
+    {
+      "component": "viridis",
+      "version": "0.6.5"
+    },
+    {
+      "component": "RColorBrewer",
+      "version": "1.1.3"
+    }
+  ]
+}

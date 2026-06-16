@@ -1,0 +1,2 @@
+input_mode=raw_fasta
+input_path=phylogeny-flow/testdata/cytochrome-c-uniprot-reviewed-v1/sequences/cytochrome_c_24.fa

@@ -1,0 +1,6 @@
+tool	version	source
+bam-qc-flow	0.2.0-r1	taffish flow
+taf-samtools	1.23.1-r1	taffish dependency
+taf-mosdepth	0.3.14-r2	taffish dependency
+taf-multiqc	1.35-r2	taffish dependency
+taffish-flow-report	0.1.0	report template contract

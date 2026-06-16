@@ -1,4 +1,4 @@
-phylogeny-flow 0.1.0-r1 inferred a phylogenetic tree from a set of homologous protein sequences.
+phylogeny-flow 0.2.0-r1 inferred a phylogenetic tree from a set of homologous protein sequences.
 
 Input sequences were first normalized to safe sequence identifiers, aligned with mafft, and then processed by the selected trimming step.
 The alignment trimming mode was trimal (automated1). Tree inference used iqtree. The canonical final Newick tree is 03_results/tree/tree.nwk.

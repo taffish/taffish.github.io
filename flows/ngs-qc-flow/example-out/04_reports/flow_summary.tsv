@@ -1,0 +1,3 @@
+sample_id	layout	raw_read1	raw_read2	clean_read1	clean_read2	fastp_json
+P1	paired-end	ngs-qc-flow/testdata/P1_R1.fastq	ngs-qc-flow/testdata/P1_R2.fastq	example-out/03_results/clean_fastq/P1_R1.clean.fastq.gz	example-out/03_results/clean_fastq/P1_R2.clean.fastq.gz	example-out/03_results/fastp/P1.fastp.json
+S2	single-end	ngs-qc-flow/testdata/S2.fastq		example-out/03_results/clean_fastq/S2.clean.fastq.gz		example-out/03_results/fastp/S2.fastp.json

@@ -1,0 +1,122 @@
+IQ-TREE version 3.1.2 for Linux ARM 64-bit built May  7 2026
+Developed by Bui Quang Minh, Thomas Wong, Nhan Ly-Trong, Huaiyan Ren
+Contributed by Lam-Tung Nguyen, Dominik Schrempf, Chris Bielow,
+Olga Chernomor, Michael Woodhams, Diep Thi Hoang, Heiko Schmidt
+
+Host:    3c16674cb0c4 (SSE4.2, 23 GB RAM)
+Command: iqtree3 -s cytc-out/02_intermediate/alignment.trimmed.fa -m LG -T 4 --seed 20260528 --redo --prefix cytc-out/02_intermediate/tree_work/iqtree/iqtree --quiet
+Seed:    20260528 (Using SPRNG - Scalable Parallel Random Number Generator)
+Time:    Sat Jun 13 16:23:33 2026
+Kernel:  SSE2 - 4 threads (8 CPU cores detected)
+
+Reading alignment file cytc-out/02_intermediate/alignment.trimmed.fa ... Fasta format detected
+Reading fasta file: done in 9.29832e-05 secs using 36.57% CPU
+Alignment most likely contains protein sequences
+Constructing alignment: done in 0.000148058 secs
+Alignment has 24 sequences with 104 columns, 81 distinct patterns
+47 parsimony-informative, 17 singleton sites, 40 constant sites
+                                    Gap/Ambiguity  Composition  p-value
+Analyzing sequences: done in 7.86781e-06 secs using 177.9% CPU
+   1  human_P99999_Homo                     0.00%    passed    100.00%
+   2  chimpanzee_P99998_Pan                 0.00%    passed    100.00%
+   3  gorilla_Q6WUX8_Gorilla                0.00%    passed    100.00%
+   4  rhesus_macaque_P00002_Macaca          0.00%    passed    100.00%
+   5  horse_P00004_Equus                    0.00%    passed     99.99%
+   6  bovine_P62894_Bos                     0.00%    passed    100.00%
+   7  pig_P62895_Sus                        0.00%    passed    100.00%
+   8  rabbit_P00008_Oryctolagus             0.00%    passed    100.00%
+   9  mouse_P62897_Mus                      0.00%    passed    100.00%
+  10  rat_P62898_Rattus                     0.00%    passed    100.00%
+  11  kangaroo_P00014_Macropus              0.00%    passed     99.99%
+  12  chicken_P67881_Gallus                 0.00%    passed    100.00%
+  13  mallard_P00020_Anas                   0.00%    passed    100.00%
+  14  king_penguin_P00017_Aptenodytes       0.00%    passed    100.00%
+  15  alligator_P81280_Alligator            0.00%    passed    100.00%
+  16  snapping_turtle_P00022_Chelydra       0.00%    passed    100.00%
+  17  bullfrog_P00024_Aquarana              0.00%    passed    100.00%
+  18  zebrafish_Q6IQM2_Danio                0.00%    passed     99.94%
+  19  common_carp_P00026_Cyprinus           1.92%    passed     99.93%
+  20  honeybee_P00038_Apis                  0.00%    passed     99.52%
+  21  c_elegans_P19974_Caenorhabditis       0.96%    passed     49.87%
+  22  budding_yeast_P00044_Saccharomyces    0.00%    passed     99.80%
+  23  arabidopsis_P29380_Arabidopsis        0.00%    passed     98.87%
+  24  rice_Q0DI31_Oryza                     0.00%    passed     84.62%
+****  TOTAL                                 0.12%  0 sequences failed composition chi2 test (p-value<5%; df=19)
+NOTE: chimpanzee_P99998_Pan is identical to human_P99999_Homo but kept for subsequent analysis
+NOTE: pig_P62895_Sus is identical to bovine_P62894_Bos but kept for subsequent analysis
+NOTE: rat_P62898_Rattus is identical to mouse_P62897_Mus but kept for subsequent analysis
+Checking for duplicate sequences: done in 0.000712156 secs using 220.5% CPU
+Identifying sites to remove: done in 0.000103951 secs using 356.9% CPU
+NOTE: 1 identical sequences (see below) will be ignored for subsequent analysis
+NOTE: gorilla_Q6WUX8_Gorilla (identical to human_P99999_Homo) is ignored but added at the end
+Alignment was printed to cytc-out/02_intermediate/tree_work/iqtree/iqtree.uniqueseq.phy
+
+For your convenience alignment with unique sequences printed to cytc-out/02_intermediate/tree_work/iqtree/iqtree.uniqueseq.phy
+
+Create initial parsimony tree by phylogenetic likelihood library (PLL)... 0.002 seconds
+
+NOTE: 0 MB RAM (0 GB) is required!
+Estimate model parameters (epsilon = 0.100)
+1. Initial log-likelihood: -1335.177
+Optimal log-likelihood: -1325.076
+Parameters optimization took 1 rounds (0.003 sec)
+Wrote distance file to... 
+Computing ML distances based on estimated model parameters...
+Calculating distance matrix: done in 0.010402 secs using 389.6% CPU
+Computing ML distances took 0.011146 sec (of wall-clock time) 0.042009 sec (of CPU time)
+Setting up auxiliary I and S matrices: done in 2.81334e-05 secs using 287.9% CPU
+Constructing RapidNJ tree: done in 0.000264883 secs using 348.5% CPU
+Computing RapidNJ tree took 0.001096 sec (of wall-clock time) 0.003062 sec (of CPU time)
+Log-likelihood of RapidNJ tree: -1320.643
+--------------------------------------------------------------------
+|             INITIALIZING CANDIDATE TREE SET                      |
+--------------------------------------------------------------------
+Generating 98 parsimony trees... 0.107 second
+Computing log-likelihood of 98 initial trees ... 0.129 seconds
+Current best score: -1315.477
+
+Do NNI search on 20 best initial trees
+Estimate model parameters (epsilon = 0.100)
+BETTER TREE FOUND at iteration 1: -1315.388
+Iteration 10 / LogL: -1317.120 / Time: 0h:0m:0s
+Iteration 20 / LogL: -1315.388 / Time: 0h:0m:0s
+Finish initializing candidate tree set (4)
+Current best tree score: -1315.388 / CPU time: 0.628
+Number of iterations: 20
+--------------------------------------------------------------------
+|               OPTIMIZING CANDIDATE TREE SET                      |
+--------------------------------------------------------------------
+Iteration 30 / LogL: -1317.121 / Time: 0h:0m:0s (0h:0m:2s left)
+Iteration 40 / LogL: -1315.388 / Time: 0h:0m:1s (0h:0m:1s left)
+Iteration 50 / LogL: -1334.233 / Time: 0h:0m:1s (0h:0m:1s left)
+Iteration 60 / LogL: -1317.120 / Time: 0h:0m:1s (0h:0m:1s left)
+Iteration 70 / LogL: -1317.121 / Time: 0h:0m:1s (0h:0m:0s left)
+Iteration 80 / LogL: -1320.497 / Time: 0h:0m:2s (0h:0m:0s left)
+Iteration 90 / LogL: -1315.388 / Time: 0h:0m:2s (0h:0m:0s left)
+Iteration 100 / LogL: -1324.419 / Time: 0h:0m:2s (0h:0m:0s left)
+TREE SEARCH COMPLETED AFTER 102 ITERATIONS / Time: 0h:0m:2s
+
+--------------------------------------------------------------------
+|                    FINALIZING TREE SEARCH                        |
+--------------------------------------------------------------------
+Performs final model parameters optimization
+Estimate model parameters (epsilon = 0.010)
+1. Initial log-likelihood: -1315.388
+Optimal log-likelihood: -1315.388
+Parameters optimization took 1 rounds (0.002 sec)
+BEST SCORE FOUND : -1315.388
+Total tree length: 2.322
+
+Total number of iterations: 102
+CPU time used for tree search: 9.320 sec (0h:0m:9s)
+Wall-clock time used for tree search: 2.488 sec (0h:0m:2s)
+Total CPU time used: 9.572 sec (0h:0m:9s)
+Total wall-clock time used: 2.564 sec (0h:0m:2s)
+
+Analysis results written to: 
+  IQ-TREE report:                cytc-out/02_intermediate/tree_work/iqtree/iqtree.iqtree
+  Maximum-likelihood tree:       cytc-out/02_intermediate/tree_work/iqtree/iqtree.treefile
+  Likelihood distances:          cytc-out/02_intermediate/tree_work/iqtree/iqtree.mldist
+  Screen log file:               cytc-out/02_intermediate/tree_work/iqtree/iqtree.log
+
+Date and Time: Sat Jun 13 16:23:35 2026

@@ -1,0 +1,43 @@
+{
+  "flow": {"name": "bam-qc-flow", "version": "0.2.0-r1"},
+  "started_at": "2026-06-13T14:35:54Z",
+  "finished_at": "2026-06-13T14:36:08Z",
+  "parameters": {
+    "outdir": "\/Users\/hankaiyuan\/Desktop\/computer\/codex\/projects\/taffish-hub\/repos\/apps\/bio\/flows\/bam-qc-flow\/tests\/test-real-run-out",
+    "threads": "1",
+    "regions_bed": "\/Users\/hankaiyuan\/Desktop\/computer\/codex\/projects\/taffish-hub\/repos\/apps\/bio\/flows\/bam-qc-flow\/tests\/test-real-run-fixture\/targets.bed",
+    "keep_intermediate": "false"
+  },
+  "advanced_step_args": {
+    "samtools_quickcheck_step": "",
+    "samtools_flagstat_step": "",
+    "samtools_stats_step": "",
+    "samtools_idxstats_step": "",
+    "samtools_coverage_step": "",
+    "mosdepth_genome_step": "--fast-mode",
+    "mosdepth_regions_step": "",
+    "multiqc_step": "--title BAM_QC_example"
+  },
+  "dependencies": [
+    {"name": "taf-samtools", "version": "1.23.1-r1"},
+    {"name": "taf-mosdepth", "version": "0.3.14-r2"},
+    {"name": "taf-multiqc", "version": "1.35-r2"}
+  ],
+  "samples": [
+    {"sample_id":"tiny","bam":"bam-qc-flow/test-real-run-fixture/tiny.sorted.bam","index":"bam-qc-flow/test-real-run-fixture/tiny.sorted.bam.bai","local_bam":"example-out/02_intermediate/bam_links/tiny/tiny.bam","local_index":"example-out/02_intermediate/bam_links/tiny/tiny.bam.bai"}
+  ],
+  "outputs": {
+    "normalized_samples": "\/Users\/hankaiyuan\/Desktop\/computer\/codex\/projects\/taffish-hub\/repos\/apps\/bio\/flows\/bam-qc-flow\/tests\/test-real-run-out\/00_inputs\/samples.normalized.tsv",
+    "input_files": "\/Users\/hankaiyuan\/Desktop\/computer\/codex\/projects\/taffish-hub\/repos\/apps\/bio\/flows\/bam-qc-flow\/tests\/test-real-run-out\/00_inputs\/input_files.tsv",
+    "samtools_dir": "\/Users\/hankaiyuan\/Desktop\/computer\/codex\/projects\/taffish-hub\/repos\/apps\/bio\/flows\/bam-qc-flow\/tests\/test-real-run-out\/03_results\/samtools",
+    "mosdepth_dir": "\/Users\/hankaiyuan\/Desktop\/computer\/codex\/projects\/taffish-hub\/repos\/apps\/bio\/flows\/bam-qc-flow\/tests\/test-real-run-out\/03_results\/mosdepth",
+    "multiqc_report": "\/Users\/hankaiyuan\/Desktop\/computer\/codex\/projects\/taffish-hub\/repos\/apps\/bio\/flows\/bam-qc-flow\/tests\/test-real-run-out\/04_reports\/multiqc_report.html",
+    "multiqc_data": "\/Users\/hankaiyuan\/Desktop\/computer\/codex\/projects\/taffish-hub\/repos\/apps\/bio\/flows\/bam-qc-flow\/tests\/test-real-run-out\/04_reports\/multiqc_report_data",
+    "bam_qc_report": "\/Users\/hankaiyuan\/Desktop\/computer\/codex\/projects\/taffish-hub\/repos\/apps\/bio\/flows\/bam-qc-flow\/tests\/test-real-run-out\/04_reports\/bam_qc_report.html",
+    "flow_summary": "\/Users\/hankaiyuan\/Desktop\/computer\/codex\/projects\/taffish-hub\/repos\/apps\/bio\/flows\/bam-qc-flow\/tests\/test-real-run-out\/04_reports\/flow_summary.tsv",
+    "commands": "\/Users\/hankaiyuan\/Desktop\/computer\/codex\/projects\/taffish-hub\/repos\/apps\/bio\/flows\/bam-qc-flow\/tests\/test-real-run-out\/04_reports\/commands.sh",
+    "versions": "\/Users\/hankaiyuan\/Desktop\/computer\/codex\/projects\/taffish-hub\/repos\/apps\/bio\/flows\/bam-qc-flow\/tests\/test-real-run-out\/04_reports\/versions.tsv",
+    "methods": "\/Users\/hankaiyuan\/Desktop\/computer\/codex\/projects\/taffish-hub\/repos\/apps\/bio\/flows\/bam-qc-flow\/tests\/test-real-run-out\/04_reports\/methods.txt",
+    "report_manifest": "\/Users\/hankaiyuan\/Desktop\/computer\/codex\/projects\/taffish-hub\/repos\/apps\/bio\/flows\/bam-qc-flow\/tests\/test-real-run-out\/04_reports\/report.manifest.json"
+  }
+}

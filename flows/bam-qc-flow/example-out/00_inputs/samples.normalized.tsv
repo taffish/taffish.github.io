@@ -1,0 +1,2 @@
+sample_id	bam	index	local_bam	local_index
+tiny	bam-qc-flow/test-real-run-fixture/tiny.sorted.bam	bam-qc-flow/test-real-run-fixture/tiny.sorted.bam.bai	example-out/02_intermediate/bam_links/tiny/tiny.bam	example-out/02_intermediate/bam_links/tiny/tiny.bam.bai

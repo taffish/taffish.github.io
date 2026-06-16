@@ -1,0 +1,127 @@
+IQ-TREE 3.1.2 built May  7 2026
+
+Input file name: cytc-out/02_intermediate/alignment.trimmed.fa
+Type of analysis: tree reconstruction
+Random seed number: 20260528
+
+REFERENCES
+----------
+
+To cite IQ-TREE 3 please use:
+
+Thomas K.F. Wong, Nhan Ly-Trong, Huaiyan Ren, Hector Banos, Andrew J. Roger,
+Edward Susko, Chris Bielow, Nicola De Maio, Nick Goldman, Matthew W. Hahn,
+Gavin Huttley, Robert Lanfear, Bui Quang Minh (2025)
+IQ-TREE 3: Phylogenomic Inference Software using Complex Evolutionary Models.
+Submitted.
+
+SEQUENCE ALIGNMENT
+------------------
+
+NOTE: Alignment sequence type is auto-detected. If in doubt, specify it via -st option.
+Input data: 24 sequences with 104 amino-acid sites
+Number of constant sites: 40 (= 38.4615% of all sites)
+Number of invariant (constant or ambiguous constant) sites: 40 (= 38.4615% of all sites)
+Number of parsimony informative sites: 47
+Number of distinct site patterns: 81
+
+SUBSTITUTION PROCESS
+--------------------
+
+Model of substitution: LG
+
+State frequencies: (model)
+
+Model of rate heterogeneity: Uniform
+
+MAXIMUM LIKELIHOOD TREE
+-----------------------
+
+Log-likelihood of the tree: -1315.3879 (s.e. 103.2979)
+Unconstrained log-likelihood (without tree): -437.0584
+Number of free parameters (#branches + #model parameters): 43
+Akaike information criterion (AIC) score: 2716.7758
+Corrected Akaike information criterion (AICc) score: 2779.8425
+Bayesian information criterion (BIC) score: 2830.4846
+
+Total tree length (sum of branch lengths): 2.3222
+Sum of internal branch lengths: 0.7348 (31.6448% of tree length)
+
+WARNING: 4 near-zero internal branches (<0.0096) should be treated with caution
+         Such branches are denoted by '**' in the figure below
+
+NOTE: Tree is UNROOTED although outgroup taxon 'human_P99999_Homo' is drawn at root
+
++**human_P99999_Homo
+|
++**chimpanzee_P99998_Pan
+|
+|  +**rhesus_macaque_P00002_Macaca
++--|
+   |            +--horse_P00004_Equus
+   |         +--|
+   |         |  |  +**bovine_P62894_Bos
+   |         |  +**|
+   |         |     +**pig_P62895_Sus
+   |      +**|
+   |      |  |     +--rabbit_P00008_Oryctolagus
+   |      |  |  +**|
+   |      |  |  |  |  +**mouse_P62897_Mus
+   |      |  |  |  +**|
+   |      |  |  |     +**rat_P62898_Rattus
+   |      |  +--|
+   |      |     |           +--chicken_P67881_Gallus
+   |      |     |        +--|
+   |      |     |        |  +--king_penguin_P00017_Aptenodytes
+   |      |     |     +--|
+   |      |     |     |  +--mallard_P00020_Anas
+   |      |     |  +--|
+   |      |     |  |  |  +--alligator_P81280_Alligator
+   |      |     |  |  +--|
+   |      |     |  |     +--snapping_turtle_P00022_Chelydra
+   |      |     +--|
+   |      |        |  +---bullfrog_P00024_Aquarana
+   |      |        +--|
+   |      |           |   +**zebrafish_Q6IQM2_Danio
+   |      |           +---|
+   |      |               +--common_carp_P00026_Cyprinus
+   |   +--|
+   |   |  +--kangaroo_P00014_Macropus
+   +---|
+       |               +---honeybee_P00038_Apis
+       |        +------|
+       |        |      +------------------------------------c_elegans_P19974_Caenorhabditis
+       +--------|
+                |                 +---------------------budding_yeast_P00044_Saccharomyces
+                |      +----------|
+                |      |          +-------------------arabidopsis_P29380_Arabidopsis
+                +------|
+                       +-------------------------rice_Q0DI31_Oryza
+
+Tree in newick format:
+
+(human_P99999_Homo:0.0000010000,chimpanzee_P99998_Pan:0.0000010000,(rhesus_macaque_P00002_Macaca:0.0000010000,((((horse_P00004_Equus:0.0322821101,(bovine_P62894_Bos:0.0000010000,pig_P62895_Sus:0.0000010000):0.0000010000):0.0204671439,((rabbit_P00008_Oryctolagus:0.0202661987,(mouse_P62897_Mus:0.0000010000,rat_P62898_Rattus:0.0000010000):0.0000010000):0.0000010000,((((chicken_P67881_Gallus:0.0100558661,king_penguin_P00017_Aptenodytes:0.0100063188):0.0099341418,mallard_P00020_Anas:0.0100988562):0.0133800352,(alligator_P81280_Alligator:0.0299760376,snapping_turtle_P00022_Chelydra:0.0124674457):0.0371726893):0.0213745361,(bullfrog_P00024_Aquarana:0.0516719492,(zebrafish_Q6IQM2_Danio:0.0000010000,common_carp_P00026_Cyprinus:0.0305873732):0.0554760330):0.0215599525):0.0249352129):0.0101557716):0.0000010000,kangaroo_P00014_Macropus:0.0413654074):0.0197299328,((honeybee_P00038_Apis:0.0517514743,c_elegans_P19974_Caenorhabditis:0.4538441075):0.0943831015,((budding_yeast_P00044_Saccharomyces:0.2724551317,arabidopsis_P29380_Arabidopsis:0.2443780200):0.1432699350,rice_Q0DI31_Oryza:0.3161014928):0.0892957878):0.1083095371):0.0552937499):0.0101050190);
+
+ALISIM COMMAND
+--------------
+To simulate an alignment of the same length as the original alignment, using the tree and model parameters estimated from this analysis, you can use the following command:
+
+--alisim simulated_MSA -t cytc-out/02_intermediate/tree_work/iqtree/iqtree.treefile -m "LG" --length 104
+
+To mimic the alignment used to produce this analysis, i.e. simulate an alignment of the same length as the original alignment, using the tree and model parameters estimated from this analysis *and* copying the same gap positions as the original alignment, you can use the following command:
+
+iqtree -s cytc-out/02_intermediate/alignment.trimmed.fa --alisim mimicked_MSA
+
+To simulate any number of alignments in either of the two commandlines above, use the --num-alignments options, for example mimic 100 alignments you would use the command line:
+
+iqtree -s cytc-out/02_intermediate/alignment.trimmed.fa --alisim mimicked_MSA --num-alignments 100
+
+For more information on using AliSim, please visit: www.iqtree.org/doc/AliSim
+
+TIME STAMP
+----------
+
+Date and time: Sat Jun 13 16:23:35 2026
+Total CPU time used: 9.57235 seconds (0h:0m:9s)
+Total wall-clock time used: 2.60148 seconds (0h:0m:2s)
+

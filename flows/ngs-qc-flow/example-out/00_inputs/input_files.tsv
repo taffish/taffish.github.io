@@ -1,0 +1,4 @@
+sample_id	role	path
+P1	read1	ngs-qc-flow/testdata/P1_R1.fastq
+P1	read2	ngs-qc-flow/testdata/P1_R2.fastq
+S2	read1	ngs-qc-flow/testdata/S2.fastq

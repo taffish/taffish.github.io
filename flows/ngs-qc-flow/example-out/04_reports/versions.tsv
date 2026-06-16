@@ -1,0 +1,6 @@
+tool	version	source
+ngs-qc-flow	0.2.0-r1	taffish flow
+taf-fastqc	0.12.1-r1	taffish dependency
+taf-fastp	1.3.3-r3	taffish dependency
+taf-multiqc	1.35-r2	taffish dependency
+taf-seqkit	2.13.0-r2	taffish dependency

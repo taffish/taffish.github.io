@@ -1,0 +1,7 @@
+parameter	value	meaning_en	meaning_zh
+threads	4	Threads passed to SeqKit, FastQC, fastp, and MultiQC where supported	传递给 SeqKit、FastQC、fastp 和 MultiQC 的线程数
+clean	true	Whether fastp cleaning and clean-read QC were run	是否运行 fastp 清洗和 clean-read QC
+qualified_quality_phred	20	fastp qualified-quality threshold when set	设置后传递给 fastp 的合格碱基质量阈值
+length_required	15	fastp minimum read length when set	设置后传递给 fastp 的最短 reads 长度
+detect_adapter_for_pe	true	Whether fastp PE adapter auto-detection was enabled	是否启用 fastp paired-end 接头自动检测
+advanced_step_args	set	Whether expert @step: passthrough slots were used	是否使用专家级 @step: 结构域参数

@@ -1,0 +1,15 @@
+
+/// MultiQC 🔍 v1.35
+
+     update_config | Report title: BAM_QC_example
+       file_search | Search path: example-out/03_results
+          mosdepth | Found reports for 2 samples
+        validation | mosdepth/mosdepth.py: warnings while parsing barplot.pconfig[id='mosdepth-coverage-per-contig-single'] {id: mosdepth-coverage-per-contig-single, title: Mosdepth: Coverage per contig, xlab: Sample, ylab: Average Coverage, tt_suffix: x, hide_zero_cats: False, categories: True}:
+• 'categories': unrecognized field. Available fields: id, title, subtitle, anchor, height, width, square, logswitch, logswitch_active, logswitch_label, cpswitch, cpswitch_c_active, cpswitch_counts_label, cpswitch_percent_label, xlog, ylog, data_labels, xlab, ylab, xsuffix, ysuffix, tt_suffix, xlab_format, ylab_format, tt_label, x_decimals, y_decimals, tt_decimals, xmin, xmax, ymin, ymax, x_clipmin, x_clipmax, y_clipmin, y_clipmax, save_data_file, showlegend, x_minrange, y_minrange, x_bands, y_bands, x_lines, y_lines, series_label, flat_if_very_large, stacking, hide_zero_cats, sort_samples, cluster_samples, cluster_method, cluster_switch_clustered_active, use_legend, suffix, lab_format, sample_groups
+          samtools | Found 1 stats reports
+          samtools | Found 1 flagstat reports
+          samtools | Found 1 idxstats reports
+          samtools | Found 1 coverage reports
+     write_results | Data        : tests/test-real-run-out/04_reports/multiqc_report_data
+     write_results | Report      : tests/test-real-run-out/04_reports/multiqc_report.html
+           multiqc | MultiQC complete

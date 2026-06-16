@@ -1,0 +1,26 @@
+{
+    "Mosdepth": {
+        "summary": {
+            "tiny.genome": "example-out/03_results/mosdepth/genome/tiny.genome.mosdepth.summary.txt",
+            "tiny.regions": "example-out/03_results/mosdepth/regions/tiny.regions.mosdepth.summary.txt"
+        },
+        "genome_results": {
+            "tiny.genome": "example-out/03_results/mosdepth/genome/tiny.genome.mosdepth.global.dist.txt",
+            "tiny.regions": "example-out/03_results/mosdepth/regions/tiny.regions.mosdepth.region.dist.txt"
+        }
+    },
+    "Samtools": {
+        "stats": {
+            "tiny": "example-out/03_results/samtools/stats/tiny.stats.txt"
+        },
+        "flagstat": {
+            "tiny": "example-out/03_results/samtools/flagstat/tiny.flagstat.txt"
+        },
+        "idxstats": {
+            "tiny": "example-out/03_results/samtools/idxstats/tiny.idxstats.tsv"
+        },
+        "coverage": {
+            "tiny.coverage": "example-out/03_results/samtools/coverage/tiny.coverage.tsv"
+        }
+    }
+}

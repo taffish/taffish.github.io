@@ -1,0 +1,23 @@
+parameter	value
+input	phylogeny-flow/testdata/cytochrome-c-uniprot-reviewed-v1/sequences/cytochrome_c_24.fa
+alignment	
+input_mode	raw_fasta
+seq_type_requested	auto
+aligner	mafft
+trimmer	trimal
+tree_engine	iqtree
+model	LG
+bootstrap	0
+alrt	0
+threads	4
+seed	20260528
+sanitize_ids	true
+plot_tree	true
+plot_layout	rectangular
+plot_formats	pdf,png,svg
+plot_style	journal
+plot_gallery_layouts	rectangular,circular
+plot_label_align	none
+plot_label_transform	pretty
+plot_scale_bar	auto
+force	false

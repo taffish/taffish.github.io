@@ -1,0 +1,6 @@
+metric	value
+trimmer	trimal
+mode	automated1
+input_alignment_length	116
+trimmed_alignment_length	104
+columns_removed	12

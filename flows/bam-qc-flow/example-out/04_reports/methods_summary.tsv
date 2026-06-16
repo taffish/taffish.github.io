@@ -1,0 +1,5 @@
+method	text_en	text_zh
+Input normalization	BAM and index inputs are validated and linked into 02_intermediate/bam_links so tools can see adjacent indexes without modifying source data.	流程验证 BAM 与索引，并在 02_intermediate/bam_links 中创建链接，让工具看到相邻索引而不修改原始数据。
+Samtools QC	Samtools quickcheck, flagstat, stats, idxstats, and coverage provide integrity, alignment, contig, and summary coverage metrics.	Samtools quickcheck、flagstat、stats、idxstats 和 coverage 提供完整性、比对、染色体和覆盖度摘要指标。
+mosdepth QC	mosdepth -n generates compact genome-level coverage summaries, and optional --regions-bed enables interval-level and threshold summaries.	mosdepth -n 生成紧凑的全基因组覆盖度摘要；可选 --regions-bed 生成区间级和阈值摘要。
+Report aggregation	MultiQC collects native tool outputs; bam_qc_report.html wraps core evidence and embeds the native MultiQC HTML as a same-file subreport.	MultiQC 汇总原生工具输出；bam_qc_report.html 包装核心证据，并以内嵌同文件子报告形式包含原生 MultiQC HTML。

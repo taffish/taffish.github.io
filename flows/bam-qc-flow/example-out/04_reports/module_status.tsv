@@ -1,0 +1,7 @@
+module	status	note_en	note_zh
+Input validation	ok	Sample table, BAM files, and indexes are readable.	样本表、BAM 文件和索引均可读取。
+Samtools integrity	ok	1 of 1 samples passed samtools quickcheck.	1/1 个样本通过 samtools quickcheck。
+Alignment metrics	ok	Samtools flagstat, stats, idxstats, and coverage completed for every sample.	所有样本完成 Samtools flagstat、stats、idxstats 和 coverage。
+Coverage metrics	ok	mosdepth genome and region summaries were generated.	已生成 mosdepth 全基因组与区域覆盖度汇总。
+Native report	ok	MultiQC report was generated and embedded as a standalone subreport payload.	MultiQC 报告已生成，并作为单文件子报告 payload 内嵌。
+Standalone report	ok	TAFFISH template-compatible BAM QC report was generated.	已生成兼容 TAFFISH 模板的 BAM QC 报告。

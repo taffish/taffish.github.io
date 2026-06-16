@@ -1,5 +1,5 @@
 tool	version	source
-phylogeny-flow	0.1.0-r1	taffish flow
+phylogeny-flow	0.2.0-r1	taffish flow
 taf-seqkit	2.13.0-r2	taffish dependency
 taf-mafft	7.525-r3	taffish dependency
 taf-trimal	1.5.1-r1	taffish dependency

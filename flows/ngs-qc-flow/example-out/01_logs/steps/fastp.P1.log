@@ -1,0 +1,52 @@
+Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 2
+total bases: 48
+Q20 bases: 48(100%)
+Q30 bases: 48(100%)
+Q40 bases: 48(100%)
+
+Read2 before filtering:
+total reads: 2
+total bases: 48
+Q20 bases: 48(100%)
+Q30 bases: 48(100%)
+Q40 bases: 48(100%)
+
+Read1 after filtering:
+total reads: 2
+total bases: 48
+Q20 bases: 48(100%)
+Q30 bases: 48(100%)
+Q40 bases: 48(100%)
+
+Read2 after filtering:
+total reads: 2
+total bases: 48
+Q20 bases: 48(100%)
+Q30 bases: 48(100%)
+Q40 bases: 48(100%)
+
+Filtering result:
+reads passed filter: 4
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads failed due to adapter dimer: 0
+reads with adapter trimmed: 0
+bases trimmed due to adapters: 0
+
+Duplication rate: 0%
+
+Insert size peak (evaluated by paired-end reads): 0
+
+JSON report: example-out/03_results/fastp/P1.fastp.json
+HTML report: example-out/03_results/fastp/P1.fastp.html
+
+fastp -i ngs-qc-flow/testdata/P1_R1.fastq -I ngs-qc-flow/testdata/P1_R2.fastq -o example-out/03_results/clean_fastq/P1_R1.clean.fastq.gz -O example-out/03_results/clean_fastq/P1_R2.clean.fastq.gz -h example-out/03_results/fastp/P1.fastp.html -j example-out/03_results/fastp/P1.fastp.json -w 4 --detect_adapter_for_pe --qualified_quality_phred 20 --length_required 15 
+fastp v1.3.3, time used: 1 seconds

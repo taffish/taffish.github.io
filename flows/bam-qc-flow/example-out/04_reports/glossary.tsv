@@ -1,0 +1,6 @@
+term	explanation_en	explanation_zh
+BAM	Binary Alignment/Map file containing aligned sequencing reads.	保存已比对 reads 的二进制 Alignment/Map 文件。
+BAI/CSI	Index file required for efficient random access into a BAM.	用于 BAM 随机访问的索引文件。
+flagstat	Samtools summary of read categories such as mapped, paired, duplicate, secondary, and supplementary reads.	Samtools 对 mapped、paired、duplicate、secondary、supplementary 等 reads 类别的摘要。
+mosdepth	A fast depth-of-coverage tool used here for compact genome and optional region summaries.	快速覆盖深度工具；本流程用于生成紧凑的全基因组和可选区域摘要。
+MultiQC	A report aggregator that parses many bioinformatics tool outputs into a single native HTML report.	汇总多种生信工具输出并生成原生 HTML 报告的工具。

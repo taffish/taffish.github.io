@@ -1,0 +1,33 @@
+Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Read1 before filtering:
+total reads: 2
+total bases: 48
+Q20 bases: 48(100%)
+Q30 bases: 48(100%)
+Q40 bases: 48(100%)
+
+Read1 after filtering:
+total reads: 2
+total bases: 48
+Q20 bases: 48(100%)
+Q30 bases: 48(100%)
+Q40 bases: 48(100%)
+
+Filtering result:
+reads passed filter: 2
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads failed due to adapter dimer: 0
+reads with adapter trimmed: 0
+bases trimmed due to adapters: 0
+
+Duplication rate (may be overestimated since this is SE data): 0%
+
+JSON report: example-out/03_results/fastp/S2.fastp.json
+HTML report: example-out/03_results/fastp/S2.fastp.html
+
+fastp -i ngs-qc-flow/testdata/S2.fastq -o example-out/03_results/clean_fastq/S2.clean.fastq.gz -h example-out/03_results/fastp/S2.fastp.html -j example-out/03_results/fastp/S2.fastp.json -w 4 --qualified_quality_phred 20 --length_required 15 
+fastp v1.3.3, time used: 1 seconds

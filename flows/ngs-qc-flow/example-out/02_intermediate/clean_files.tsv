@@ -1,0 +1,4 @@
+sample_id	role	path
+P1	read1	example-out/03_results/clean_fastq/P1_R1.clean.fastq.gz
+P1	read2	example-out/03_results/clean_fastq/P1_R2.clean.fastq.gz
+S2	read1	example-out/03_results/clean_fastq/S2.clean.fastq.gz

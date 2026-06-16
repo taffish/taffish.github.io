@@ -1,0 +1,17 @@
+{
+  "template": {"name": "taffish-flow-report", "version": "0.1.0"},
+  "project": {"flow_name": "bam-qc-flow", "flow_version": "0.2.0-r1", "title": {"en": "bam-qc-flow report", "zh": "bam-qc-flow 报告"}},
+  "generated_at": "2026-06-13T14:36:08Z",
+  "summary": {"samples": 1, "quickcheck_ok": 1, "regions_mode": "enabled", "advanced_step_arg_blocks": 2, "embedded_reports": 1},
+  "sections": ["summary", "workflow", "native-reports", "quality-gates", "sample-table", "deliverables", "methods", "provenance"],
+  "files": {
+    "main_html": "04_reports\/bam_qc_report.html",
+    "quality_gates": "04_reports\/quality_gates.tsv",
+    "module_status": "04_reports\/module_status.tsv",
+    "embedded_html_reports": "04_reports\/embedded_html_reports.tsv",
+    "report_files": "04_reports\/report_files.tsv"
+  },
+  "embedded_reports": [
+    {"id": "multiqc", "group": "MultiQC", "path": "04_reports\/multiqc_report.html", "status": "ok"}
+  ]
+}

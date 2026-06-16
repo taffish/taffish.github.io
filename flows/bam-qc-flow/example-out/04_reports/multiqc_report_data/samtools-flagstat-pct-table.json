@@ -1,0 +1,14 @@
+{
+    "tiny": {
+        "Total Reads": 100.0,
+        "Total Passed QC": 100.0,
+        "Mapped": 100.0,
+        "Duplicates": 0.0,
+        "Paired in Sequencing": 0.0,
+        "Properly Paired": 0.0,
+        "Self and mate mapped": 0.0,
+        "Singletons": 0.0,
+        "Mate mapped to diff chr": 0.0,
+        "Diff chr (mapQ >= 5)": 0.0
+    }
+}

@@ -1,0 +1,6 @@
+term	definition_en	definition_zh
+FASTQ	Text format containing sequencing reads and per-base quality scores	包含测序 reads 及逐碱基质量分数的文本格式
+FastQC	Per-file quality-control program for common sequencing quality patterns	用于检查常见测序质量模式的单文件质控程序
+fastp	Read preprocessing tool for adapter trimming, quality filtering, and clean-read reporting	用于接头剪切、质量过滤和 clean-read 报告的 reads 预处理工具
+MultiQC	Aggregator that collects many bioinformatics QC outputs into one report	将多个生信 QC 输出汇总为一个报告的聚合工具
+Standalone HTML	A report whose main CSS, JavaScript, and embedded QC payload index are stored in one HTML file	主 CSS、JavaScript 和内嵌 QC payload 索引存于同一个 HTML 文件中的报告

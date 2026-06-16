@@ -1,0 +1,7 @@
+parameter	value
+flow_version	0.2.0-r1
+samples	1
+threads	1
+regions_mode	enabled
+regions_bed	bam-qc-flow/test-real-run-fixture/targets.bed
+advanced_step_arg_blocks	2

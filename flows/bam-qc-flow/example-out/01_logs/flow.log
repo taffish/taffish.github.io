@@ -1,0 +1,21 @@
+bam-qc-flow 0.2.0-r1
+2026-06-13T14:35:54Z [bam-qc-flow] initializing output directory: example-out
+2026-06-13T14:35:54Z [bam-qc-flow] validated 1 sample(s)
+2026-06-13T14:35:54Z [bam-qc-flow] START quickcheck.tiny
+2026-06-13T14:35:55Z [bam-qc-flow] DONE  quickcheck.tiny
+2026-06-13T14:35:55Z [bam-qc-flow] START flagstat.tiny
+2026-06-13T14:35:56Z [bam-qc-flow] DONE  flagstat.tiny
+2026-06-13T14:35:56Z [bam-qc-flow] START stats.tiny
+2026-06-13T14:35:57Z [bam-qc-flow] DONE  stats.tiny
+2026-06-13T14:35:57Z [bam-qc-flow] START idxstats.tiny
+2026-06-13T14:35:58Z [bam-qc-flow] DONE  idxstats.tiny
+2026-06-13T14:35:58Z [bam-qc-flow] START coverage.tiny
+2026-06-13T14:35:59Z [bam-qc-flow] DONE  coverage.tiny
+2026-06-13T14:35:59Z [bam-qc-flow] START mosdepth_genome.tiny
+2026-06-13T14:36:02Z [bam-qc-flow] DONE  mosdepth_genome.tiny
+2026-06-13T14:36:02Z [bam-qc-flow] START mosdepth_regions.tiny
+2026-06-13T14:36:05Z [bam-qc-flow] DONE  mosdepth_regions.tiny
+2026-06-13T14:36:05Z [bam-qc-flow] START multiqc
+2026-06-13T14:36:08Z [bam-qc-flow] DONE  multiqc
+2026-06-13T14:36:08Z [bam-qc-flow] completed. Report: example-out/04_reports/bam_qc_report.html
+2026-06-13T14:36:08Z [bam-qc-flow] summary: example-out/04_reports/flow_summary.tsv

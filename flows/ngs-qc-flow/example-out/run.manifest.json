@@ -1,0 +1,58 @@
+{
+  "flow": {"name": "ngs-qc-flow", "version": "0.2.0-r1"},
+  "started_at": "2026-06-13T12:48:52Z",
+  "finished_at": "2026-06-13T12:50:25Z",
+  "parameters": {
+    "outdir": "example-out",
+    "threads": "4",
+    "clean": "true",
+    "keep_intermediate": "false",
+    "qualified_quality_phred": "20",
+    "length_required": "15",
+    "detect_adapter_for_pe": "true",
+    "extra_fastqc_args": "",
+    "extra_fastp_args": "",
+    "extra_multiqc_args": ""
+  },
+  "advanced_step_args": {
+    "raw_seqkit_stats_step": "-a",
+    "raw_fastqc_step": "--nogroup",
+    "fastp_pe_step": "",
+    "fastp_se_step": "",
+    "clean_seqkit_stats_step": "-a",
+    "clean_fastqc_step": "--nogroup",
+    "multiqc_step": "--title ngs-qc-real-run"
+  },
+  "dependencies": [
+    {"name": "taf-fastqc", "version": "0.12.1-r1"},
+    {"name": "taf-fastp", "version": "1.3.3-r3"},
+    {"name": "taf-multiqc", "version": "1.35-r2"},
+    {"name": "taf-seqkit", "version": "2.13.0-r2"}
+  ],
+  "samples": [
+    {"sample_id":"P1","layout":"paired-end","read1":"ngs-qc-flow/testdata/P1_R1.fastq","read2":"ngs-qc-flow/testdata/P1_R2.fastq","clean_read1":"example-out/03_results/clean_fastq/P1_R1.clean.fastq.gz","clean_read2":"example-out/03_results/clean_fastq/P1_R2.clean.fastq.gz","fastp_json":"example-out/03_results/fastp/P1.fastp.json"},
+    {"sample_id":"S2","layout":"single-end","read1":"ngs-qc-flow/testdata/S2.fastq","read2":"","clean_read1":"example-out/03_results/clean_fastq/S2.clean.fastq.gz","clean_read2":"","fastp_json":"example-out/03_results/fastp/S2.fastp.json"}
+  ],
+  "outputs": {
+    "normalized_samples": "example-out/00_inputs/samples.normalized.tsv",
+    "input_files": "example-out/00_inputs/input_files.tsv",
+    "raw_fastq_stats": "example-out/03_results/raw_seqkit/raw_fastq_stats.tsv",
+    "multiqc_report": "example-out/04_reports/multiqc_report.html",
+    "ngs_qc_report": "example-out/04_reports/ngs_qc_report.html",
+    "multiqc_data": "example-out/04_reports/multiqc_data",
+    "flow_summary": "example-out/04_reports/flow_summary.tsv",
+    "commands": "example-out/04_reports/commands.sh",
+    "versions": "example-out/04_reports/versions.tsv",
+    "methods": "example-out/04_reports/methods.txt",
+    "html_reports": "example-out/04_reports/html_reports.tsv",
+    "embedded_html_reports": "example-out/04_reports/embedded_html_reports.tsv",
+    "report_manifest": "example-out/04_reports/report.manifest.json",
+    "quality_gates": "example-out/04_reports/quality_gates.tsv",
+    "module_status": "example-out/04_reports/module_status.tsv",
+    "parameters": "example-out/04_reports/parameters.tsv",
+    "warnings": "example-out/04_reports/warnings.tsv",
+    "methods_summary": "example-out/04_reports/methods_summary.tsv",
+    "glossary": "example-out/04_reports/glossary.tsv"
+  },
+  "report_template": {"name": "taffish-flow-report", "version": "0.1.0"}
+}

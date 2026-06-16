@@ -1,0 +1,6 @@
+topic	value	note_en	note_zh
+Report template	taffish-flow-report 0.1.0	The HTML shell, navigation, language switch, and embedded subreport viewer follow the shared TAFFISH template contract.	HTML 壳、导航、语言切换和内嵌子报告浏览器遵循 TAFFISH 共享模板契约。
+Raw QC	SeqKit + FastQC	SeqKit summarizes file-scale statistics; FastQC provides per-file diagnostic modules.	SeqKit 汇总文件级统计；FastQC 提供单文件诊断模块。
+Cleaning	fastp	When requested, fastp generates cleaned reads and native JSON/HTML reports.	启用清洗时，fastp 生成 clean reads 和原生 JSON/HTML 报告。
+Aggregation	MultiQC	MultiQC collects module outputs into a native project-level HTML report and data bundle.	MultiQC 将各模块输出汇总为原生项目级 HTML 报告和数据包。
+Review boundary	technical QC	This flow does not perform contamination screening, reference mapping, or biological interpretation.	本流程不执行污染筛查、参考基因组比对或生物学解释。

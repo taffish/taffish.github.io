@@ -1,0 +1,27 @@
+{
+  "template": {"name": "taffish-flow-report", "version": "0.1.0"},
+  "project": {"flow_name": "ngs-qc-flow", "flow_version": "0.2.0-r1", "title": {"en": "ngs-qc-flow report", "zh": "ngs-qc-flow 报告"}},
+  "language_default": "en",
+  "summary": {"samples": 2, "fastq_files": 3, "paired_samples": 1, "single_samples": 1, "clean": "true", "embedded_reports": 9},
+  "sections": ["summary", "workflow", "native-reports", "quality-gates", "sample-table", "deliverables", "methods", "provenance"],
+  "assets": {
+    "main_html": "04_reports/ngs_qc_report.html",
+    "quality_gates": "04_reports/quality_gates.tsv",
+    "module_status": "04_reports/module_status.tsv",
+    "parameters": "04_reports/parameters.tsv",
+    "warnings": "04_reports/warnings.tsv",
+    "methods_summary": "04_reports/methods_summary.tsv",
+    "glossary": "04_reports/glossary.tsv"
+  },
+  "embedded_reports": [
+    {"id": "multiqc_1", "group": "multiqc", "label": "MultiQC project report", "path": "04_reports/multiqc_report.html", "source_bytes": 2441020, "embedded_bytes": 2441020, "status": "ok"},
+    {"id": "raw_fastqc_2", "group": "raw_fastqc", "label": "P1_R1_fastqc.html", "path": "03_results/raw_fastqc/P1/P1_R1_fastqc.html", "source_bytes": 397683, "embedded_bytes": 397683, "status": "ok"},
+    {"id": "raw_fastqc_3", "group": "raw_fastqc", "label": "P1_R2_fastqc.html", "path": "03_results/raw_fastqc/P1/P1_R2_fastqc.html", "source_bytes": 397683, "embedded_bytes": 397683, "status": "ok"},
+    {"id": "raw_fastqc_4", "group": "raw_fastqc", "label": "S2_fastqc.html", "path": "03_results/raw_fastqc/S2/S2_fastqc.html", "source_bytes": 532489, "embedded_bytes": 532489, "status": "ok"},
+    {"id": "fastp_5", "group": "fastp", "label": "P1.fastp.html", "path": "03_results/fastp/P1.fastp.html", "source_bytes": 366616, "embedded_bytes": 366407, "status": "ok"},
+    {"id": "fastp_6", "group": "fastp", "label": "S2.fastp.html", "path": "03_results/fastp/S2.fastp.html", "source_bytes": 185893, "embedded_bytes": 185684, "status": "ok"},
+    {"id": "clean_fastqc_7", "group": "clean_fastqc", "label": "P1_R1.clean_fastqc.html", "path": "03_results/clean_fastqc/P1/P1_R1.clean_fastqc.html", "source_bytes": 397710, "embedded_bytes": 397710, "status": "ok"},
+    {"id": "clean_fastqc_8", "group": "clean_fastqc", "label": "P1_R2.clean_fastqc.html", "path": "03_results/clean_fastqc/P1/P1_R2.clean_fastqc.html", "source_bytes": 397710, "embedded_bytes": 397710, "status": "ok"},
+    {"id": "clean_fastqc_9", "group": "clean_fastqc", "label": "S2.clean_fastqc.html", "path": "03_results/clean_fastqc/S2/S2.clean_fastqc.html", "source_bytes": 532516, "embedded_bytes": 532516, "status": "ok"}
+  ]
+}

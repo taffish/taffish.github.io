@@ -1,0 +1,4 @@
+sample_id	role	path
+tiny	bam	bam-qc-flow/test-real-run-fixture/tiny.sorted.bam
+tiny	index	bam-qc-flow/test-real-run-fixture/tiny.sorted.bam.bai
+flow	regions_bed	bam-qc-flow/test-real-run-fixture/targets.bed
