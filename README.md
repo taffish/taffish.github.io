@@ -14,13 +14,19 @@ Static web registry for `taffish`, backed by `taffish-index`.
   registry
 - Warnings panel (from index build warnings)
 - Trust-gate failure count and direct link to the latest index build report
-- Sync failure panel with explicit retry and last successful sync time
+- Sync failure panel with explicit retry, last successful sync time, CDN
+  fallback, and browser-cache fallback for transient GitHub/raw rate limits
 - Shareable URL state (`lang`, query, filters, selected package/version)
 - Repository cards built from the `repositories` section in index data
 
 ## Data Source
 
-- `https://raw.githubusercontent.com/taffish/taffish-index/main/index/index.json`
+- Primary: `https://raw.githubusercontent.com/taffish/taffish-index/main/index/index.json`
+- Fallback: `https://cdn.jsdelivr.net/gh/taffish/taffish-index@main/index/index.json`
+
+Successful loads are cached in the browser Cache API. If a later live sync
+fails, the page continues showing the last available index data and displays a
+sync warning instead of rendering an empty registry.
 
 ## Files
 

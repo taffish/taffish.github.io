@@ -1,9 +1,14 @@
 "use strict";
 
 const INDEX_URL = "https://raw.githubusercontent.com/taffish/taffish-index/main/index/index.json";
+const INDEX_FALLBACK_URLS = [
+  "https://cdn.jsdelivr.net/gh/taffish/taffish-index@main/index/index.json"
+];
+const INDEX_CACHE_NAME = "taffish_hub_index_cache_v1";
 const LOCALE_STORAGE_KEY = "taffish_hub_locale";
 const LAST_SUCCESS_SYNC_AT_KEY = "taffish_hub_last_success_sync_at";
 const LAST_SUCCESS_GENERATED_AT_KEY = "taffish_hub_last_success_generated_at";
+const LAST_CACHE_SAVED_AT_KEY = "taffish_hub_last_cache_saved_at";
 
 const I18N = {
   en: {
@@ -76,6 +81,8 @@ const I18N = {
     sync_alert_title: "Index sync failed",
     sync_alert_last_success: "Last successful sync",
     sync_alert_never: "No successful sync yet.",
+    sync_using_cached: "Showing the last available index data.",
+    sync_cache_saved: "Cache saved",
     result_count: "results",
     table_package: "Package",
     table_latest: "Latest",
@@ -231,6 +238,8 @@ const I18N = {
     sync_alert_title: "索引同步失败",
     sync_alert_last_success: "上次成功同步",
     sync_alert_never: "尚无成功同步记录。",
+    sync_using_cached: "继续显示上一次可用的索引数据。",
+    sync_cache_saved: "缓存保存时间",
     result_count: "条结果",
     table_package: "包名",
     table_latest: "最新",
@@ -331,6 +340,8 @@ const state = {
   warnings: [],
   lastSuccessSyncAt: localStorage.getItem(LAST_SUCCESS_SYNC_AT_KEY) || "",
   lastSuccessGeneratedAt: localStorage.getItem(LAST_SUCCESS_GENERATED_AT_KEY) || "",
+  cacheSavedAt: localStorage.getItem(LAST_CACHE_SAVED_AT_KEY) || "",
+  syncUsingFallback: false,
   filters: {
     query: initialUrlState.query || "",
     kind: initialUrlState.kind || "all",
@@ -1110,12 +1121,22 @@ function renderSync() {
   }
 
   el.syncAlertTitle.textContent = t("sync_alert_title");
-  el.syncAlertDetail.textContent = state.syncError
-    ? state.syncError
+  const detailParts = [];
+  if (state.syncError) detailParts.push(state.syncError);
+  if (state.syncUsingFallback) detailParts.push(t("sync_using_cached"));
+  el.syncAlertDetail.textContent = detailParts.length
+    ? detailParts.join(" · ")
     : t("sync_error_detail");
-  el.syncAlertLastSuccess.textContent = state.lastSuccessSyncAt
-    ? `${t("sync_alert_last_success")}: ${formatLocalDateTime(state.lastSuccessSyncAt)}`
-    : `${t("sync_alert_last_success")}: ${t("sync_alert_never")}`;
+
+  const lastParts = [
+    state.lastSuccessSyncAt
+      ? `${t("sync_alert_last_success")}: ${formatLocalDateTime(state.lastSuccessSyncAt)}`
+      : `${t("sync_alert_last_success")}: ${t("sync_alert_never")}`
+  ];
+  if (state.syncUsingFallback && state.cacheSavedAt) {
+    lastParts.push(`${t("sync_cache_saved")}: ${formatLocalDateTime(state.cacheSavedAt)}`);
+  }
+  el.syncAlertLastSuccess.textContent = lastParts.join(" | ");
   el.syncAlert.classList.remove("hidden");
 }
 
@@ -2047,12 +2068,15 @@ function bindEvents() {
   });
 }
 
-async function fetchIndex(forceRefresh = false) {
-  const url = forceRefresh
-    ? `${INDEX_URL}?t=${Date.now()}`
-    : INDEX_URL;
-  const response = await fetch(url, {
-    cache: forceRefresh ? "reload" : "no-store",
+function cacheBustUrl(url, forceRefresh) {
+  if (!forceRefresh) return url;
+  const joiner = url.includes("?") ? "&" : "?";
+  return `${url}${joiner}t=${Date.now()}`;
+}
+
+async function fetchIndexFromUrl(url, forceRefresh = false) {
+  const response = await fetch(cacheBustUrl(url, forceRefresh), {
+    cache: forceRefresh ? "reload" : "default",
     headers: {
       Accept: "application/json"
     }
@@ -2063,18 +2087,88 @@ async function fetchIndex(forceRefresh = false) {
   return response.json();
 }
 
+async function fetchIndex(forceRefresh = false) {
+  const urls = [INDEX_URL, ...INDEX_FALLBACK_URLS];
+  const errors = [];
+  for (const url of urls) {
+    try {
+      return await fetchIndexFromUrl(url, forceRefresh);
+    } catch (error) {
+      errors.push(`${url}: ${error && error.message ? error.message : error}`);
+    }
+  }
+  throw new Error(errors.join(" | "));
+}
+
+function assignIndex(indexJson) {
+  state.index = normalizeIndex(indexJson);
+  state.packages = state.index.packages;
+  state.packageMap = state.index.packageMap;
+  state.repositories = state.index.repositories;
+  state.warnings = state.index.warnings;
+}
+
+function canUseCacheApi() {
+  return typeof window !== "undefined" && "caches" in window;
+}
+
+async function readCachedIndex() {
+  if (!canUseCacheApi()) return null;
+  try {
+    const cache = await caches.open(INDEX_CACHE_NAME);
+    const response = await cache.match(INDEX_URL);
+    if (!response || !response.ok) return null;
+    return {
+      json: await response.clone().json(),
+      savedAt: response.headers.get("X-TAFFISH-Cache-Saved-At")
+        || localStorage.getItem(LAST_CACHE_SAVED_AT_KEY)
+        || ""
+    };
+  } catch (error) {
+    console.warn("[taffish-hub] failed to read cached index:", error);
+    return null;
+  }
+}
+
+async function writeCachedIndex(indexJson) {
+  if (!canUseCacheApi()) return;
+  try {
+    const savedAt = new Date().toISOString();
+    const cache = await caches.open(INDEX_CACHE_NAME);
+    const response = new Response(JSON.stringify(indexJson), {
+      headers: {
+        "Content-Type": "application/json",
+        "X-TAFFISH-Cache-Saved-At": savedAt
+      }
+    });
+    await cache.put(INDEX_URL, response);
+    state.cacheSavedAt = savedAt;
+    localStorage.setItem(LAST_CACHE_SAVED_AT_KEY, savedAt);
+  } catch (error) {
+    console.warn("[taffish-hub] failed to cache index:", error);
+  }
+}
+
 async function loadData(manual = false) {
   state.syncState = "syncing";
   state.syncError = "";
+  state.syncUsingFallback = false;
   setRefreshLoading(true);
   renderSync();
+
+  if (!manual && !state.index) {
+    const cached = await readCachedIndex();
+    if (cached) {
+      assignIndex(cached.json);
+      state.cacheSavedAt = cached.savedAt || state.cacheSavedAt;
+      renderAll();
+    }
+  }
+
   try {
     const indexJson = await fetchIndex(manual);
-    state.index = normalizeIndex(indexJson);
-    state.packages = state.index.packages;
-    state.packageMap = state.index.packageMap;
-    state.repositories = state.index.repositories;
-    state.warnings = state.index.warnings;
+    assignIndex(indexJson);
+    await writeCachedIndex(indexJson);
     state.syncState = "done";
     state.lastSuccessSyncAt = new Date().toISOString();
     localStorage.setItem(LAST_SUCCESS_SYNC_AT_KEY, state.lastSuccessSyncAt);
@@ -2087,11 +2181,16 @@ async function loadData(manual = false) {
     state.syncState = "failed";
     state.syncError = String(error && error.message ? error.message : error);
     if (!state.index) {
-      state.index = normalizeIndex({});
-      state.packages = [];
-      state.packageMap = new Map();
-      state.repositories = [];
-      state.warnings = [];
+      const cached = await readCachedIndex();
+      if (cached) {
+        assignIndex(cached.json);
+        state.cacheSavedAt = cached.savedAt || state.cacheSavedAt;
+        state.syncUsingFallback = true;
+      } else {
+        assignIndex({});
+      }
+    } else {
+      state.syncUsingFallback = true;
     }
   }
   setRefreshLoading(false);
