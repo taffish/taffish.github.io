@@ -9,6 +9,9 @@ const LOCALE_STORAGE_KEY = "taffish_hub_locale";
 const LAST_SUCCESS_SYNC_AT_KEY = "taffish_hub_last_success_sync_at";
 const LAST_SUCCESS_GENERATED_AT_KEY = "taffish_hub_last_success_generated_at";
 const LAST_CACHE_SAVED_AT_KEY = "taffish_hub_last_cache_saved_at";
+const PAGE_SIZE_STORAGE_KEY = "taffish_hub_page_size";
+const DEFAULT_PAGE_SIZE = 25;
+const PAGE_SIZE_OPTIONS = [25, 50, 100];
 
 const I18N = {
   en: {
@@ -84,6 +87,14 @@ const I18N = {
     sync_using_cached: "Showing the last available index data.",
     sync_cache_saved: "Cache saved",
     result_count: "results",
+    page_size: "Per page",
+    page_jump: "Go to",
+    page_navigation: "Package pages",
+    page_first: "First page",
+    page_previous: "Previous page",
+    page_next: "Next page",
+    page_last: "Last page",
+    page_go_to: "Go to page",
     table_package: "Package",
     table_latest: "Latest",
     table_kind: "Kind",
@@ -241,6 +252,14 @@ const I18N = {
     sync_using_cached: "继续显示上一次可用的索引数据。",
     sync_cache_saved: "缓存保存时间",
     result_count: "条结果",
+    page_size: "每页",
+    page_jump: "跳转到",
+    page_navigation: "软件包分页",
+    page_first: "第一页",
+    page_previous: "上一页",
+    page_next: "下一页",
+    page_last: "最后一页",
+    page_go_to: "前往页面",
     table_package: "包名",
     table_latest: "最新",
     table_kind: "类型",
@@ -349,6 +368,11 @@ const state = {
     depsOnly: initialUrlState.depsOnly || false,
     containerOnly: initialUrlState.containerOnly || false
   },
+  pagination: {
+    page: initialUrlState.page || 1,
+    pageSize: initialUrlState.pageSize || readStoredPageSize(),
+    revealSelected: Boolean(initialUrlState.selectedPackage)
+  },
   selectedPackage: initialUrlState.selectedPackage || null,
   selectedVersion: initialUrlState.selectedVersion || null,
   copyToastTimer: null
@@ -383,6 +407,15 @@ const el = {
   depsOnly: document.getElementById("depsOnly"),
   containerOnly: document.getElementById("containerOnly"),
   resultCount: document.getElementById("resultCount"),
+  paginationTop: document.getElementById("paginationTop"),
+  paginationBottom: document.getElementById("paginationBottom"),
+  paginationSummaryTop: document.getElementById("paginationSummaryTop"),
+  paginationSummaryBottom: document.getElementById("paginationSummaryBottom"),
+  pageSizeSelect: document.getElementById("pageSizeSelect"),
+  pageJumpTop: document.getElementById("pageJumpTop"),
+  pageJumpBottom: document.getElementById("pageJumpBottom"),
+  pageNavTop: document.getElementById("pageNavTop"),
+  pageNavBottom: document.getElementById("pageNavBottom"),
   packagesEmpty: document.getElementById("packagesEmpty"),
   packagesTable: document.getElementById("packagesTable"),
   detailEmpty: document.getElementById("detailEmpty"),
@@ -421,6 +454,20 @@ function readStoredLocale() {
   return saved === "zh" ? "zh" : "en";
 }
 
+function normalizePageNumber(value) {
+  const number = Number.parseInt(String(value || ""), 10);
+  return Number.isFinite(number) && number > 0 ? number : 1;
+}
+
+function normalizePageSize(value) {
+  const number = Number.parseInt(String(value || ""), 10);
+  return PAGE_SIZE_OPTIONS.includes(number) ? number : null;
+}
+
+function readStoredPageSize() {
+  return normalizePageSize(localStorage.getItem(PAGE_SIZE_STORAGE_KEY)) || DEFAULT_PAGE_SIZE;
+}
+
 function readInitialUrlState() {
   const params = new URLSearchParams(window.location.search);
   const locale = params.get("lang");
@@ -433,6 +480,8 @@ function readInitialUrlState() {
     sort: sort === "recent" || sort === "name" ? sort : null,
     depsOnly: params.get("deps") === "1",
     containerOnly: params.get("container") === "1",
+    page: normalizePageNumber(params.get("page")),
+    pageSize: normalizePageSize(params.get("per_page")),
     selectedPackage: params.get("pkg") || null,
     selectedVersion: params.get("ver") || null
   };
@@ -446,6 +495,10 @@ function writeUrlState() {
   if (state.filters.sort !== "name") params.set("sort", state.filters.sort);
   if (state.filters.depsOnly) params.set("deps", "1");
   if (state.filters.containerOnly) params.set("container", "1");
+  if (state.pagination.page > 1) params.set("page", String(state.pagination.page));
+  if (state.pagination.pageSize !== DEFAULT_PAGE_SIZE) {
+    params.set("per_page", String(state.pagination.pageSize));
+  }
   if (state.selectedPackage) params.set("pkg", state.selectedPackage);
   if (state.selectedVersion) params.set("ver", state.selectedVersion);
 
@@ -625,6 +678,7 @@ function navigateToPackage(packageName, versionId = "") {
   state.filters.containerOnly = false;
   state.selectedPackage = pkg.name;
   state.selectedVersion = resolvePackageVersion(pkg, versionId);
+  state.pagination.revealSelected = true;
 
   renderFilterInputs();
   renderPackages();
@@ -983,6 +1037,173 @@ function getFilteredPackages() {
   return rows;
 }
 
+function getPageCount(itemCount) {
+  return Math.max(1, Math.ceil(itemCount / state.pagination.pageSize));
+}
+
+function getPageTokens(currentPage, pageCount) {
+  if (pageCount <= 7) {
+    return Array.from({ length: pageCount }, (_, index) => index + 1);
+  }
+
+  const pages = new Set([1, pageCount, currentPage - 1, currentPage, currentPage + 1]);
+  if (currentPage <= 4) {
+    pages.add(2);
+    pages.add(3);
+    pages.add(4);
+  }
+  if (currentPage >= pageCount - 3) {
+    pages.add(pageCount - 1);
+    pages.add(pageCount - 2);
+    pages.add(pageCount - 3);
+  }
+
+  const sorted = Array.from(pages)
+    .filter((page) => page >= 1 && page <= pageCount)
+    .sort((a, b) => a - b);
+  const tokens = [];
+  sorted.forEach((page, index) => {
+    if (index > 0 && page - sorted[index - 1] > 1) tokens.push(null);
+    tokens.push(page);
+  });
+  return tokens;
+}
+
+function formatPageRange(start, end, total) {
+  if (state.locale === "zh") {
+    return `第 ${formatCount(start)}–${formatCount(end)} 项，共 ${formatCount(total)} 项`;
+  }
+  return `${formatCount(start)}–${formatCount(end)} of ${formatCount(total)}`;
+}
+
+function resetPaginationForFilterChange() {
+  state.pagination.page = 1;
+  state.pagination.revealSelected = false;
+  state.selectedPackage = null;
+  state.selectedVersion = null;
+}
+
+function setPage(page, scrollToList = true) {
+  const filtered = getFilteredPackages();
+  const pageCount = getPageCount(filtered.length);
+  const nextPage = Math.min(Math.max(normalizePageNumber(page), 1), pageCount);
+  if (nextPage === state.pagination.page && filtered.length > 0) return;
+
+  state.pagination.page = nextPage;
+  state.pagination.revealSelected = false;
+  state.selectedPackage = null;
+  state.selectedVersion = null;
+  renderPackages();
+  renderDetail();
+  if (scrollToList) {
+    window.setTimeout(() => scrollToNode(el.searchSection), 40);
+  }
+}
+
+function setPageSize(pageSize) {
+  const normalized = normalizePageSize(pageSize);
+  if (!normalized || normalized === state.pagination.pageSize) return;
+  state.pagination.pageSize = normalized;
+  localStorage.setItem(PAGE_SIZE_STORAGE_KEY, String(normalized));
+  resetPaginationForFilterChange();
+  renderPackages();
+  renderDetail();
+}
+
+function createPageIconButton(icon, labelKey, targetPage, className = "") {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = `page-button page-icon-button ${className}`.trim();
+  button.title = t(labelKey);
+  button.setAttribute("aria-label", t(labelKey));
+  button.disabled = targetPage === state.pagination.page;
+  const iconNode = document.createElement("i");
+  iconNode.dataset.lucide = icon;
+  button.append(iconNode);
+  button.addEventListener("click", () => setPage(targetPage));
+  return button;
+}
+
+function renderPageNav(nav, pageCount) {
+  nav.textContent = "";
+  nav.setAttribute("aria-label", t("page_navigation"));
+  nav.append(
+    createPageIconButton("chevrons-left", "page_first", 1, "page-first"),
+    createPageIconButton("chevron-left", "page_previous", Math.max(1, state.pagination.page - 1))
+  );
+
+  for (const token of getPageTokens(state.pagination.page, pageCount)) {
+    if (token === null) {
+      const ellipsis = document.createElement("span");
+      ellipsis.className = "page-ellipsis";
+      ellipsis.textContent = "…";
+      ellipsis.setAttribute("aria-hidden", "true");
+      nav.append(ellipsis);
+      continue;
+    }
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "page-button page-number";
+    button.textContent = String(token);
+    button.title = `${t("page_go_to")} ${token}`;
+    button.setAttribute("aria-label", `${t("page_go_to")} ${token}`);
+    if (token === state.pagination.page) {
+      button.classList.add("active");
+      button.setAttribute("aria-current", "page");
+    }
+    button.addEventListener("click", () => setPage(token));
+    nav.append(button);
+  }
+
+  const mobileState = document.createElement("span");
+  mobileState.className = "page-mobile-state";
+  mobileState.textContent = `${state.pagination.page} / ${pageCount}`;
+  nav.append(
+    mobileState,
+    createPageIconButton("chevron-right", "page_next", Math.min(pageCount, state.pagination.page + 1)),
+    createPageIconButton("chevrons-right", "page_last", pageCount, "page-last")
+  );
+}
+
+function formatPageOption(page) {
+  return state.locale === "zh" ? `第 ${page} 页` : `Page ${page}`;
+}
+
+function renderPageJump(select, pageCount) {
+  select.textContent = "";
+  for (let page = 1; page <= pageCount; page += 1) {
+    const option = document.createElement("option");
+    option.value = String(page);
+    option.textContent = formatPageOption(page);
+    select.append(option);
+  }
+  select.value = String(state.pagination.page);
+  select.disabled = pageCount <= 1;
+}
+
+function renderPagination(totalItems) {
+  const visible = totalItems > 0;
+  el.paginationTop.classList.toggle("hidden", !visible);
+  el.paginationBottom.classList.toggle("hidden", !visible);
+  if (!visible) return;
+
+  const pageCount = getPageCount(totalItems);
+  const start = ((state.pagination.page - 1) * state.pagination.pageSize) + 1;
+  const end = Math.min(totalItems, start + state.pagination.pageSize - 1);
+  const summary = formatPageRange(start, end, totalItems);
+  el.paginationSummaryTop.textContent = summary;
+  el.paginationSummaryBottom.textContent = summary;
+  el.pageSizeSelect.value = String(state.pagination.pageSize);
+  renderPageJump(el.pageJumpTop, pageCount);
+  renderPageJump(el.pageJumpBottom, pageCount);
+  renderPageNav(el.pageNavTop, pageCount);
+  renderPageNav(el.pageNavBottom, pageCount);
+  if (window.lucide && typeof window.lucide.createIcons === "function") {
+    window.lucide.createIcons();
+  }
+}
+
 function getFilteredRepositories() {
   const keyword = state.filters.query.trim().toLowerCase();
   if (!keyword) return state.repositories;
@@ -1172,6 +1393,8 @@ function renderPackages() {
     el.packagesEmpty.classList.remove("hidden");
     el.packagesTable.textContent = "";
     el.packagesTable.append(createLoadingRows());
+    el.paginationTop.classList.add("hidden");
+    el.paginationBottom.classList.add("hidden");
     return;
   }
 
@@ -1179,7 +1402,21 @@ function renderPackages() {
   el.packagesEmpty.textContent = t("empty_packages");
 
   const filtered = getFilteredPackages();
-  ensureSelection(filtered);
+  const pageCount = getPageCount(filtered.length);
+
+  if (state.pagination.revealSelected && state.selectedPackage) {
+    const selectedIndex = filtered.findIndex((pkg) => pkg.name === state.selectedPackage);
+    if (selectedIndex >= 0) {
+      state.pagination.page = Math.floor(selectedIndex / state.pagination.pageSize) + 1;
+    }
+    state.pagination.revealSelected = false;
+  }
+
+  state.pagination.page = Math.min(Math.max(state.pagination.page, 1), pageCount);
+  const pageStart = (state.pagination.page - 1) * state.pagination.pageSize;
+  const visiblePackages = filtered.slice(pageStart, pageStart + state.pagination.pageSize);
+  ensureSelection(visiblePackages);
+  renderPagination(filtered.length);
 
   el.resultCount.textContent = `${formatCount(filtered.length)} ${t("result_count")}`;
   el.packagesTable.textContent = "";
@@ -1202,7 +1439,7 @@ function renderPackages() {
     ])
   );
 
-  for (const pkg of filtered) {
+  for (const pkg of visiblePackages) {
     const row = document.createElement("div");
     row.className = "table-row item";
     row.setAttribute("role", "button");
@@ -1936,6 +2173,7 @@ function renderAll() {
 
 function setKind(kind) {
   state.filters.kind = kind === "tool" || kind === "flow" ? kind : "all";
+  resetPaginationForFilterChange();
   renderKindState();
   renderPackages();
   renderDetail();
@@ -1943,6 +2181,7 @@ function setKind(kind) {
 
 function setSort(sort) {
   state.filters.sort = sort === "recent" ? "recent" : "name";
+  resetPaginationForFilterChange();
   renderSortState();
   renderPackages();
   renderDetail();
@@ -2024,6 +2263,7 @@ function bindEvents() {
 
   el.globalSearch.addEventListener("input", (event) => {
     state.filters.query = String(event.target.value || "");
+    resetPaginationForFilterChange();
     renderPackages();
     renderDetail();
   });
@@ -2036,12 +2276,14 @@ function bindEvents() {
 
   el.depsOnly.addEventListener("change", (event) => {
     state.filters.depsOnly = Boolean(event.target.checked);
+    resetPaginationForFilterChange();
     renderPackages();
     renderDetail();
   });
 
   el.containerOnly.addEventListener("change", (event) => {
     state.filters.containerOnly = Boolean(event.target.checked);
+    resetPaginationForFilterChange();
     renderPackages();
     renderDetail();
   });
@@ -2054,6 +2296,16 @@ function bindEvents() {
   });
   el.quickTop.addEventListener("click", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  el.pageSizeSelect.addEventListener("change", (event) => {
+    setPageSize(event.target.value);
+  });
+  el.pageJumpTop.addEventListener("change", (event) => {
+    setPage(event.target.value);
+  });
+  el.pageJumpBottom.addEventListener("change", (event) => {
+    setPage(event.target.value);
   });
 
   el.copyLatest.addEventListener("click", () => {
@@ -2106,6 +2358,7 @@ function assignIndex(indexJson) {
   state.packageMap = state.index.packageMap;
   state.repositories = state.index.repositories;
   state.warnings = state.index.warnings;
+  state.pagination.revealSelected = Boolean(state.selectedPackage);
 }
 
 function canUseCacheApi() {

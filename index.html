@@ -141,8 +141,36 @@
               <h2 data-i18n="section_packages">Packages</h2>
               <span id="resultCount" class="head-meta">0</span>
             </div>
+            <div id="paginationTop" class="pagination pagination-top hidden">
+              <span id="paginationSummaryTop" class="pagination-summary"></span>
+              <div class="pagination-actions">
+                <label class="page-size-control" for="pageSizeSelect">
+                  <span data-i18n="page_size">Per page</span>
+                  <select id="pageSizeSelect" class="page-size-select">
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                </label>
+                <label class="page-jump-control" for="pageJumpTop">
+                  <span data-i18n="page_jump">Go to</span>
+                  <select id="pageJumpTop" class="page-jump-select"></select>
+                </label>
+                <nav id="pageNavTop" class="page-nav" aria-label="Package pages"></nav>
+              </div>
+            </div>
             <div id="packagesEmpty" class="empty hidden" data-i18n="empty_packages">No package data.</div>
             <div id="packagesTable" class="table-wrap"></div>
+            <div id="paginationBottom" class="pagination pagination-bottom hidden">
+              <span id="paginationSummaryBottom" class="pagination-summary"></span>
+              <div class="pagination-actions">
+                <label class="page-jump-control" for="pageJumpBottom">
+                  <span data-i18n="page_jump">Go to</span>
+                  <select id="pageJumpBottom" class="page-jump-select"></select>
+                </label>
+                <nav id="pageNavBottom" class="page-nav" aria-label="Package pages"></nav>
+              </div>
+            </div>
           </section>
 
           <aside class="surface detail-surface">
