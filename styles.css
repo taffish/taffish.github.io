@@ -288,7 +288,7 @@ img {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -314,12 +314,22 @@ img {
   background: var(--teal);
 }
 
-.stat-item.stat-warning::before {
+.stat-item.stat-warning::before,
+.stat-item.stat-advisory::before {
   background: var(--copper);
 }
 
-.stat-item.stat-warning .stat-value {
+.stat-item.stat-warning .stat-value,
+.stat-item.stat-advisory .stat-value {
   color: var(--copper-dark);
+}
+
+.stat-item.stat-danger::before {
+  background: var(--danger);
+}
+
+.stat-item.stat-danger .stat-value {
+  color: var(--danger);
 }
 
 .stat-label {
@@ -334,6 +344,13 @@ img {
   line-height: 1;
   font-weight: 700;
   color: var(--blue-dark);
+}
+
+.stat-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
 }
 
 .toolbar {
@@ -999,9 +1016,33 @@ pre {
   background: #fff1f1;
 }
 
+.status-pill.pending {
+  color: var(--copper-dark);
+  border-color: rgba(166, 111, 76, 0.26);
+  background: var(--copper-soft);
+}
+
 .status-pill.neutral {
   color: var(--muted);
   background: #f7f9fd;
+}
+
+.detail-group.backend-evidence {
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--line-strong);
+  border-radius: 8px;
+  background: #fbfcff;
+  padding: 10px;
+}
+
+.detail-group.backend-evidence-required {
+  border-left-color: var(--teal);
+  background: linear-gradient(90deg, var(--teal-soft) 0, #fbfcff 44px);
+}
+
+.detail-group.backend-evidence-advisory {
+  border-left-color: var(--copper);
+  background: linear-gradient(90deg, var(--copper-soft) 0, #fbfcff 44px);
 }
 
 .subsection {
@@ -1352,6 +1393,10 @@ pre {
 }
 
 @media (max-width: 1080px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .toolbar {
     grid-template-columns: minmax(220px, 1fr) auto auto;
   }
@@ -1500,20 +1545,12 @@ pre {
   }
 
   .stats-grid {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 2px;
-    overscroll-behavior-x: contain;
-    scrollbar-width: none;
-  }
-
-  .stats-grid::-webkit-scrollbar {
-    display: none;
   }
 
   .stat-item {
-    min-width: 112px;
     min-height: 64px;
     padding: 10px 12px;
   }

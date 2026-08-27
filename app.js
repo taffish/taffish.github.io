@@ -27,7 +27,12 @@ const I18N = {
     metric_versions: "Versions",
     metric_commands: "Commands",
     metric_repositories: "Repositories",
-    metric_failed_gates: "Failed Gates",
+    metric_failed_gates: "Required Gate Failures",
+    metric_advisory_failed: "Advisory Backend Failures",
+    metric_failed_gates_help: "Required gate failures block a new version from entering the index.",
+    metric_advisory_failed_help: "Advisory backend failures are reported but do not block an otherwise accepted version.",
+    metric_failed_gates_note: "Blocks acceptance",
+    metric_advisory_failed_note: "Non-blocking signal",
     search: "Search package, command, repository",
     kind_all: "All",
     kind_tool: "Tool",
@@ -152,6 +157,21 @@ const I18N = {
     label_smoke_exist: "Required Executables",
     label_smoke_test: "Smoke Test Commands",
     label_smoke_checked_at: "Smoke Checked",
+    label_required_gate_status: "Required Gate Status",
+    label_smoke_policy_generation: "Policy Generation",
+    label_smoke_platform: "Validation Platform",
+    label_smoke_required_backends: "Required Backends",
+    label_smoke_advisory_backends: "Advisory Backends",
+    label_backend_status: "Backend Status",
+    label_backend_runtime: "Runtime Version",
+    label_backend_platform: "Validation Platform",
+    label_backend_checked_at: "Checked",
+    label_backend_runner_image: "Runner Image",
+    label_backend_failure_kind: "Failure Kind",
+    label_backend_message: "Message",
+    backend_role_required: "Required",
+    backend_role_advisory: "Advisory",
+    backend_role_unspecified: "Unspecified",
     label_trust_status: "Trust Status",
     label_trust_policy: "Trust Policy",
     label_trust_source: "Trust Source",
@@ -160,6 +180,7 @@ const I18N = {
     status_failed: "Failed",
     status_unknown: "Unknown",
     status_not_applicable: "Not applicable",
+    status_not_checked: "Not checked",
     trust_not_applicable_flow: "Flow apps do not have their own container image. TAFFISH checks dependency metadata, and dependency tools keep their own container trust records.",
     trust_not_applicable_non_container: "This version has no container image, so the container smoke gate does not apply.",
     label_package_count: "Packages",
@@ -192,7 +213,12 @@ const I18N = {
     metric_versions: "版本数",
     metric_commands: "命令数",
     metric_repositories: "仓库数",
-    metric_failed_gates: "失败 Gate",
+    metric_failed_gates: "必需 Gate 失败",
+    metric_advisory_failed: "建议性后端失败",
+    metric_failed_gates_help: "必需 Gate 失败会阻止新版本进入索引。",
+    metric_advisory_failed_help: "建议性后端失败会被报告，但不会阻止其他必需 Gate 已通过的版本进入索引。",
+    metric_failed_gates_note: "阻止版本收录",
+    metric_advisory_failed_note: "非阻断信号",
     search: "搜索包名、命令名或仓库",
     kind_all: "全部",
     kind_tool: "工具",
@@ -317,6 +343,21 @@ const I18N = {
     label_smoke_exist: "需存在的可执行程序",
     label_smoke_test: "Smoke 测试命令",
     label_smoke_checked_at: "Smoke 检查时间",
+    label_required_gate_status: "必需 Gate 状态",
+    label_smoke_policy_generation: "策略代次",
+    label_smoke_platform: "验证平台",
+    label_smoke_required_backends: "必需后端",
+    label_smoke_advisory_backends: "建议性后端",
+    label_backend_status: "后端状态",
+    label_backend_runtime: "运行时版本",
+    label_backend_platform: "验证平台",
+    label_backend_checked_at: "检查时间",
+    label_backend_runner_image: "Runner 镜像",
+    label_backend_failure_kind: "失败类型",
+    label_backend_message: "信息",
+    backend_role_required: "必需",
+    backend_role_advisory: "建议性",
+    backend_role_unspecified: "未指定",
     label_trust_status: "可信状态",
     label_trust_policy: "可信策略",
     label_trust_source: "可信来源",
@@ -325,6 +366,7 @@ const I18N = {
     status_failed: "失败",
     status_unknown: "未知",
     status_not_applicable: "不适用",
+    status_not_checked: "未检查",
     trust_not_applicable_flow: "Flow app 没有独立容器镜像；TAFFISH 会检查依赖元数据，依赖工具保留各自的容器可信记录。",
     trust_not_applicable_non_container: "此版本没有容器镜像，因此不适用容器 smoke gate。",
     label_package_count: "软件包数",
@@ -398,6 +440,7 @@ const el = {
   metricCommands: document.getElementById("metricCommands"),
   metricRepositories: document.getElementById("metricRepositories"),
   metricFailed: document.getElementById("metricFailed"),
+  metricAdvisoryFailed: document.getElementById("metricAdvisoryFailed"),
   globalSearch: document.getElementById("globalSearch"),
   kindAll: document.getElementById("kindAll"),
   kindTool: document.getElementById("kindTool"),
@@ -782,9 +825,58 @@ function metaSearchText(meta) {
   ].join(" ").toLowerCase();
 }
 
+function parseSmokeBackendResults(rawResults, requiredBackends, advisoryBackends) {
+  const results = asObject(rawResults);
+  const requiredSet = new Set(requiredBackends.map((backend) => backend.toLowerCase()));
+  const advisorySet = new Set(advisoryBackends.map((backend) => backend.toLowerCase()));
+  const backendOrder = new Map();
+  [...requiredBackends, ...advisoryBackends].forEach((backend, index) => {
+    const key = backend.toLowerCase();
+    if (!backendOrder.has(key)) backendOrder.set(key, index);
+  });
+
+  return Object.keys(results)
+    .filter((backend) => isNonEmptyString(backend))
+    .sort((left, right) => {
+      const leftKey = left.trim().toLowerCase();
+      const rightKey = right.trim().toLowerCase();
+      const leftOrder = backendOrder.has(leftKey) ? backendOrder.get(leftKey) : Number.MAX_SAFE_INTEGER;
+      const rightOrder = backendOrder.has(rightKey) ? backendOrder.get(rightKey) : Number.MAX_SAFE_INTEGER;
+      return leftOrder === rightOrder
+        ? leftKey.localeCompare(rightKey)
+        : leftOrder - rightOrder;
+    })
+    .map((backend) => {
+      const result = asObject(results[backend]);
+      const normalizedBackend = backend.trim();
+      const backendKey = normalizedBackend.toLowerCase();
+      const role = requiredSet.has(backendKey)
+        ? "required"
+        : (advisorySet.has(backendKey) ? "advisory" : "unspecified");
+      return {
+        backend: normalizedBackend,
+        role,
+        status: isNonEmptyString(result.status) ? result.status : "",
+        checkedAt: isNonEmptyString(result.checked_at) ? result.checked_at : "",
+        platform: isNonEmptyString(result.platform) ? result.platform : "",
+        runtimeVersion: isNonEmptyString(result.runtime_version) ? result.runtime_version : "",
+        runnerImage: isNonEmptyString(result.runner_image) ? result.runner_image : "",
+        policyGeneration: isNonEmptyString(result.policy_generation) ? result.policy_generation : "",
+        sourceCommit: isNonEmptyString(result.source_commit) ? result.source_commit : "",
+        imageDigest: isNonEmptyString(result.image_digest) ? result.image_digest : "",
+        smokeSha256: isNonEmptyString(result.smoke_sha256) ? result.smoke_sha256 : "",
+        provenance: isNonEmptyString(result.provenance) ? result.provenance : "",
+        failureKind: isNonEmptyString(result.failure_kind) ? result.failure_kind : "",
+        message: isNonEmptyString(result.message) ? result.message : ""
+      };
+    });
+}
+
 function parseSmoke(rawSmoke) {
   const smoke = asObject(rawSmoke);
   if (!Object.keys(smoke).length) return null;
+  const requiredBackends = normalizeStringList(smoke.required_backends);
+  const advisoryBackends = normalizeStringList(smoke.advisory_backends);
   return {
     backend: isNonEmptyString(smoke.backend) ? smoke.backend : "",
     timeout: Number.isFinite(smoke.timeout) ? smoke.timeout : null,
@@ -792,7 +884,16 @@ function parseSmoke(rawSmoke) {
     test: normalizeStringList(smoke.test),
     status: isNonEmptyString(smoke.status) ? smoke.status : "",
     checkedAt: isNonEmptyString(smoke.checked_at) ? smoke.checked_at : "",
-    backendUsed: isNonEmptyString(smoke.backend_used) ? smoke.backend_used : ""
+    backendUsed: isNonEmptyString(smoke.backend_used) ? smoke.backend_used : "",
+    policyGeneration: isNonEmptyString(smoke.policy_generation) ? smoke.policy_generation : "",
+    platform: isNonEmptyString(smoke.platform) ? smoke.platform : "",
+    requiredBackends,
+    advisoryBackends,
+    backendResults: parseSmokeBackendResults(
+      smoke.backend_results,
+      requiredBackends,
+      advisoryBackends
+    )
   };
 }
 
@@ -1368,6 +1469,7 @@ function renderMetrics() {
     el.metricCommands.textContent = "-";
     el.metricRepositories.textContent = "-";
     el.metricFailed.textContent = "-";
+    if (el.metricAdvisoryFailed) el.metricAdvisoryFailed.textContent = "-";
     return;
   }
 
@@ -1377,12 +1479,16 @@ function renderMetrics() {
   const commandCount = Number(counts.commands) || state.packages.filter((pkg) => isNonEmptyString(pkg.commandName)).length;
   const repoCount = state.repositories.length || Number(counts.repositories) || 0;
   const failedCount = Number(counts.failed) || 0;
+  const advisoryFailedCount = Number(counts.advisory_failed) || 0;
 
   el.metricPackages.textContent = formatCount(packageCount);
   el.metricVersions.textContent = formatCount(versionCount);
   el.metricCommands.textContent = formatCount(commandCount);
   el.metricRepositories.textContent = formatCount(repoCount);
   el.metricFailed.textContent = formatCount(failedCount);
+  if (el.metricAdvisoryFailed) {
+    el.metricAdvisoryFailed.textContent = formatCount(advisoryFailedCount);
+  }
 }
 
 function renderPackages() {
@@ -1613,6 +1719,9 @@ function localizedStatusLabel(value) {
   if (normalized === "not_applicable") {
     return t("status_not_applicable");
   }
+  if (["not_checked", "not-checked", "not checked"].includes(normalized)) {
+    return t("status_not_checked");
+  }
   if (!status || normalized === "unknown") {
     return t("status_unknown");
   }
@@ -1638,11 +1747,47 @@ function buildStatusPill(value) {
     pill.classList.add("passed");
   } else if (["failed", "error", "blocked", "invalid"].includes(normalized)) {
     pill.classList.add("failed");
+  } else if (["not_checked", "not-checked", "not checked"].includes(normalized)) {
+    pill.classList.add("pending");
   } else {
     pill.classList.add("neutral");
   }
   pill.textContent = localizedStatusLabel(status);
   return pill;
+}
+
+function formatBackendName(value) {
+  const backend = isNonEmptyString(value) ? value.trim() : "";
+  const knownNames = {
+    docker: "Docker",
+    podman: "Podman",
+    apptainer: "Apptainer"
+  };
+  return knownNames[backend.toLowerCase()] || backend || "-";
+}
+
+function backendRoleLabel(role) {
+  if (role === "required") return t("backend_role_required");
+  if (role === "advisory") return t("backend_role_advisory");
+  return t("backend_role_unspecified");
+}
+
+function renderSmokeBackendEvidence(smoke, target) {
+  for (const result of smoke.backendResults) {
+    const title = `${formatBackendName(result.backend)} · ${backendRoleLabel(result.role)}`;
+    const group = createDetailGroup(
+      title,
+      target,
+      `backend-evidence backend-evidence-${result.role}`
+    );
+    appendKv(t("label_backend_status"), buildStatusPill(result.status), group);
+    appendOptionalKv(t("label_backend_runtime"), result.runtimeVersion, group);
+    appendOptionalKv(t("label_backend_platform"), result.platform, group);
+    appendOptionalKv(t("label_backend_checked_at"), result.checkedAt, group);
+    appendOptionalKv(t("label_backend_runner_image"), result.runnerImage, group);
+    appendOptionalKv(t("label_backend_failure_kind"), result.failureKind, group);
+    appendOptionalKv(t("label_backend_message"), result.message, group);
+  }
 }
 
 function buildPlatformDigestNode(platformDigests) {
@@ -2008,12 +2153,40 @@ function renderDetail() {
     }
     if (version.smoke) {
       const smoke = createDetailGroup(t("group_smoke"), validation);
-      appendKv(t("label_smoke_status"), buildStatusPill(version.smoke.status), smoke);
+      const hasBackendEvidence = version.smoke.backendResults.length > 0;
       appendKv(
-        t("label_smoke_backend"),
-        version.smoke.backendUsed || version.smoke.backend || "-",
+        t(hasBackendEvidence ? "label_required_gate_status" : "label_smoke_status"),
+        buildStatusPill(version.smoke.status),
         smoke
       );
+      if (hasBackendEvidence) {
+        appendOptionalKv(
+          t("label_smoke_policy_generation"),
+          version.smoke.policyGeneration,
+          smoke
+        );
+        appendOptionalKv(t("label_smoke_platform"), version.smoke.platform, smoke);
+        if (version.smoke.requiredBackends.length) {
+          appendKv(
+            t("label_smoke_required_backends"),
+            buildChipListNode(version.smoke.requiredBackends.map(formatBackendName)),
+            smoke
+          );
+        }
+        if (version.smoke.advisoryBackends.length) {
+          appendKv(
+            t("label_smoke_advisory_backends"),
+            buildChipListNode(version.smoke.advisoryBackends.map(formatBackendName)),
+            smoke
+          );
+        }
+      } else {
+        appendKv(
+          t("label_smoke_backend"),
+          version.smoke.backendUsed || version.smoke.backend || "-",
+          smoke
+        );
+      }
       appendOptionalKv(
         t("label_smoke_timeout"),
         version.smoke.timeout == null ? "" : `${version.smoke.timeout}s`,
@@ -2025,7 +2198,11 @@ function renderDetail() {
       if (version.smoke.test.length) {
         appendKv(t("label_smoke_test"), buildCodeListNode(version.smoke.test), smoke);
       }
-      appendOptionalKv(t("label_smoke_checked_at"), version.smoke.checkedAt, smoke);
+      if (hasBackendEvidence) {
+        renderSmokeBackendEvidence(version.smoke, validation);
+      } else {
+        appendOptionalKv(t("label_smoke_checked_at"), version.smoke.checkedAt, smoke);
+      }
     }
   }
 

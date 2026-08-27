@@ -98,9 +98,15 @@
             <p class="stat-label" data-i18n="metric_repositories">Repositories</p>
             <p class="stat-value" id="metricRepositories">-</p>
           </article>
-          <article class="stat-item stat-warning">
-            <p class="stat-label" data-i18n="metric_failed_gates">Failed Gates</p>
+          <article class="stat-item stat-danger" aria-describedby="metricFailedNote" data-i18n-title="metric_failed_gates_help" title="Required gate failures block a new version from entering the index.">
+            <p class="stat-label" data-i18n="metric_failed_gates">Required Gate Failures</p>
             <p class="stat-value" id="metricFailed">-</p>
+            <p class="stat-note" id="metricFailedNote" data-i18n="metric_failed_gates_note">Blocks acceptance</p>
+          </article>
+          <article class="stat-item stat-advisory" aria-describedby="metricAdvisoryFailedNote" data-i18n-title="metric_advisory_failed_help" title="Advisory backend failures are reported but do not block an otherwise accepted version.">
+            <p class="stat-label" data-i18n="metric_advisory_failed">Advisory Backend Failures</p>
+            <p class="stat-value" id="metricAdvisoryFailed">-</p>
+            <p class="stat-note" id="metricAdvisoryFailedNote" data-i18n="metric_advisory_failed_note">Non-blocking signal</p>
           </article>
         </div>
       </section>

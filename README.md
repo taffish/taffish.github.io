@@ -8,12 +8,13 @@ Static web registry for `taffish`, backed by `taffish-index`.
 - Package search and filtering (`tool` / `flow`, dependencies only, container only)
 - Package sorting (`name` / recent accepted release time)
 - Package detail pane with versions, app meta descriptions, upstream source metadata, dependencies, platform constraints, container digest/platform metadata, platform digests, smoke/trust metadata, and install commands
+- Multi-backend smoke evidence for Docker, Podman, and Apptainer, including required/advisory policy roles, runtime versions, validation platforms, runner images, timestamps, and failure details when available
 - One-click copy for install commands, including full dependency-aware install chain
 - Curated [TAFFISH Flow Portal](https://taffish.github.io/flows/) for official
   flow families, route pages, example reports, and links back into the Hub
   registry
 - Warnings panel (from index build warnings)
-- Trust-gate failure count and direct link to the latest index build report
+- Separate required-gate and advisory-backend failure counts, plus a direct link to the latest index build report
 - Sync failure panel with explicit retry, last successful sync time, CDN
   fallback, and browser-cache fallback for transient GitHub/raw rate limits
 - Shareable URL state (`lang`, query, filters, selected package/version)
