@@ -14,7 +14,9 @@ Static web registry for `taffish`, backed by `taffish-index`.
   flow families, route pages, example reports, and links back into the Hub
   registry
 - Warnings panel (from index build warnings)
-- Separate required-gate and advisory-backend failure counts, plus a direct link to the latest index build report
+- Separate required-gate and current advisory-backend failure counts, with the
+  historical count and compatibility total kept in the advisory card when the
+  Index provides split counts, plus a direct link to the latest index build report
 - Sync failure panel with explicit retry, last successful sync time, CDN
   fallback, and browser-cache fallback for transient GitHub/raw rate limits
 - Shareable URL state (`lang`, query, filters, selected package/version)

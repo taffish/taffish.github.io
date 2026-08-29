@@ -29,10 +29,14 @@ const I18N = {
     metric_repositories: "Repositories",
     metric_failed_gates: "Required Gate Failures",
     metric_advisory_failed: "Advisory Backend Failures",
+    metric_advisory_failed_current: "Current Advisory Failures",
     metric_failed_gates_help: "Required gate failures block a new version from entering the index.",
     metric_advisory_failed_help: "Advisory backend failures are reported but do not block an otherwise accepted version.",
+    metric_advisory_failed_current_help: "Current or unresolved advisory backend failures are non-blocking; superseded release failures remain in the historical count.",
     metric_failed_gates_note: "Blocks acceptance",
     metric_advisory_failed_note: "Non-blocking signal",
+    metric_advisory_failed_historical: "Historical",
+    metric_advisory_failed_total: "Total",
     search: "Search package, command, repository",
     kind_all: "All",
     kind_tool: "Tool",
@@ -215,10 +219,14 @@ const I18N = {
     metric_repositories: "仓库数",
     metric_failed_gates: "必需 Gate 失败",
     metric_advisory_failed: "建议性后端失败",
+    metric_advisory_failed_current: "当前建议性后端失败",
     metric_failed_gates_help: "必需 Gate 失败会阻止新版本进入索引。",
     metric_advisory_failed_help: "建议性后端失败会被报告，但不会阻止其他必需 Gate 已通过的版本进入索引。",
+    metric_advisory_failed_current_help: "当前或尚未解决的建议性后端失败属于非阻断信号；已被后继版本取代的失败仍保留在历史计数中。",
     metric_failed_gates_note: "阻止版本收录",
     metric_advisory_failed_note: "非阻断信号",
+    metric_advisory_failed_historical: "历史",
+    metric_advisory_failed_total: "总计",
     search: "搜索包名、命令名或仓库",
     kind_all: "全部",
     kind_tool: "工具",
@@ -440,7 +448,10 @@ const el = {
   metricCommands: document.getElementById("metricCommands"),
   metricRepositories: document.getElementById("metricRepositories"),
   metricFailed: document.getElementById("metricFailed"),
+  metricAdvisoryFailedCard: document.getElementById("metricAdvisoryFailedCard"),
+  metricAdvisoryFailedLabel: document.getElementById("metricAdvisoryFailedLabel"),
   metricAdvisoryFailed: document.getElementById("metricAdvisoryFailed"),
+  metricAdvisoryFailedNote: document.getElementById("metricAdvisoryFailedNote"),
   globalSearch: document.getElementById("globalSearch"),
   kindAll: document.getElementById("kindAll"),
   kindTool: document.getElementById("kindTool"),
@@ -1333,6 +1344,38 @@ function formatCount(value) {
   return new Intl.NumberFormat(localeTag).format(value);
 }
 
+function parseIndexCount(value) {
+  if (typeof value === "number") {
+    return Number.isSafeInteger(value) && value >= 0 ? value : null;
+  }
+  if (typeof value === "string" && /^\d+$/.test(value.trim())) {
+    const parsed = Number(value.trim());
+    return Number.isSafeInteger(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function normalizeAdvisoryFailureCounts(rawCounts) {
+  const counts = rawCounts && typeof rawCounts === "object" && !Array.isArray(rawCounts)
+    ? rawCounts
+    : {};
+  const total = parseIndexCount(counts.advisory_failed);
+  const latest = parseIndexCount(counts.latest_advisory_failed);
+  const historical = parseIndexCount(counts.historical_advisory_failed);
+  const hasSplit = total !== null
+    && latest !== null
+    && historical !== null
+    && latest + historical === total;
+  const compatibilityTotal = total === null ? 0 : total;
+
+  return {
+    current: hasSplit ? latest : compatibilityTotal,
+    historical: hasSplit ? historical : null,
+    total: compatibilityTotal,
+    hasSplit
+  };
+}
+
 function createCell(text, className = "") {
   const div = document.createElement("div");
   div.className = className;
@@ -1470,6 +1513,9 @@ function renderMetrics() {
     el.metricRepositories.textContent = "-";
     el.metricFailed.textContent = "-";
     if (el.metricAdvisoryFailed) el.metricAdvisoryFailed.textContent = "-";
+    if (el.metricAdvisoryFailedNote) {
+      el.metricAdvisoryFailedNote.textContent = t("metric_advisory_failed_note");
+    }
     return;
   }
 
@@ -1479,15 +1525,32 @@ function renderMetrics() {
   const commandCount = Number(counts.commands) || state.packages.filter((pkg) => isNonEmptyString(pkg.commandName)).length;
   const repoCount = state.repositories.length || Number(counts.repositories) || 0;
   const failedCount = Number(counts.failed) || 0;
-  const advisoryFailedCount = Number(counts.advisory_failed) || 0;
+  const advisoryFailureCounts = normalizeAdvisoryFailureCounts(counts);
+  const advisoryLabelKey = advisoryFailureCounts.hasSplit
+    ? "metric_advisory_failed_current"
+    : "metric_advisory_failed";
+  const advisoryHelpKey = advisoryFailureCounts.hasSplit
+    ? "metric_advisory_failed_current_help"
+    : "metric_advisory_failed_help";
 
   el.metricPackages.textContent = formatCount(packageCount);
   el.metricVersions.textContent = formatCount(versionCount);
   el.metricCommands.textContent = formatCount(commandCount);
   el.metricRepositories.textContent = formatCount(repoCount);
   el.metricFailed.textContent = formatCount(failedCount);
+  if (el.metricAdvisoryFailedLabel) {
+    el.metricAdvisoryFailedLabel.textContent = t(advisoryLabelKey);
+  }
+  if (el.metricAdvisoryFailedCard) {
+    el.metricAdvisoryFailedCard.setAttribute("title", t(advisoryHelpKey));
+  }
   if (el.metricAdvisoryFailed) {
-    el.metricAdvisoryFailed.textContent = formatCount(advisoryFailedCount);
+    el.metricAdvisoryFailed.textContent = formatCount(advisoryFailureCounts.current);
+  }
+  if (el.metricAdvisoryFailedNote) {
+    el.metricAdvisoryFailedNote.textContent = advisoryFailureCounts.hasSplit
+      ? `${t("metric_advisory_failed_note")} · ${t("metric_advisory_failed_historical")} ${formatCount(advisoryFailureCounts.historical)} · ${t("metric_advisory_failed_total")} ${formatCount(advisoryFailureCounts.total)}`
+      : t("metric_advisory_failed_note");
   }
 }
 
